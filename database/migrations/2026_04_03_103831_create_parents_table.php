@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('parents', function (Blueprint $table) {
             $table->id('id_parents');
+            $table->foreignId('id_user')->constrained('users', 'id')->onDelete('cascade');
             $table->string('father_name')->nullable();
             $table->string('mother_name')->nullable();
             $table->string('father_phone_num')->nullable();

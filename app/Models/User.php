@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -37,5 +38,28 @@ class User extends Authenticatable
     public function teacherDetail(): HasOne
     {
         return $this->hasOne(TeacherDetail::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get all registrations made by this user.
+     */
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(Registration::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get all student records linked through registrations.
+     */
+    public function students(): HasMany
+    {
+        return $this->hasManyThrough(
+            Student::class,
+            Registration::class,
+            'id_user',
+            'id_registration',
+            'id',
+            'id_registration'
+        );
     }
 }

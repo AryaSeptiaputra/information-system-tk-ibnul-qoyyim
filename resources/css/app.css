@@ -1511,3 +1511,610 @@ body {
         padding: 60px 5%;
     }
 }
+
+/* ===== REGISTRATION (DASHBOARD / MULTI-STEP) ===== */
+.registration-container {
+    padding: 24px 0;
+}
+
+.registration-wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.12);
+    padding: 32px;
+    border: 2px solid var(--green-light);
+}
+
+.registration-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 22px;
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+}
+
+.registration-wrapper .form-step {
+    animation: fadeInReg 0.25s ease-in-out;
+}
+
+@keyframes fadeInReg {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.registration-wrapper .step-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--green-light);
+}
+
+.registration-wrapper .form-group {
+    margin-bottom: 18px;
+}
+
+.registration-wrapper .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+
+.registration-wrapper .required {
+    color: var(--orange);
+}
+
+.registration-wrapper .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid rgba(45, 52, 54, 0.18);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--dark);
+    background: var(--white);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+.registration-wrapper .form-input:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.18);
+}
+
+.registration-wrapper .form-input.input-error {
+    border-color: var(--orange);
+    background-color: rgba(255, 107, 53, 0.06);
+}
+
+.registration-wrapper .form-input.input-error:focus {
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.18);
+}
+
+.registration-wrapper .form-textarea {
+    resize: vertical;
+    min-height: 84px;
+    font-family: inherit;
+}
+
+.registration-wrapper .form-error {
+    display: block;
+    color: var(--orange);
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 700;
+}
+
+.registration-wrapper .form-info-box {
+    background: var(--light);
+    border-left: 4px solid var(--green);
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 18px;
+    color: var(--gray);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.registration-wrapper .form-info-box svg {
+    color: var(--green-dark);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Progress bar */
+.registration-wrapper .progress-bar-wrapper {
+    margin-bottom: 34px;
+}
+
+.registration-wrapper .progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.registration-wrapper .progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    position: relative;
+}
+
+.registration-wrapper .step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(99, 110, 114, 0.14);
+    color: rgba(45, 52, 54, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 16px;
+    margin-bottom: 8px;
+    transition: all 0.25s ease;
+}
+
+.registration-wrapper .progress-step.active .step-number {
+    background: var(--green);
+    color: white;
+    box-shadow: 0 6px 16px rgba(46, 204, 113, 0.35);
+}
+
+.registration-wrapper .progress-step.completed .step-number {
+    background: var(--green-dark);
+    color: white;
+}
+
+.registration-wrapper .step-label {
+    font-size: 12px;
+    color: var(--gray);
+    font-weight: 800;
+    text-align: center;
+    min-width: 70px;
+    transition: all 0.25s ease;
+}
+
+.registration-wrapper .progress-step.active .step-label,
+.registration-wrapper .progress-step.completed .step-label {
+    color: var(--green-dark);
+}
+
+.registration-wrapper .progress-line {
+    width: 60px;
+    height: 2px;
+    background: rgba(99, 110, 114, 0.18);
+    margin: 0 10px;
+    position: relative;
+    bottom: 30px;
+    transition: all 0.25s ease;
+}
+
+.registration-wrapper .progress-line.completed {
+    background: var(--green-dark);
+}
+
+/* Step 2 tabs */
+.registration-wrapper .parent-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    border-bottom: 2px solid var(--green-light);
+}
+
+.registration-wrapper .tab-button {
+    padding: 12px 18px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--gray);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+}
+
+.registration-wrapper .tab-button:hover {
+    color: var(--green-dark);
+}
+
+.registration-wrapper .tab-button.active {
+    color: var(--green-dark);
+    border-bottom-color: var(--green);
+}
+
+.registration-wrapper .tab-content {
+    display: none;
+}
+
+.registration-wrapper .tab-content.active {
+    display: block;
+    animation: fadeInReg 0.2s ease-in-out;
+}
+
+.registration-wrapper .parent-subtitle {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--green-dark);
+    margin-bottom: 18px;
+}
+
+/* Navigation buttons */
+.registration-wrapper .form-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 34px;
+    padding-top: 20px;
+    border-top: 2px solid var(--green-light);
+}
+
+.registration-wrapper .form-navigation .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    font-family: 'Nunito', sans-serif;
+}
+
+.registration-wrapper .form-navigation .btn.btn-primary {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    color: white;
+    box-shadow: 0 10px 24px rgba(46, 204, 113, 0.22);
+}
+
+.registration-wrapper .form-navigation .btn.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(46, 204, 113, 0.3);
+}
+
+.registration-wrapper .form-navigation .btn.btn-secondary {
+    background: var(--green-light);
+    color: var(--green-dark);
+}
+
+.registration-wrapper .form-navigation .btn.btn-secondary:hover {
+    transform: translateY(-1px);
+}
+
+.registration-wrapper .form-navigation .btn.btn-success {
+    background: var(--green);
+    color: white;
+    flex: 1;
+    box-shadow: 0 10px 24px rgba(46, 204, 113, 0.22);
+}
+
+.registration-wrapper .form-navigation .btn.btn-success:hover {
+    transform: translateY(-2px);
+    background: var(--green-dark);
+    box-shadow: 0 14px 30px rgba(46, 204, 113, 0.3);
+}
+
+.registration-wrapper .form-navigation .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Step 3 review */
+.registration-wrapper .review-section {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(99, 110, 114, 0.18);
+}
+
+.registration-wrapper .review-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 18px;
+}
+
+.registration-wrapper .review-subtitle {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 14px;
+}
+
+.registration-wrapper .review-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.registration-wrapper .review-item {
+    background: var(--light);
+    padding: 12px 14px;
+    border-radius: 12px;
+    border-left: 4px solid var(--green);
+}
+
+.registration-wrapper .review-label {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.registration-wrapper .review-value {
+    font-size: 14px;
+    color: var(--dark);
+    word-break: break-word;
+    font-weight: 800;
+}
+
+.registration-wrapper .review-confirmation {
+    background: var(--green-light);
+    border: 2px solid rgba(46, 204, 113, 0.25);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 18px;
+    color: var(--green-dark);
+}
+
+.registration-wrapper .review-confirmation svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.registration-wrapper .review-confirmation p {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.registration-wrapper .review-confirmation p:last-child {
+    margin-bottom: 0;
+    font-size: 13px;
+    color: var(--gray);
+    font-weight: 700;
+}
+
+@media (max-width: 900px) {
+    .registration-wrapper {
+        padding: 24px;
+    }
+
+    .registration-title {
+        font-size: 20px;
+        margin-bottom: 18px;
+    }
+
+    .registration-wrapper .step-title {
+        font-size: 18px;
+        margin-bottom: 18px;
+    }
+
+    .registration-wrapper .form-input {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 600px) {
+    .registration-wrapper {
+        padding: 18px;
+        border-radius: 10px;
+    }
+
+    .registration-title {
+        font-size: 18px;
+    }
+
+    .registration-wrapper .progress-line {
+        width: 40px;
+    }
+
+    .registration-wrapper .step-label {
+        font-size: 10px;
+        min-width: 50px;
+    }
+
+    .registration-wrapper .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .registration-wrapper .form-navigation {
+        flex-direction: column;
+        margin-top: 28px;
+        padding-top: 18px;
+    }
+
+    .registration-wrapper .form-navigation .btn {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .registration-wrapper .review-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== MODAL (DASHBOARD) ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 52, 54, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 9999;
+}
+
+/* Don't let author styles override the semantic `hidden` attribute */
+.modal-overlay[hidden] {
+    display: none !important;
+}
+
+.modal {
+    width: 100%;
+    max-width: 920px;
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--green-light);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    background: var(--light);
+    border-bottom: 2px solid var(--green-light);
+}
+
+.modal-eyebrow {
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--green-dark);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.modal-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    color: var(--dark);
+}
+
+.modal-close {
+    border: 2px solid var(--green-light);
+    background: var(--white);
+    color: var(--dark);
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-weight: 900;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.modal-close:hover {
+    transform: translateY(-1px);
+    background: var(--green-light);
+}
+
+.modal-body {
+    padding: 18px 20px;
+}
+
+.modal-footer {
+    padding: 14px 20px 18px 20px;
+    border-top: 2px solid var(--green-light);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.registration-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.registration-detail-block {
+    background: var(--white);
+    border-radius: 14px;
+    border: 2px solid var(--green-light);
+    padding: 14px;
+}
+
+.registration-detail-block h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    color: var(--dark);
+    margin-bottom: 10px;
+}
+
+.registration-detail-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(46, 204, 113, 0.25);
+}
+
+.registration-detail-row:last-child {
+    border-bottom: none;
+}
+
+.registration-detail-row span {
+    color: var(--gray);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.registration-detail-row strong {
+    color: var(--dark);
+    font-weight: 900;
+    font-size: 13px;
+    text-align: right;
+}
+
+.registration-detail-divider {
+    height: 2px;
+    background: var(--green-light);
+    margin: 16px 0;
+    border-radius: 2px;
+}
+
+.registration-detail-alert {
+    margin-top: 14px;
+    background: rgba(255, 107, 53, 0.08);
+    border: 2px solid rgba(255, 107, 53, 0.22);
+    border-radius: 14px;
+    padding: 12px 14px;
+    color: var(--dark);
+    font-weight: 800;
+}
+
+@media (max-width: 900px) {
+    .registration-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-title {
+        font-size: 18px;
+    }
+}

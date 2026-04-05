@@ -16,11 +16,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Handle guest user registration workflow
-        if ($user->role === 'guest') {
-            return $this->guestDashboard($user);
-        }
-
         $data = [
             'user' => $user,
             'role' => $user->role,
@@ -29,55 +24,44 @@ class DashboardController extends Controller
             'activities' => $this->getActivities($user),
         ];
 
-        return view('dashboard.index', $data);
-    }
+        // Prepare guest-specific data if user is guest
+        if ($user->role === 'guest') {
+            $data['currentStep'] = session('current_step', 1);
 
-    /**
-     * Guest user dashboard - shows registration status
-     */
-    private function guestDashboard($user)
-    {
-        // Check if user has approved registration with student
-        $approvedRegistration = Registration::where('id_user', $user->id)
-            ->where('status', 'approved')
-            ->first();
-
-        // Check if registration exists but not approved
-        $pendingRegistration = Registration::where('id_user', $user->id)
-            ->whereIn('status', ['pending', 'rejected'])
-            ->first();
-
-        $data = [
-            'user' => $user,
-            'role' => $user->role,
-            'greeting' => $this->getGreeting($user),
-            'approvedRegistration' => $approvedRegistration,
-            'pendingRegistration' => $pendingRegistration,
-            'studentInfo' => null,
-            'hasChild' => false,
-        ];
-
-        // If approved, get student information
-        if ($approvedRegistration) {
-            $candidateData = $approvedRegistration->candidate_data;
-            // Get or create student from candidate data
-            $student = Student::where('name', $candidateData['name'] ?? '')
-                ->where('birth_date', $candidateData['birth_date'] ?? null)
+            $approvedRegistration = Registration::where('id_user', $user->id)
+                ->whereIn('status', ['approved', 'approved_awaiting_payment', 'pending_due', 'active'])
+                ->latest('id_registration')
                 ->first();
 
-            if ($student) {
-                $data['studentInfo'] = [
-                    'name' => $student->name,
-                    'birth_date' => $student->birth_date,
-                    'gender' => $student->gender,
-                    'group' => $approvedRegistration->group,
-                    'status' => $student->status,
-                ];
-                $data['hasChild'] = true;
+            $pendingRegistration = Registration::where('id_user', $user->id)
+                ->whereIn('status', ['pending', 'rejected'])
+                ->latest('id_registration')
+                ->first();
+
+            $data['approvedRegistration'] = $approvedRegistration;
+            $data['pendingRegistration'] = $pendingRegistration;
+            $data['studentInfo'] = null;
+            $data['hasChild'] = false;
+
+            // If approved, get student information
+            if ($approvedRegistration) {
+                $student = Student::where('id_registration', $approvedRegistration->id_registration)->first();
+
+                if ($student) {
+                    $data['studentInfo'] = [
+                        'id_student' => $student->id_student,
+                        'name' => $student->name,
+                        'birth_date' => $student->birth_date,
+                        'gender' => $student->gender,
+                        'group' => $approvedRegistration->group,
+                        'status' => $student->status,
+                    ];
+                    $data['hasChild'] = true;
+                }
             }
         }
 
-        return view('dashboard.guest', $data);
+        return view('dashboard.index', $data);
     }
 
     /**

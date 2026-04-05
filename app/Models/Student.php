@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['id_parents', 'name', 'birth_place', 'birth_date', 'gender', 'group', 'status'])]
+#[Fillable(['id_parents', 'id_registration', 'name', 'birth_place', 'birth_date', 'gender', 'group', 'status', 'paid_late'])]
 class Student extends Model
 {
     use HasFactory;
@@ -22,12 +22,18 @@ class Student extends Model
     {
         return [
             'birth_date' => 'date',
+            'paid_late' => 'boolean',
         ];
     }
 
     public function parent(): BelongsTo
     {
         return $this->belongsTo(ParentGuardian::class, 'id_parents', 'id_parents');
+    }
+
+    public function registration(): BelongsTo
+    {
+        return $this->belongsTo(Registration::class, 'id_registration', 'id_registration');
     }
 
     public function classes(): BelongsToMany
@@ -42,6 +48,46 @@ class Student extends Model
 
     public function payments(): HasMany
     {
-        return $this->hasMany(Payment::class, 'id_student', 'id_student');
+        return $this->hasMany(StudentPayment::class, 'id_student', 'id_student');
+    }
+
+    // Scopes for registration payment workflow
+    public function scopePendingPayment($query)
+    {
+        return $query->where('status', 'pending_payment');
+    }
+
+    public function scopeAktif($query)
+    {
+        return $query->where('status', 'aktif');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeNonAktif($query)
+    {
+        return $query->where('status', 'non-aktif');
+    }
+
+    // Helper Methods
+    public function markAsAktif(): void
+    {
+        $this->status = 'aktif';
+        $this->save();
+    }
+
+    public function markAsRejected(): void
+    {
+        $this->status = 'rejected';
+        $this->save();
+    }
+
+    public function markAsPaidLate(): void
+    {
+        $this->paid_late = true;
+        $this->save();
     }
 }

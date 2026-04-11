@@ -170,7 +170,6 @@ class RegistrationController extends Controller
 
         return view('registration.show', [
             'registration' => $registration,
-            'deadlineStatus' => $registration->getDeadlineStatus(),
         ]);
     }
 }

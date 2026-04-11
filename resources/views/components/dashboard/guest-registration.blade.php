@@ -169,9 +169,6 @@
             </p>
             <div class="status-card-action">
                 <button type="button" class="btn-small secondary" data-modal-open="registration-detail">📋 Lihat Detail</button>
-                @if(($studentInfo['id_student'] ?? null))
-                    <a href="{{ route('payment.create', $studentInfo['id_student']) }}" class="btn-small primary">💳 Bayar Pendaftaran</a>
-                @endif
             </div>
         </div>
     </div>

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'phone_num', 'role', 'password'])]
+#[Fillable(['name', 'email', 'phone_num', 'role', 'status', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -38,6 +38,14 @@ class User extends Authenticatable
     public function teacherDetail(): HasOne
     {
         return $this->hasOne(TeacherDetail::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the parent/guardian details for this user (if the user is a guest/parent).
+     */
+    public function parentGuardian(): HasOne
+    {
+        return $this->hasOne(ParentGuardian::class, 'id_user', 'id');
     }
 
     /**

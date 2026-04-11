@@ -10,13 +10,25 @@
         @php
             $candidate = $registration->candidate_data ?? [];
             $parents = $registration->parents_data ?? [];
+
+            $candidateBirthDateRaw = $candidate['birth_date'] ?? null;
+            $candidateBirthDateLabel = '-';
+            if ($candidateBirthDateRaw) {
+                if (is_string($candidateBirthDateRaw)) {
+                    $candidateBirthDateLabel = trim(explode(' ', $candidateBirthDateRaw)[0]);
+                } elseif (is_object($candidateBirthDateRaw) && method_exists($candidateBirthDateRaw, 'format')) {
+                    $candidateBirthDateLabel = $candidateBirthDateRaw->format('Y-m-d');
+                } else {
+                    $candidateBirthDateLabel = (string)$candidateBirthDateRaw;
+                }
+            }
         @endphp
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div>
                 <h3>Data Calon Siswa</h3>
                 <div>Nama: {{ $candidate['name'] ?? '-' }}</div>
-                <div>TTL: {{ $candidate['birth_place'] ?? '-' }}, {{ $candidate['birth_date'] ?? '-' }}</div>
+                <div>TTL: {{ $candidate['birth_place'] ?? '-' }}, {{ $candidateBirthDateLabel }}</div>
                 <div>Gender: {{ $candidate['gender'] ?? '-' }}</div>
                 <div>Kelompok: {{ $registration->group ?? '-' }}</div>
             </div>
@@ -28,11 +40,6 @@
         </div>
 
         <hr style="margin: 20px 0;" />
-
-        <h3>Deadline Pembayaran</h3>
-        <div>Payment deadline: {{ $registration->payment_deadline?->format('Y-m-d') ?? '-' }}</div>
-        <div>Grace period until: {{ $registration->grace_period_until?->format('Y-m-d') ?? '-' }}</div>
-        <div>Status deadline: {{ $deadlineStatus['status'] ?? '-' }}</div>
 
         @if(($registration->reject_reason ?? null))
             <div style="margin-top: 16px; color: #b91c1c; font-weight: 600;">Alasan ditolak: {{ $registration->reject_reason }}</div>

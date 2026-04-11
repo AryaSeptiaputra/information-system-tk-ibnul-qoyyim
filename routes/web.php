@@ -3,16 +3,34 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationController;
-use App\Http\Controllers\PaymentController;
+use App\Models\Facility;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
-    return view('landing.index');
+    $facilities = null;
+    if (Schema::hasTable('facilities')) {
+        $facilities = Facility::query()
+            ->where('is_active', true)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    return view('landing.index', [
+        'facilities' => $facilities,
+    ]);
 })->name('landing.index');
 
 // Authentication & Dashboard Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Guest pages (detail pages for dashboard sections)
+    Route::get('/dashboard/info', [DashboardController::class, 'guestInfo'])->name('dashboard.info');
+    Route::get('/dashboard/bills', [DashboardController::class, 'guestBills'])->name('dashboard.bills');
+    Route::post('/dashboard/bills/{studentPayment}/pay', [DashboardController::class, 'guestBillsPay'])->name('dashboard.bills.pay');
+    Route::post('/dashboard/bills/{studentPayment}/installments/{installment}/pay', [DashboardController::class, 'guestBillsInstallmentPay'])->name('dashboard.bills.installments.pay');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -26,13 +44,7 @@ Route::middleware('auth')->prefix('registration')->group(function () {
     Route::get('/{registration}', [RegistrationController::class, 'show'])->name('registration.show');
 });
 
-// Payment Routes (Protected with auth middleware)
-Route::middleware('auth')->prefix('payment')->group(function () {
-    Route::get('/student/{student}', [PaymentController::class, 'create'])->name('payment.create');
-    Route::post('/', [PaymentController::class, 'store'])->name('payment.store');
-    Route::get('/success/{payment}', [PaymentController::class, 'success'])->name('payment.success');
-    Route::get('/failed/{payment}', [PaymentController::class, 'failed'])->name('payment.failed');
-    Route::get('/invoice/{payment}', [PaymentController::class, 'invoice'])->name('payment.invoice');
-});
+// Admin Routes
+require __DIR__.'/admin.php';
 
 require __DIR__.'/auth.php';

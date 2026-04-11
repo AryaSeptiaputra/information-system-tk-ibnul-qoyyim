@@ -2,6 +2,18 @@
     /** @var \App\Models\Registration|null $registration */
     $candidate = $registration?->candidate_data ?? [];
     $parents = $registration?->parents_data ?? [];
+
+    $candidateBirthDateRaw = $candidate['birth_date'] ?? null;
+    $candidateBirthDateLabel = '-';
+    if ($candidateBirthDateRaw) {
+        if (is_string($candidateBirthDateRaw)) {
+            $candidateBirthDateLabel = trim(explode(' ', $candidateBirthDateRaw)[0]);
+        } elseif (is_object($candidateBirthDateRaw) && method_exists($candidateBirthDateRaw, 'format')) {
+            $candidateBirthDateLabel = $candidateBirthDateRaw->format('Y-m-d');
+        } else {
+            $candidateBirthDateLabel = (string)$candidateBirthDateRaw;
+        }
+    }
 @endphp
 
 <div id="registration-detail-modal" class="modal-overlay" hidden aria-hidden="true">
@@ -25,9 +37,11 @@
                     <div class="registration-detail-block">
                         <h3>Data Calon Siswa</h3>
                         <div class="registration-detail-row"><span>Nama</span><strong>{{ $candidate['name'] ?? '-' }}</strong></div>
-                        <div class="registration-detail-row"><span>TTL</span><strong>{{ $candidate['birth_place'] ?? '-' }}, {{ $candidate['birth_date'] ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>TTL</span><strong>{{ $candidate['birth_place'] ?? '-' }}, {{ $candidateBirthDateLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Gender</span><strong>
-                            @php($gender = $candidate['gender'] ?? null)
+                            @php
+                                $gender = $candidate['gender'] ?? null;
+                            @endphp
                             {{ $gender === 'pria' ? 'Laki-laki' : ($gender === 'perempuan' ? 'Perempuan' : '-') }}
                         </strong></div>
                         <div class="registration-detail-row"><span>Kelompok</span><strong>{{ $registration->group ?? '-' }}</strong></div>
@@ -54,7 +68,7 @@
                     <div class="registration-detail-block">
                         <h3>Data Calon Siswa</h3>
                         <div class="registration-detail-row"><span>Nama</span><strong>{{ $candidate['name'] ?? '-' }}</strong></div>
-                        <div class="registration-detail-row"><span>TTL</span><strong>{{ $candidate['birth_place'] ?? '-' }}, {{ $candidate['birth_date'] ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>TTL</span><strong>{{ $candidate['birth_place'] ?? '-' }}, {{ $candidateBirthDateLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Gender</span><strong>{{ $candidate['gender'] ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Kelompok</span><strong>{{ $registration->group ?? '-' }}</strong></div>
                     </div>
@@ -74,15 +88,6 @@
                         <div class="registration-detail-row"><span>Pekerjaan</span><strong>{{ $parents['mother_job'] ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Alamat</span><strong>{{ $parents['mother_address'] ?? '-' }}</strong></div>
                     </div>
-                </div>
-
-                <div class="registration-detail-divider"></div>
-
-                <div class="registration-detail-block">
-                    <h3>Deadline Pembayaran</h3>
-                    <div class="registration-detail-row"><span>Payment deadline</span><strong>{{ $registration?->payment_deadline?->format('Y-m-d') ?? '-' }}</strong></div>
-                    <div class="registration-detail-row"><span>Grace period until</span><strong>{{ $registration?->grace_period_until?->format('Y-m-d') ?? '-' }}</strong></div>
-                    <div class="registration-detail-row"><span>Status deadline</span><strong>{{ $deadlineStatus['status'] ?? '-' }}</strong></div>
                 </div>
             @endif
 

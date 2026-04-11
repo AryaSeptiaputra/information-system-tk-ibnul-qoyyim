@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['id_parents', 'id_registration', 'name', 'birth_place', 'birth_date', 'gender', 'group', 'status', 'paid_late'])]
+#[Fillable(['id_parents', 'id_registration', 'name', 'birth_place', 'birth_date', 'gender', 'group', 'status'])]
 class Student extends Model
 {
     use HasFactory;
@@ -22,7 +22,6 @@ class Student extends Model
     {
         return [
             'birth_date' => 'date',
-            'paid_late' => 'boolean',
         ];
     }
 
@@ -44,11 +43,6 @@ class Student extends Model
     public function attendance(): HasMany
     {
         return $this->hasMany(StudentAttendance::class, 'id_student', 'id_student');
-    }
-
-    public function payments(): HasMany
-    {
-        return $this->hasMany(StudentPayment::class, 'id_student', 'id_student');
     }
 
     // Scopes for registration payment workflow
@@ -85,9 +79,5 @@ class Student extends Model
         $this->save();
     }
 
-    public function markAsPaidLate(): void
-    {
-        $this->paid_late = true;
-        $this->save();
-    }
+    
 }

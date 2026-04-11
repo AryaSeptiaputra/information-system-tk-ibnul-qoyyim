@@ -17,96 +17,150 @@
                     <span class="profil-emoji">🏫</span>
                 </div>
                 <div class="profil-visi-box">
-                    <div class="visi-title">✦ Motto Sekolah</div>
-                    "Cerdas, Berkarakter, Qurani"
-                </div>
-            </div>
-            
-            <div class="profil-content reveal">
-                <h3>TK Ibnul Qoyyim Sulawesi</h3>
-                <p>Didirikan sejak tahun 2012, TK Ibnul Qoyyim Sulawesi hadir sebagai lembaga pendidikan anak usia dini berbasis Islam yang memadukan kurikulum nasional dengan nilai-nilai Islami. Berlokasi di Sulawesi, kami berkomitmen memberikan pendidikan terbaik untuk generasi penerus bangsa.</p>
-                
-                <div class="profil-info-grid">
-                    <div class="profil-info-item">
-                        <div class="label">📍 Lokasi</div>
-                        <div class="value">Sulawesi, Indonesia</div>
-                    </div>
-                    <div class="profil-info-item">
-                        <div class="label">📅 Berdiri</div>
-                        <div class="value">Tahun 2012</div>
-                    </div>
-                    <div class="profil-info-item">
-                        <div class="label">🏛️ Akreditasi</div>
-                        <div class="value">A (Unggul)</div>
-                    </div>
-                    <div class="profil-info-item">
-                        <div class="label">🕐 Jam Belajar</div>
-                        <div class="value">07.30 – 12.00 WIT</div>
-                    </div>
-                    <div class="profil-info-item">
-                        <div class="label">👨‍👩‍👧 Kelompok</div>
-                        <div class="value">A (4–5 th) & B (5–6 th)</div>
-                    </div>
-                    <div class="profil-info-item">
-                        <div class="label">📞 Kontak</div>
-                        <div class="value">0812-3456-7890</div>
-                    </div>
-                </div>
-                
-                <div class="visi-misi-tabs">
-                    <div class="tab-buttons">
-                        <button type="button" class="tab-btn active" data-tab="visi">🌟 Visi</button>
-                        <button type="button" class="tab-btn" data-tab="misi">🎯 Misi</button>
-                        <button type="button" class="tab-btn" data-tab="nilai">💎 Nilai</button>
-                    </div>
-                    
-                    <div id="visi" class="tab-content active">
-                        Menjadi lembaga pendidikan anak usia dini Islam terbaik yang melahirkan generasi Qurani, cerdas, berakhlak mulia, dan siap menghadapi tantangan zaman dengan keimanan yang kuat.
-                    </div>
-                    
-                    <div id="misi" class="tab-content">
-                        <ul>
-                            <li>Menyelenggarakan pembelajaran Islami yang menyenangkan dan bermakna</li>
-                            <li>Menanamkan nilai-nilai Al-Quran dan Sunnah sejak dini</li>
-                            <li>Mengembangkan potensi anak secara holistik (kognitif, motorik, sosial, spiritual)</li>
-                            <li>Membangun kerjasama yang erat antara sekolah, orang tua, dan masyarakat</li>
-                            <li>Menyediakan lingkungan belajar yang aman, nyaman, dan islami</li>
-                        </ul>
-                    </div>
-                    
-                    <div id="nilai" class="tab-content">
-                        <ul>
-                            <li>🕌 <strong>Taqwa</strong> — Menanamkan ketakwaan kepada Allah SWT</li>
-                            <li>🧠 <strong>Ilmu</strong> — Memupuk kecintaan pada ilmu pengetahuan</li>
-                            <li>💪 <strong>Amanah</strong> — Membentuk karakter jujur dan bertanggung jawab</li>
-                            <li>🤝 <strong>Ukhuwah</strong> — Menumbuhkan jiwa persaudaraan dan kerjasama</li>
-                            <li>✨ <strong>Kreativitas</strong> — Mengembangkan bakat dan kreativitas anak</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                    @if(is_null($facilities ?? null))
+                        <div class="sarpras-grid">
+                            <div class="sarpras-card sarpras-featured reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #e8faf0, #c8f0dc);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #2ECC71 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">🏫</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Ruang Kelas Modern</div>
+                                    <div class="sarpras-detail">6 ruang kelas ber-AC, full media interaktif, dan dekorasi edukatif yang colorful. Kapasitas 20 siswa per kelas dengan pencahayaan optimal.</div>
+                                    <span class="sarpras-badge">6 Ruangan</span>
+                                </div>
+                            </div>
+                            <div class="sarpras-card sarpras-featured reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #fff8e1, #ffe0b2);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #FFD93D 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">🕌</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Musholla Al-Ikhlas</div>
+                                    <div class="sarpras-detail">Musholla khusus anak yang nyaman untuk shalat berjamaah, mengaji, dan kegiatan keislaman sehari-hari. Dilengkapi fasilitas wudhu anak.</div>
+                                    <span class="sarpras-badge">Kapasitas 80 Orang</span>
+                                </div>
+                            </div>
+                            <div class="sarpras-card reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #4ECDC4 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">📚</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Perpustakaan</div>
+                                    <div class="sarpras-detail">Koleksi 500+ buku cerita Islami dan edukatif.</div>
+                                    <span class="sarpras-badge">500+ Koleksi</span>
+                                </div>
+                            </div>
+                            <div class="sarpras-card reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #fce4ec, #f8bbd0);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #FF8FAB 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">🎪</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Area Bermain</div>
+                                    <div class="sarpras-detail">Area bermain outdoor & indoor berstandar keamanan anak.</div>
+                                    <span class="sarpras-badge">Indoor & Outdoor</span>
+                                </div>
+                            </div>
+                            <div class="sarpras-card reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #f3e5f5, #e1bee7);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #A78BFA 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">💻</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Lab Komputer</div>
+                                    <div class="sarpras-detail">10 unit komputer khusus anak dengan software edukatif.</div>
+                                    <span class="sarpras-badge">10 Unit</span>
+                                </div>
+                            </div>
+                            <div class="sarpras-card reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #2ECC71 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">🍽️</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Kantin Sehat</div>
+                                    <div class="sarpras-detail">Kantin dengan menu bergizi dan halal, dikelola langsung oleh sekolah.</div>
+                                    <span class="sarpras-badge">Halal Certified</span>
+                                </div>
+                            </div>
+                            <div class="sarpras-card reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #fff3e0, #ffe0b2);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #FF6B35 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">🏥</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">UKS</div>
+                                    <div class="sarpras-detail">Unit Kesehatan Sekolah lengkap dengan tenaga kesehatan terlatih.</div>
+                                    <span class="sarpras-badge">Tenaga Medis</span>
+                                </div>
+                            </div>
+                            <div class="sarpras-card reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #e0f7fa, #b2ebf2);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #4ECDC4 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">🚗</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Antar Jemput</div>
+                                    <div class="sarpras-detail">Layanan antar jemput siswa dengan armada bus sekolah yang aman.</div>
+                                    <span class="sarpras-badge">3 Armada</span>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif(($facilities ?? collect())->count() > 0)
+                        <div class="sarpras-grid">
+                            @foreach($facilities as $idx => $f)
+                                @php
+                                    $qty = (int)($f->quantity ?? 0);
+                                    $cond = $f->condition ?? null;
+                                    $badgeParts = [];
+                                    if ($qty > 0) { $badgeParts[] = 'Jumlah: ' . $qty; }
+                                    if ($cond) { $badgeParts[] = $cond; }
+                                    $badgeText = implode(' • ', $badgeParts);
 
-    <!-- PROGRAM -->
-    <section id="program" class="section section-light">
-        <div class="program-bg"></div>
-        <div class="section-header reveal">
-            <div class="section-tag">🎓 Kurikulum</div>
-            <h2 class="section-title">Program <span class="accent">Unggulan</span></h2>
-            <p class="section-desc">Berbagai program pembelajaran yang dirancang khusus untuk mengoptimalkan tumbuh kembang si kecil.</p>
-        </div>
-        
-        <div class="program-grid">
-            <div class="program-card green reveal">
-                <div class="prog-icon">📖</div>
-                <div class="prog-title">Tahfidz Quran</div>
-                <p class="prog-desc">Program hafalan Al-Quran dengan metode talaqqi yang menyenangkan. Target hafalan Juz 30 untuk kelas B.</p>
-            </div>
-            <div class="program-card blue reveal">
-                <div class="prog-icon">🌍</div>
-                <div class="prog-title">Bahasa Arab & Inggris</div>
-                <p class="prog-desc">Pengenalan bahasa Arab sebagai bahasa Al-Quran dan bahasa Inggris sebagai bahasa internasional sejak dini.</p>
+                                    $imagePath = $f->image_path ?? null;
+                                    $imageUrl = null;
+                                    if ($imagePath) {
+                                        $imageUrl = \Illuminate\Support\Str::startsWith($imagePath, ['http://', 'https://', '//'])
+                                            ? $imagePath
+                                            : asset($imagePath);
+                                    }
+                                @endphp
+
+                                <div class="sarpras-card {{ $idx < 2 ? 'sarpras-featured' : '' }} reveal">
+                                    <div class="sarpras-img" style="background: linear-gradient(135deg, #e8faf0, #c8f0dc);">
+                                        @if($imageUrl)
+                                            <img class="sarpras-photo" src="{{ $imageUrl }}" alt="{{ $f->name ?? 'Fasilitas' }}">
+                                        @else
+                                            <div class="bg-decor" style="background: radial-gradient(circle, #2ECC71 0%, transparent 70%);"></div>
+                                            <span class="emoji-main">🏗️</span>
+                                        @endif
+                                    </div>
+                                    <div class="sarpras-info">
+                                        <div class="sarpras-name">{{ $f->name ?? '-' }}</div>
+                                        <div class="sarpras-detail">{{ $f->description ?? '' }}</div>
+                                        @if($badgeText)
+                                            <span class="sarpras-badge">{{ $badgeText }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="sarpras-grid">
+                            <div class="sarpras-card sarpras-featured reveal">
+                                <div class="sarpras-img" style="background: linear-gradient(135deg, #e8faf0, #c8f0dc);">
+                                    <div class="bg-decor" style="background: radial-gradient(circle, #2ECC71 0%, transparent 70%);"></div>
+                                    <span class="emoji-main">🏗️</span>
+                                </div>
+                                <div class="sarpras-info">
+                                    <div class="sarpras-name">Belum ada data fasilitas</div>
+                                    <div class="sarpras-detail">Silakan tambahkan data Sarpras dari Dashboard agar tampil di halaman ini.</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
             </div>
             <div class="program-card yellow reveal">
                 <div class="prog-icon">🎨</div>
@@ -138,96 +192,78 @@
             <h2 class="section-title">Sarana & <span class="accent">Prasarana</span></h2>
             <p class="section-desc">Fasilitas lengkap dan modern yang mendukung proses belajar mengajar yang optimal dan menyenangkan.</p>
         </div>
-        
+
+        @php
+            $facilities = $facilities ?? collect();
+            $gradients = [
+                'linear-gradient(135deg, #e8faf0, #c8f0dc)',
+                'linear-gradient(135deg, #fff8e1, #ffe0b2)',
+                'linear-gradient(135deg, #e3f2fd, #bbdefb)',
+                'linear-gradient(135deg, #fce4ec, #f8bbd0)',
+                'linear-gradient(135deg, #f3e5f5, #e1bee7)',
+                'linear-gradient(135deg, #e8f5e9, #c8e6c9)',
+                'linear-gradient(135deg, #fff3e0, #ffe0b2)',
+                'linear-gradient(135deg, #e0f7fa, #b2ebf2)',
+            ];
+            $radials = [
+                'radial-gradient(circle, #2ECC71 0%, transparent 70%)',
+                'radial-gradient(circle, #FFD93D 0%, transparent 70%)',
+                'radial-gradient(circle, #4ECDC4 0%, transparent 70%)',
+                'radial-gradient(circle, #FF8FAB 0%, transparent 70%)',
+                'radial-gradient(circle, #A78BFA 0%, transparent 70%)',
+                'radial-gradient(circle, #2ECC71 0%, transparent 70%)',
+                'radial-gradient(circle, #FF6B35 0%, transparent 70%)',
+                'radial-gradient(circle, #4ECDC4 0%, transparent 70%)',
+            ];
+            $fallbackEmojis = ['🏫', '🕌', '📚', '🎪', '💻', '🍽️', '🏥', '🚗'];
+        @endphp
+
         <div class="sarpras-grid">
-            <div class="sarpras-card sarpras-featured reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #e8faf0, #c8f0dc);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #2ECC71 0%, transparent 70%);"></div>
-                    <span class="emoji-main">🏫</span>
+            @forelse($facilities as $facility)
+                @php
+                    $idx = $loop->index % max(count($gradients), 1);
+                    $bgGradient = $gradients[$idx] ?? $gradients[0];
+                    $bgRadial = $radials[$idx] ?? $radials[0];
+                    $emoji = $fallbackEmojis[$idx] ?? '🏫';
+
+                    $rawPath = (string)($facility->image_path ?? '');
+                    $hasImage = trim($rawPath) !== '';
+                    $imageUrl = $hasImage
+                        ? (preg_match('~^https?://~i', $rawPath) ? $rawPath : asset(ltrim($rawPath, '/')))
+                        : null;
+                @endphp
+
+                <div class="sarpras-card {{ $loop->iteration <= 2 ? 'sarpras-featured' : '' }} reveal">
+                    <div class="sarpras-img" style="background: {{ $bgGradient }};">
+                        <div class="bg-decor" style="background: {{ $bgRadial }};"></div>
+
+                        @if($hasImage)
+                            <img class="sarpras-photo" src="{{ $imageUrl }}" alt="{{ $facility->name ?? 'Fasilitas' }}">
+                        @else
+                            <span class="emoji-main">{{ $emoji }}</span>
+                        @endif
+                    </div>
+                    <div class="sarpras-info">
+                        <div class="sarpras-name">{{ $facility->name ?? '-' }}</div>
+                        <div class="sarpras-detail">{{ $facility->description ?? '' }}</div>
+                        <span class="sarpras-badge">
+                            {{ (int)($facility->quantity ?? 0) }} Unit • {{ $facility->condition ?? '-' }}
+                        </span>
+                    </div>
                 </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">Ruang Kelas Modern</div>
-                    <div class="sarpras-detail">6 ruang kelas ber-AC, full media interaktif, dan dekorasi edukatif yang colorful. Kapasitas 20 siswa per kelas dengan pencahayaan optimal.</div>
-                    <span class="sarpras-badge">6 Ruangan</span>
+            @empty
+                <div class="sarpras-card reveal">
+                    <div class="sarpras-img" style="background: linear-gradient(135deg, #e8faf0, #c8f0dc);">
+                        <div class="bg-decor" style="background: radial-gradient(circle, #2ECC71 0%, transparent 70%);"></div>
+                        <span class="emoji-main">🏗️</span>
+                    </div>
+                    <div class="sarpras-info">
+                        <div class="sarpras-name">Belum ada data</div>
+                        <div class="sarpras-detail">Fasilitas akan tampil di sini setelah ditambahkan dari Dashboard.</div>
+                        <span class="sarpras-badge">Sarpras</span>
+                    </div>
                 </div>
-            </div>
-            <div class="sarpras-card sarpras-featured reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #fff8e1, #ffe0b2);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #FFD93D 0%, transparent 70%);"></div>
-                    <span class="emoji-main">🕌</span>
-                </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">Musholla Al-Ikhlas</div>
-                    <div class="sarpras-detail">Musholla khusus anak yang nyaman untuk shalat berjamaah, mengaji, dan kegiatan keislaman sehari-hari. Dilengkapi fasilitas wudhu anak.</div>
-                    <span class="sarpras-badge">Kapasitas 80 Orang</span>
-                </div>
-            </div>
-            <div class="sarpras-card reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #4ECDC4 0%, transparent 70%);"></div>
-                    <span class="emoji-main">📚</span>
-                </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">Perpustakaan</div>
-                    <div class="sarpras-detail">Koleksi 500+ buku cerita Islami dan edukatif.</div>
-                    <span class="sarpras-badge">500+ Koleksi</span>
-                </div>
-            </div>
-            <div class="sarpras-card reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #fce4ec, #f8bbd0);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #FF8FAB 0%, transparent 70%);"></div>
-                    <span class="emoji-main">🎪</span>
-                </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">Area Bermain</div>
-                    <div class="sarpras-detail">Area bermain outdoor & indoor berstandar keamanan anak.</div>
-                    <span class="sarpras-badge">Indoor & Outdoor</span>
-                </div>
-            </div>
-            <div class="sarpras-card reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #f3e5f5, #e1bee7);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #A78BFA 0%, transparent 70%);"></div>
-                    <span class="emoji-main">💻</span>
-                </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">Lab Komputer</div>
-                    <div class="sarpras-detail">10 unit komputer khusus anak dengan software edukatif.</div>
-                    <span class="sarpras-badge">10 Unit</span>
-                </div>
-            </div>
-            <div class="sarpras-card reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #2ECC71 0%, transparent 70%);"></div>
-                    <span class="emoji-main">🍽️</span>
-                </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">Kantin Sehat</div>
-                    <div class="sarpras-detail">Kantin dengan menu bergizi dan halal, dikelola langsung oleh sekolah.</div>
-                    <span class="sarpras-badge">Halal Certified</span>
-                </div>
-            </div>
-            <div class="sarpras-card reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #fff3e0, #ffe0b2);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #FF6B35 0%, transparent 70%);"></div>
-                    <span class="emoji-main">🏥</span>
-                </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">UKS</div>
-                    <div class="sarpras-detail">Unit Kesehatan Sekolah lengkap dengan tenaga kesehatan terlatih.</div>
-                    <span class="sarpras-badge">Tenaga Medis</span>
-                </div>
-            </div>
-            <div class="sarpras-card reveal">
-                <div class="sarpras-img" style="background: linear-gradient(135deg, #e0f7fa, #b2ebf2);">
-                    <div class="bg-decor" style="background: radial-gradient(circle, #4ECDC4 0%, transparent 70%);"></div>
-                    <span class="emoji-main">🚗</span>
-                </div>
-                <div class="sarpras-info">
-                    <div class="sarpras-name">Antar Jemput</div>
-                    <div class="sarpras-detail">Layanan antar jemput siswa dengan armada bus sekolah yang aman.</div>
-                    <span class="sarpras-badge">3 Armada</span>
-                </div>
-            </div>
+            @endforelse
         </div>
     </section>
 

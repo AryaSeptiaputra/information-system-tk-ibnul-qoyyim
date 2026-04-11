@@ -11,17 +11,24 @@ class TeacherDetailSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get teacher user
-        $teacherUser = User::where('role', 'teacher')->first();
+        $teacherUser = User::query()->where('email', 'teacher@example.com')->first();
+        if (! $teacherUser) {
+            $teacherUser = User::query()->where('role', 'teacher')->first();
+        }
 
-        if ($teacherUser) {
-            TeacherDetail::create([
-                'id_user' => $teacherUser->id,
+        if (! $teacherUser) {
+            return;
+        }
+
+        TeacherDetail::query()->updateOrCreate(
+            ['id_user' => $teacherUser->id],
+            [
                 'name' => 'Ibu Samiyah, S.Pd',
                 'education' => 'S1 Pendidikan',
                 'phone_num' => '+62812345680',
                 'email' => 'teacher@example.com',
-            ]);
-        }
+                'status' => 'active',
+            ]
+        );
     }
 }

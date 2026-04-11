@@ -22,7 +22,6 @@
         $showFormByDefault = ($errors->any() || $hasDraft || ((int)$currentStepResolved > 1));
 
         $detailRegistration = $pendingRegistration ?? $approvedRegistration ?? null;
-        $detailDeadlineStatus = $detailRegistration ? $detailRegistration->getDeadlineStatus() : ['status' => '-'];
     @endphp
 
     <!-- Guest Dashboard (Status Section) -->
@@ -44,16 +43,19 @@
         </div>
     @endif
 
-    @if($hasChild ?? false)
-        @include('components.dashboard.student-info', [
-            'studentInfo' => $studentInfo ?? []
-        ])
+    @if(($hasStudent ?? false) || ($approvedRegistration ?? null) || ($pendingRegistration ?? null))
+        <div class="card" style="margin-bottom: 32px;">
+            <h2 style="margin-bottom: 12px;">⚡ Quick Access</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{{ route('dashboard.info') }}" class="btn-secondary">👨‍👩‍👧‍👦 Info Murid & Orang Tua</a>
+                <a href="{{ route('dashboard.bills') }}" class="btn-primary">🧾 Lihat Tagihan</a>
+            </div>
+        </div>
     @endif
 
     @if($detailRegistration)
         @include('components.dashboard.registration-detail-modal', [
             'registration' => $detailRegistration,
-            'deadlineStatus' => $detailDeadlineStatus,
         ])
     @endif
 

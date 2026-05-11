@@ -45,6 +45,8 @@ class FacilityManagementController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%")
                     ->orWhere('condition', 'like', "%{$search}%")
+                    ->orWhere('fund_source', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%")
                     ->orWhere('image_path', 'like', "%{$search}%");
             });
         }
@@ -88,6 +90,9 @@ class FacilityManagementController extends Controller
             'description' => ['nullable', 'string'],
             'quantity' => ['required', 'integer', 'min:0'],
             'condition' => ['nullable', 'string', 'max:255'],
+            'fund_source' => ['nullable', 'string', 'max:120'],
+            'acquisition_year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
+            'category' => ['nullable', 'string', 'max:120'],
             'image' => ['nullable', 'image', 'max:2048'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -129,6 +134,9 @@ class FacilityManagementController extends Controller
             'description' => ['nullable', 'string'],
             'quantity' => ['required', 'integer', 'min:0'],
             'condition' => ['nullable', 'string', 'max:255'],
+            'fund_source' => ['nullable', 'string', 'max:120'],
+            'acquisition_year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
+            'category' => ['nullable', 'string', 'max:120'],
             'image' => ['nullable', 'image', 'max:2048'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -165,6 +173,8 @@ class FacilityManagementController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%")
                     ->orWhere('condition', 'like', "%{$search}%")
+                    ->orWhere('fund_source', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%")
                     ->orWhere('image_path', 'like', "%{$search}%");
             });
         }
@@ -195,6 +205,9 @@ class FacilityManagementController extends Controller
                 'Deskripsi',
                 'Jumlah',
                 'Kondisi',
+                'Sumber Dana',
+                'Tahun',
+                'Kategori',
                 'Path Gambar',
                 'Aktif',
                 'Dibuat Tanggal',
@@ -207,6 +220,9 @@ class FacilityManagementController extends Controller
                     $f->description ?? '-',
                     (int)($f->quantity ?? 0),
                     $f->condition ?? '-',
+                    $f->fund_source ?? '-',
+                    $f->acquisition_year ?? '-',
+                    $f->category ?? '-',
                     $f->image_path ?? '-',
                     ($f->is_active ?? false) ? 'Aktif' : 'Nonaktif',
                     $f->created_at?->format('Y-m-d H:i:s') ?? '-',

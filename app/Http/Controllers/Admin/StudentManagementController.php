@@ -23,7 +23,8 @@ class StudentManagementController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('birth_place', 'like', "%{$search}%")
-                    ->orWhere('group', 'like', "%{$search}%");
+                    ->orWhere('group', 'like', "%{$search}%")
+                    ->orWhere('religion', 'like', "%{$search}%");
             });
         }
 
@@ -90,6 +91,7 @@ class StudentManagementController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
             'gender' => 'nullable|in:pria,perempuan',
+            'religion' => 'nullable|string|max:50',
             'group' => 'nullable|string|max:50',
             'status' => 'nullable|in:pending_payment,aktif,non-aktif,lulus,pindah,rejected',
         ]);
@@ -143,6 +145,7 @@ class StudentManagementController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
             'gender' => 'nullable|in:pria,perempuan',
+            'religion' => 'nullable|string|max:50',
             'group' => 'nullable|string|max:50',
             'status' => 'nullable|in:pending_payment,aktif,non-aktif,lulus,pindah,rejected',
         ]);
@@ -166,7 +169,8 @@ class StudentManagementController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('birth_place', 'like', "%{$search}%")
-                    ->orWhere('group', 'like', "%{$search}%");
+                    ->orWhere('group', 'like', "%{$search}%")
+                    ->orWhere('religion', 'like', "%{$search}%");
             });
         }
 
@@ -192,12 +196,13 @@ class StudentManagementController extends Controller
         $callback = function () use ($students) {
             $file = fopen('php://output', 'w');
 
-            fputcsv($file, ['ID', 'Nama', 'Gender', 'Grup', 'Status', 'Dibuat Tanggal']);
+            fputcsv($file, ['ID', 'Nama', 'Agama', 'Gender', 'Grup', 'Status', 'Dibuat Tanggal']);
 
             foreach ($students as $s) {
                 fputcsv($file, [
                     $s->id_student,
                     $s->name,
+                    $s->religion ?? '-',
                     $s->gender ?? '-',
                     $s->group ?? '-',
                     $s->status,

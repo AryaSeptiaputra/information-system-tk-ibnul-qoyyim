@@ -32,6 +32,7 @@ class TeacherHonorSelfController extends Controller
         if ($teacher) {
             $honors = TeacherHonor::query()
                 ->where('id_teacher', (int)$teacher->id_teacher)
+                ->orderByDesc('period_start')
                 ->orderByDesc('year')
                 ->orderByDesc('month')
                 ->orderByDesc('created_at')
@@ -42,13 +43,26 @@ class TeacherHonorSelfController extends Controller
 
             $myHonor = TeacherHonor::query()
                 ->where('id_teacher', (int)$teacher->id_teacher)
-                ->where('month', (int)$now->month)
-                ->where('year', (int)$now->year)
+                ->whereNotNull('period_start')
+                ->whereNotNull('period_end')
+                ->whereDate('period_start', '<=', $now)
+                ->whereDate('period_end', '>=', $now)
+                ->orderByDesc('period_start')
                 ->orderByDesc('created_at')
                 ->first();
 
+            if (!$myHonor) {
+                $myHonor = TeacherHonor::query()
+                    ->where('id_teacher', (int)$teacher->id_teacher)
+                    ->where('month', (int)$now->month)
+                    ->where('year', (int)$now->year)
+                    ->orderByDesc('created_at')
+                    ->first();
+            }
+
             $myHonorLatest = TeacherHonor::query()
                 ->where('id_teacher', (int)$teacher->id_teacher)
+                ->orderByDesc('period_start')
                 ->orderByDesc('year')
                 ->orderByDesc('month')
                 ->orderByDesc('created_at')
@@ -56,6 +70,7 @@ class TeacherHonorSelfController extends Controller
 
             $myHonorList = TeacherHonor::query()
                 ->where('id_teacher', (int)$teacher->id_teacher)
+                ->orderByDesc('period_start')
                 ->orderByDesc('year')
                 ->orderByDesc('month')
                 ->orderByDesc('created_at')

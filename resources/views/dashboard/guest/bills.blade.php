@@ -18,6 +18,7 @@
 
     @include('components.dashboard.guest-bills', [
         'studentPayments' => $studentPayments ?? collect(),
+        'studentBillGroups' => $studentBillGroups ?? collect(),
         'paymentMethods' => $paymentMethods ?? collect(),
         'paymentSettings' => $paymentSettings ?? null,
     ])

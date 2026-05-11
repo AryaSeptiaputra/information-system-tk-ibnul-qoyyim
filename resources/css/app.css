@@ -1,3 +1,146 @@
+.motto-box {
+    position: absolute;
+    bottom: -30px;
+    right: -20px;
+
+    background: linear-gradient(135deg, var(--green), var(--blue));
+    color: white;
+
+    border-radius: 20px;
+    padding: 18px 26px 16px 26px;
+    min-width: 240px;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    z-index: 3;
+
+    /* shadow utama */
+    box-shadow: 
+        0 10px 25px rgba(46, 204, 113, 0.25),
+        0 4px 10px rgba(0, 0, 0, 0.05);
+
+    /* efek smooth */
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+/* hover biar hidup dikit */
+.motto-box:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+        0 18px 40px rgba(46, 204, 113, 0.35),
+        0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* glow halus di belakang (biar kelihatan premium) */
+.motto-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--green), var(--blue));
+    filter: blur(18px);
+    opacity: 0.25;
+    z-index: -1;
+}
+
+.motto-title {
+    font-size: 12px;
+    font-weight: 800;
+    opacity: 0.85;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.motto-value {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+
+    line-height: 1.4;
+    letter-spacing: 0.2px;
+
+    /* biar lebih “tebal visualnya” */
+    text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+} 
+
+.profil-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 36px;
+    color: var(--dark);
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+.profil-desc {
+    color: var(--gray);
+    line-height: 1.7;
+    font-size: 16px;
+    margin-bottom: 28px;
+    font-weight: 600;
+}
+.profil-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.profil-info-item {
+    background: #fcfefd;
+    border-radius: 16px;
+    padding: 16px 18px;
+    border: 2px solid var(--green-light);
+    box-shadow: 0 2px 8px rgba(46,204,113,0.06);
+}
+.profil-info-item .label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+.profil-info-item .value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dark);
+}
+.visi-misi-tabs {
+    margin-bottom: 12px;
+    margin-top: 18px;
+}
+.tab-btn {
+    background: #f3fef7;
+    color: var(--green-dark);
+    border: none;
+    border-radius: 50px;
+    padding: 8px 22px;
+    font-size: 15px;
+    font-weight: 800;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--green), var(--blue));
+    color: white;
+}
+.tab-content {
+    display: none;
+    background: #f8fffa;
+    border-radius: 18px;
+    padding: 22px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(46,204,113,0.06);
+}
+.tab-content.active {
+    display: block;
+}
 /* ===== CSS VARIABLES ===== */
 :root {
     --green: #2ECC71;
@@ -646,11 +789,22 @@ body {
 /* ===== PROFIL ===== */
 .profil-grid {
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
+    grid-template-columns: 1fr 1.1fr;
     gap: 60px;
-    align-items: center;
+    align-items: stretch;
     max-width: 1100px;
     margin: 0 auto;
+    padding: 0 32px;
+}
+
+.profil-content {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: 0;
+    padding: 32px 0 32px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .profil-main-img {
@@ -664,7 +818,10 @@ body {
     box-shadow: 0 20px 50px rgba(46, 204, 113, 0.2);
     border: 4px solid var(--green-light);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+
+    /* 👇 INI YANG KAMU BUTUH */
+    transform: translateY(160px);
 }
 
 .profil-emoji {
@@ -1460,10 +1617,18 @@ body {
 
     .profil-grid {
         grid-template-columns: 1fr;
+        padding: 0 12px;
     }
 
     .profil-visual {
-        display: none;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 32px;
+    }
+    .profil-content {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 0 32px 0;
     }
 
     .program-grid {

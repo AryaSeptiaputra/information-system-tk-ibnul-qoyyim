@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Registration;
 use App\Models\Student;
+use App\Models\ParentGuardian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -24,6 +25,13 @@ class RegistrationController extends Controller
      */
     public function create(): RedirectResponse
     {
+        session()->forget(['registration', 'current_step']);
+        $defaultParentsData = $this->buildDefaultParentsData();
+        if (!empty(array_filter($defaultParentsData ?? []))) {
+            session(['registration.parents_data' => $defaultParentsData]);
+        }
+        session()->flash('new_registration', true);
+
         return redirect()->to(route('dashboard') . '#registration-form');
     }
 
@@ -102,6 +110,65 @@ class RegistrationController extends Controller
         }
     }
 
+    private function buildDefaultParentsData(): array
+    {
+        $userId = auth()->id();
+        if (!$userId) {
+            return [];
+        }
+
+        $parent = ParentGuardian::query()->where('id_user', $userId)->first();
+        if ($parent) {
+            return [
+                'father_name' => $parent->father_name,
+                'father_phone' => $parent->father_phone_num,
+                'father_job' => $parent->father_occupation,
+                'father_address' => $parent->father_address,
+                'mother_name' => $parent->mother_name,
+                'mother_phone' => $parent->mother_phone_num,
+                'mother_job' => $parent->mother_occupation,
+                'mother_address' => $parent->mother_address,
+            ];
+        }
+
+        $latestRegistration = Registration::query()
+            ->where('id_user', $userId)
+            ->latest('id_registration')
+            ->first();
+
+        if (!$latestRegistration) {
+            return [];
+        }
+
+        $parentsData = $latestRegistration->parents_data ?? [];
+        if (is_string($parentsData)) {
+            $decoded = json_decode($parentsData, true);
+            $parentsData = is_array($decoded) ? $decoded : [];
+        }
+
+        $fatherPhone = $parentsData['father_phone']
+            ?? $parentsData['father_phone_num']
+            ?? $parentsData['father_phone_number']
+            ?? null;
+        $motherPhone = $parentsData['mother_phone']
+            ?? $parentsData['mother_phone_num']
+            ?? $parentsData['mother_phone_number']
+            ?? null;
+        $fatherJob = $parentsData['father_job'] ?? $parentsData['father_occupation'] ?? null;
+        $motherJob = $parentsData['mother_job'] ?? $parentsData['mother_occupation'] ?? null;
+
+        return [
+            'father_name' => $parentsData['father_name'] ?? null,
+            'father_phone' => $fatherPhone,
+            'father_job' => $fatherJob,
+            'father_address' => $parentsData['father_address'] ?? null,
+            'mother_name' => $parentsData['mother_name'] ?? null,
+            'mother_phone' => $motherPhone,
+            'mother_job' => $motherJob,
+            'mother_address' => $parentsData['mother_address'] ?? null,
+        ];
+    }
+
     /**
      * Submit the complete registration
      */
@@ -117,15 +184,17 @@ class RegistrationController extends Controller
                     ->with('error', 'Data pendaftaran belum lengkap. Silakan lengkapi semua langkah.');
             }
 
-            // Check if user already has a pending/active registration
+            // Prevent duplicate registrations for the same child.
             $existingRegistration = Registration::where('id_user', auth()->id())
                 ->whereIn('status', ['pending', 'approved_awaiting_payment', 'pending_due', 'active'])
-                ->first();
-            
+                ->where('candidate_data->name', $candidateData['name'] ?? '')
+                ->where('candidate_data->birth_date', $candidateData['birth_date'] ?? null)
+                ->exists();
+
             if ($existingRegistration) {
                 session()->forget(['registration', 'current_step']);
                 return redirect()->route('dashboard')
-                    ->with('error', 'Anda sudah memiliki pendaftaran yang aktif.');
+                    ->with('error', 'Pendaftaran untuk anak ini sudah ada. Silakan cek status sebelumnya.');
             }
 
             DB::transaction(function () use ($candidateData, $parentsData, $group) {

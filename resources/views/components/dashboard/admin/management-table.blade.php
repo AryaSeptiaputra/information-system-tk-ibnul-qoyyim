@@ -9,6 +9,11 @@
     $isStudentAttendanceTable = $type === 'student-attendance';
     $isTeacherAttendanceTable = $type === 'teacher-attendance';
     $isTeacherHonorTable = $type === 'teacher-honor';
+    $isPositionTable = $type === 'position';
+    $isTeacherPositionTable = $type === 'teacher-position';
+    $isAllowanceTypeTable = $type === 'allowance-type';
+    $isPositionAllowanceTable = $type === 'position-allowance';
+    $isTeacherAttendanceRateTable = $type === 'teacher-attendance-rate';
     $isFacilityTable = $type === 'facility';
 
     $isPaymentTable = $type === 'payment';
@@ -19,15 +24,21 @@
     // We intentionally keep the row information minimal; full details are shown in a modal.
     $columnCount = match (true) {
         $isUserTable => 6,
-        $isTeacherTable => 7,
+        $isTeacherTable => 8,
         $isRegistrationTable => 6,
         $isParentTable => 5,
-        $isStudentTable => 6,
+        $isStudentTable => 7,
         $isClassTable => 5,
         $isStudentAttendanceTable => 5,
         $isPaymentTable => 7,
         $isStudentPaymentTable => 7,
         $isTeacherHonorTable => 6,
+        $isPositionTable => 4,
+        $isTeacherPositionTable => 5,
+        $isAllowanceTypeTable => 4,
+        $isPositionAllowanceTable => 6,
+        $isTeacherAttendanceRateTable => 5,
+        $isFacilityTable => 5,
         default => 4,
     };
 @endphp
@@ -46,6 +57,7 @@
                 @elseif($isTeacherTable)
                     <th class="col-id">No</th>
                     <th class="col-name">Nama</th>
+                    <th class="col-position">Jabatan</th>
                     <th class="col-education">Pendidikan</th>
                     <th class="col-phone">Telepon</th>
                     <th class="col-email">Email</th>
@@ -62,6 +74,7 @@
                     <th class="col-id">No</th>
                     <th class="col-name">Nama</th>
                     <th class="col-gender">Gender</th>
+                    <th class="col-religion">Agama</th>
                     <th class="col-group">Grup</th>
                     <th class="col-status">Status</th>
                     <th class="col-actions">Aksi</th>
@@ -95,9 +108,39 @@
                     <th class="col-amount">Total Honor</th>
                     <th class="col-status">Status</th>
                     <th class="col-actions">Aksi</th>
+                @elseif($isPositionTable)
+                    <th class="col-id">ID</th>
+                    <th class="col-name">Posisi</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-actions">Aksi</th>
+                @elseif($isTeacherPositionTable)
+                    <th class="col-id">ID</th>
+                    <th class="col-name">Guru</th>
+                    <th class="col-status">Posisi</th>
+                    <th class="col-period">Periode</th>
+                    <th class="col-actions">Aksi</th>
+                @elseif($isAllowanceTypeTable)
+                    <th class="col-id">ID</th>
+                    <th class="col-name">Jenis Tunjangan</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-actions">Aksi</th>
+                @elseif($isPositionAllowanceTable)
+                    <th class="col-id">ID</th>
+                    <th class="col-name">Posisi</th>
+                    <th class="col-status">Jenis</th>
+                    <th class="col-amount">Nominal</th>
+                    <th class="col-period">Periode</th>
+                    <th class="col-actions">Aksi</th>
+                @elseif($isTeacherAttendanceRateTable)
+                    <th class="col-id">ID</th>
+                    <th class="col-name">Guru</th>
+                    <th class="col-amount">Tarif/Hadir</th>
+                    <th class="col-period">Periode</th>
+                    <th class="col-actions">Aksi</th>
                 @elseif($isFacilityTable)
                     <th class="col-id">ID</th>
                     <th class="col-name">Fasilitas</th>
+                    <th class="col-category">Kategori</th>
                     <th class="col-status">Status</th>
                     <th class="col-actions">Aksi</th>
                 @elseif($isPaymentTable)
@@ -137,6 +180,11 @@
                         $isStudentTable => $item->id_student,
                         $isClassTable => $item->id_class,
                         $isTeacherTable => $item->id_teacher,
+                        $isPositionTable => $item->id_position,
+                        $isTeacherPositionTable => $item->id_teacher_position,
+                        $isAllowanceTypeTable => $item->id_allowance_type,
+                        $isPositionAllowanceTable => $item->id_position_allowance,
+                        $isTeacherAttendanceRateTable => $item->id_teacher_attendance_rate,
                         $isFacilityTable => $item->id,
                         default => $item->id,
                     };
@@ -172,6 +220,7 @@
                             $statusLabel = $isActiveTeacher ? 'Aktif' : 'Nonaktif';
                             $statusBadgeClass = $isActiveTeacher ? 'admin-badge-success' : 'admin-badge-inactive';
 
+                            $teacherPosition = $item->position ?? '-';
                             $teacherEducation = $item->education ?? '-';
                             $teacherPhone = $item->phone_num ?? ($item->user?->phone_num ?? '-');
                             $teacherEmail = $item->email ?? ($item->user?->email ?? '-');
@@ -181,6 +230,7 @@
                             <span class="admin-avatar-small" title="{{ $item->name }}">{{ substr($item->name, 0, 1) }}</span>
                             {{ $item->name }}
                         </td>
+                        <td class="col-position">{{ $teacherPosition }}</td>
                         <td class="col-education">{{ $teacherEducation }}</td>
                         <td class="col-phone">{{ $teacherPhone }}</td>
                         <td class="col-email">{{ $teacherEmail }}</td>
@@ -250,6 +300,8 @@
                                 null => '-',
                                 default => $genderValue,
                             };
+
+                            $religionLabel = $item->religion ?? '-';
                         @endphp
                         <td class="col-id">{{ $rowNumber }}</td>
                         <td class="col-name">
@@ -257,6 +309,7 @@
                             {{ $item->name }}
                         </td>
                         <td class="col-gender">{{ $genderLabel }}</td>
+                        <td class="col-religion">{{ $religionLabel }}</td>
                         <td class="col-group">{{ $item->group ?? '-' }}</td>
                         <td class="col-status"><span class="admin-badge {{ $statusBadgeClass }}">{{ $statusLabel }}</span></td>
                     @elseif($isParentTable)
@@ -331,7 +384,9 @@
                     @elseif($isTeacherHonorTable)
                         @php
                             $teacherName = $item->teacher?->name ?? '-';
-                            $periodLabel = sprintf('%02d/%d', (int)($item->month ?? 0), (int)($item->year ?? 0));
+                            $periodLabel = ($item->period_start && $item->period_end)
+                                ? ($item->period_start->format('Y-m-d') . ' s/d ' . $item->period_end->format('Y-m-d'))
+                                : sprintf('%02d/%d', (int)($item->month ?? 0), (int)($item->year ?? 0));
                             $amountLabel = 'Rp ' . number_format((float)($item->amount ?? 0), 0, ',', '.');
 
                             $isPaid = (bool)($item->payment_date);
@@ -346,6 +401,62 @@
                         <td class="col-period">{{ $periodLabel }}</td>
                         <td class="col-amount">{{ $amountLabel }}</td>
                         <td class="col-status"><span class="admin-badge {{ $statusBadgeClass }}">{{ $statusLabel }}</span></td>
+                    @elseif($isPositionTable)
+                        @php
+                            $isActive = (bool)($item->is_active ?? true);
+                            $statusLabel = $isActive ? 'Aktif' : 'Nonaktif';
+                            $statusBadgeClass = $isActive ? 'admin-badge-success' : 'admin-badge-inactive';
+                        @endphp
+                        <td class="col-id">{{ $item->id_position }}</td>
+                        <td class="col-name">{{ $item->name ?? '-' }}</td>
+                        <td class="col-status"><span class="admin-badge {{ $statusBadgeClass }}">{{ $statusLabel }}</span></td>
+                    @elseif($isTeacherPositionTable)
+                        @php
+                            $teacherName = $item->teacher?->name ?? '-';
+                            $positionName = $item->position?->name ?? '-';
+                            $periodLabel = ($item->effective_from)
+                                ? $item->effective_from->format('Y-m-d') . ' s/d ' . ($item->effective_to?->format('Y-m-d') ?? '-')
+                                : '-';
+                        @endphp
+                        <td class="col-id">{{ $item->id_teacher_position }}</td>
+                        <td class="col-name">{{ $teacherName }}</td>
+                        <td class="col-status">{{ $positionName }}</td>
+                        <td class="col-period">{{ $periodLabel }}</td>
+                    @elseif($isAllowanceTypeTable)
+                        @php
+                            $isActive = (bool)($item->is_active ?? true);
+                            $statusLabel = $isActive ? 'Aktif' : 'Nonaktif';
+                            $statusBadgeClass = $isActive ? 'admin-badge-success' : 'admin-badge-inactive';
+                        @endphp
+                        <td class="col-id">{{ $item->id_allowance_type }}</td>
+                        <td class="col-name">{{ $item->name ?? '-' }}</td>
+                        <td class="col-status"><span class="admin-badge {{ $statusBadgeClass }}">{{ $statusLabel }}</span></td>
+                    @elseif($isPositionAllowanceTable)
+                        @php
+                            $positionName = $item->position?->name ?? '-';
+                            $typeName = $item->allowanceType?->name ?? '-';
+                            $amountLabel = 'Rp ' . number_format((float)($item->amount ?? 0), 0, ',', '.');
+                            $periodLabel = ($item->effective_from)
+                                ? $item->effective_from->format('Y-m-d') . ' s/d ' . ($item->effective_to?->format('Y-m-d') ?? '-')
+                                : '-';
+                        @endphp
+                        <td class="col-id">{{ $item->id_position_allowance }}</td>
+                        <td class="col-name">{{ $positionName }}</td>
+                        <td class="col-status">{{ $typeName }}</td>
+                        <td class="col-amount">{{ $amountLabel }}</td>
+                        <td class="col-period">{{ $periodLabel }}</td>
+                    @elseif($isTeacherAttendanceRateTable)
+                        @php
+                            $teacherName = $item->teacher?->name ?? '-';
+                            $amountLabel = 'Rp ' . number_format((float)($item->amount_per_attendance ?? 0), 0, ',', '.');
+                            $periodLabel = ($item->effective_from)
+                                ? $item->effective_from->format('Y-m-d') . ' s/d ' . ($item->effective_to?->format('Y-m-d') ?? '-')
+                                : '-';
+                        @endphp
+                        <td class="col-id">{{ $item->id_teacher_attendance_rate }}</td>
+                        <td class="col-name">{{ $teacherName }}</td>
+                        <td class="col-amount">{{ $amountLabel }}</td>
+                        <td class="col-period">{{ $periodLabel }}</td>
                     @elseif($isFacilityTable)
                         @php
                             $isActive = (bool)($item->is_active ?? true);
@@ -354,15 +465,19 @@
 
                             $qty = (int)($item->quantity ?? 0);
                             $cond = $item->condition ?? '-';
+                            $fundSource = $item->fund_source ?? '-';
+                            $acquisitionYear = $item->acquisition_year ?? '-';
+                            $category = $item->category ?? '-';
                             $img = $item->image_path ?? null;
                         @endphp
                         <td class="col-id">{{ $item->id }}</td>
                         <td class="col-name">
                             {{ $item->name ?? '-' }}
                             <div class="form-label-hint">
-                                Jumlah: {{ $qty }} • Kondisi: {{ $cond }}@if($img) • {{ $img }}@endif
+                                Jumlah: {{ $qty }} • Kondisi: {{ $cond }} • Sumber: {{ $fundSource }} • Tahun: {{ $acquisitionYear }}@if($img) • {{ $img }}@endif
                             </div>
                         </td>
+                        <td class="col-category">{{ $category }}</td>
                         <td class="col-status"><span class="admin-badge {{ $statusBadgeClass }}">{{ $statusLabel }}</span></td>
                     @elseif($isPaymentTable)
                         @php

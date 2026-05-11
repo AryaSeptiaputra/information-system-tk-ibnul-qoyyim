@@ -9,7 +9,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['id_user', 'name', 'education', 'phone_num', 'email', 'status'])]
+#[Fillable([
+    'id_user',
+    'name',
+    'position',
+    'nip',
+    'nuptk',
+    'birth_place',
+    'birth_date',
+    'start_work_date',
+    'education',
+    'phone_num',
+    'email',
+    'status',
+])]
 class TeacherDetail extends Model
 {
     use HasFactory;
@@ -17,6 +30,14 @@ class TeacherDetail extends Model
     protected $table = 'teacher_details';
     protected $primaryKey = 'id_teacher';
     public $timestamps = true;
+
+    protected function casts(): array
+    {
+        return [
+            'birth_date' => 'date',
+            'start_work_date' => 'date',
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -31,6 +52,16 @@ class TeacherDetail extends Model
     public function attendance(): HasMany
     {
         return $this->hasMany(TeacherAttendance::class, 'id_teacher', 'id_teacher');
+    }
+
+    public function positions(): HasMany
+    {
+        return $this->hasMany(TeacherPosition::class, 'id_teacher', 'id_teacher');
+    }
+
+    public function attendanceRates(): HasMany
+    {
+        return $this->hasMany(TeacherAttendanceRate::class, 'id_teacher', 'id_teacher');
     }
 
     public function honors(): HasMany

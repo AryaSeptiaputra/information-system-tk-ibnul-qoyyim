@@ -15,11 +15,12 @@
 <!-- Role-Based Content -->
 @if($role === 'guest')
     @php
-        $canRegister = !($pendingRegistration ?? null) || (($pendingRegistration->status ?? null) === 'rejected');
+        $canRegister = true;
         $hasApproved = (bool)($approvedRegistration ?? null);
         $currentStepResolved = $currentStep ?? session('current_step', 1);
         $hasDraft = session()->has('registration.candidate_data') || session()->has('registration.parents_data');
-        $showFormByDefault = ($errors->any() || $hasDraft || ((int)$currentStepResolved > 1));
+        $forceShowForm = session()->has('new_registration');
+        $showFormByDefault = ($errors->any() || $hasDraft || ((int)$currentStepResolved > 1) || $forceShowForm);
 
         $detailRegistration = $pendingRegistration ?? $approvedRegistration ?? null;
     @endphp
@@ -35,7 +36,7 @@
     </div>
 
     <!-- Guest Registration Form (Embedded Section) -->
-    @if($canRegister && !$hasApproved)
+    @if($canRegister)
         <div id="registration-form-section" @if(!$showFormByDefault) hidden aria-hidden="true" @endif>
             @include('components.dashboard.registration-form-section', [
                 'currentStep' => $currentStepResolved,
@@ -48,9 +49,18 @@
             <h2 style="margin-bottom: 12px;">⚡ Quick Access</h2>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{{ route('dashboard.info') }}" class="btn-secondary">👨‍👩‍👧‍👦 Info Murid & Orang Tua</a>
+                <a href="{{ route('dashboard.students') }}" class="btn-secondary">🧑‍🎓 Data Murid & Absensi</a>
                 <a href="{{ route('dashboard.bills') }}" class="btn-primary">🧾 Lihat Tagihan</a>
+                <a href="{{ route('registration.create') }}" class="btn-secondary">➕ Daftar Anak Lain</a>
             </div>
         </div>
+    @endif
+
+    @if(($hasStudent ?? false) || (($studentSummaries ?? collect())->count() > 0))
+        @include('components.dashboard.guest-summary', [
+            'billSummary' => $billSummary ?? [],
+            'studentSummaries' => $studentSummaries ?? collect(),
+        ])
     @endif
 
     @if($detailRegistration)

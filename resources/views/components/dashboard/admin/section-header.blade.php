@@ -11,6 +11,11 @@
         'student-attendance' => 'Absensi Murid',
         'teacher-attendance' => 'Absensi Guru',
         'teacher-honor' => 'Honor Guru',
+        'position' => 'Posisi Guru',
+        'teacher-position' => 'Penugasan Posisi',
+        'allowance-type' => 'Jenis Tunjangan',
+        'position-allowance' => 'Tunjangan Posisi',
+        'teacher-attendance-rate' => 'Tarif Kehadiran',
         'facility' => 'Sarana & Prasarana',
         'payment' => 'Payment',
         'student-payment' => 'Tagihan Murid',
@@ -111,6 +116,14 @@
             @endif
 
             @if($type === 'facility')
+                <select name="status" class="admin-filter-select">
+                    <option value="all">Semua Status</option>
+                    <option value="active" @selected(($status ?? 'all') === 'active')>Aktif</option>
+                    <option value="inactive" @selected(($status ?? 'all') === 'inactive')>Nonaktif</option>
+                </select>
+            @endif
+
+            @if($type === 'position' || $type === 'allowance-type')
                 <select name="status" class="admin-filter-select">
                     <option value="all">Semua Status</option>
                     <option value="active" @selected(($status ?? 'all') === 'active')>Aktif</option>

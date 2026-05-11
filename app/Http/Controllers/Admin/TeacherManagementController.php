@@ -25,6 +25,9 @@ class TeacherManagementController extends Controller
                     ->orWhere('phone_num', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('education', 'like', "%{$search}%")
+                    ->orWhere('position', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('nuptk', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($uq) use ($search) {
                         $uq->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%")
@@ -78,6 +81,12 @@ class TeacherManagementController extends Controller
         $validated = $request->validate([
             'id_user' => 'required|exists:users,id|unique:teacher_details,id_user',
             'name' => 'required|string|max:255',
+            'position' => 'nullable|string|max:120',
+            'nip' => 'nullable|string|max:50',
+            'nuptk' => 'nullable|string|max:50',
+            'birth_place' => 'nullable|string|max:100',
+            'birth_date' => 'nullable|date',
+            'start_work_date' => 'nullable|date',
             'education' => 'required|string|max:255',
             'phone_num' => 'required|string|max:20',
             'email' => 'nullable|email',
@@ -127,6 +136,12 @@ class TeacherManagementController extends Controller
         $validated = $request->validate([
             'id_user' => 'required|exists:users,id|unique:teacher_details,id_user,' . $teacher->id_teacher . ',id_teacher',
             'name' => 'required|string|max:255',
+            'position' => 'nullable|string|max:120',
+            'nip' => 'nullable|string|max:50',
+            'nuptk' => 'nullable|string|max:50',
+            'birth_place' => 'nullable|string|max:100',
+            'birth_date' => 'nullable|date',
+            'start_work_date' => 'nullable|date',
             'education' => 'required|string|max:255',
             'phone_num' => 'required|string|max:20',
             'email' => 'nullable|email',
@@ -165,6 +180,9 @@ class TeacherManagementController extends Controller
                     ->orWhere('phone_num', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('education', 'like', "%{$search}%")
+                    ->orWhere('position', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('nuptk', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($uq) use ($search) {
                         $uq->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%")
@@ -189,7 +207,7 @@ class TeacherManagementController extends Controller
             $file = fopen('php://output', 'w');
             
             // Header row
-            fputcsv($file, ['ID Guru', 'ID User', 'Nama', 'Email', 'Phone', 'Pendidikan', 'Status', 'Dibuat', 'Diperbarui']);
+            fputcsv($file, ['ID Guru', 'ID User', 'Nama', 'Jabatan', 'NIP', 'NUPTK', 'TTL', 'Tgl Mulai Kerja', 'Email', 'Phone', 'Pendidikan', 'Status', 'Dibuat', 'Diperbarui']);
             
             // Data rows
             foreach ($teachers as $teacher) {
@@ -198,11 +216,19 @@ class TeacherManagementController extends Controller
 
                 $emailValue = $teacher->email ?? ($teacher->user?->email ?? '-');
                 $phoneValue = $teacher->phone_num ?? ($teacher->user?->phone_num ?? '-');
+                $ttlLabel = ($teacher->birth_place || $teacher->birth_date)
+                    ? trim(($teacher->birth_place ?? '-') . ', ' . ($teacher->birth_date?->format('Y-m-d') ?? '-'))
+                    : '-';
 
                 fputcsv($file, [
                     $teacher->id_teacher,
                     $teacher->id_user,
                     $teacher->name,
+                    $teacher->position ?? '-',
+                    $teacher->nip ?? '-',
+                    $teacher->nuptk ?? '-',
+                    $ttlLabel,
+                    $teacher->start_work_date?->format('Y-m-d') ?? '-',
                     $emailValue,
                     $phoneValue,
                     $teacher->education ?? '-',

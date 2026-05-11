@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StudentPaymentCreated;
 use App\Models\Payment;
 use App\Models\PaymentProof;
 use App\Models\ParentGuardian;
@@ -14,6 +15,8 @@ use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -103,6 +106,8 @@ class StudentPaymentManagementController extends Controller
             'payment_period' => $paymentPeriod,
             'discount_amount' => (float)($validated['discount_amount'] ?? 0),
         ]);
+
+        $this->sendStudentPaymentCreatedEmail($studentPayment);
 
         return response()->json(['success' => true, 'message' => 'Tagihan murid berhasil dibuat', 'data' => ['id' => $studentPayment->id_student_payment]]);
     }
@@ -466,7 +471,9 @@ class StudentPaymentManagementController extends Controller
             }
             $student->group = $student->group ?: ($registration->group ?? null);
             $student->status = 'aktif';
-            $student->paid_late = $paidLate;
+            if (Schema::hasColumn('students', 'paid_late')) {
+                $student->paid_late = $paidLate;
+            }
             $student->save();
 
             $registration->status = 'active';
@@ -781,6 +788,29 @@ class StudentPaymentManagementController extends Controller
         if (str_starts_with($path, 'storage/')) {
             $relative = substr($path, strlen('storage/'));
             Storage::disk('public')->delete($relative);
+        }
+    }
+
+    private function sendStudentPaymentCreatedEmail(StudentPayment $studentPayment): void
+    {
+        $studentPayment->loadMissing([
+            'student.registration.user',
+            'student.parent.user',
+            'payment',
+        ]);
+
+        $recipientUser = $studentPayment->student?->registration?->user
+            ?? $studentPayment->student?->parent?->user;
+
+        $recipientEmail = $recipientUser?->email;
+        if (!$recipientEmail) {
+            return;
+        }
+
+        try {
+            Mail::to($recipientEmail)->send(new StudentPaymentCreated($studentPayment, $recipientUser));
+        } catch (\Throwable $e) {
+            report($e);
         }
     }
 }

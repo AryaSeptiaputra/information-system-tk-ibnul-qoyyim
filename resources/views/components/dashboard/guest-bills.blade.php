@@ -165,6 +165,34 @@
         gap: 14px;
     }
 
+    .guest-bills-group {
+        margin-bottom: 18px;
+    }
+
+    .guest-bills-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .guest-bills-group-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .guest-bills-group-title {
+        font-weight: 900;
+        color: var(--dark);
+        font-size: 14px;
+    }
+
+    .guest-bills-group-meta {
+        color: var(--gray);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
     .guest-bills-alerts {
         display: grid;
         gap: 10px;
@@ -661,11 +689,39 @@
         </div>
     @endif
 
-    @if(collect($studentPayments)->count() === 0)
+    @if($allPayments->count() === 0)
         <div class="guest-bills-empty">Belum ada tagihan yang dibuat untuk akun Anda.</div>
     @else
-        <div class="guest-bills-list">
-            @foreach($studentPayments as $sp)
+        @php
+            $billGroups = collect($studentBillGroups ?? []);
+            if ($billGroups->isEmpty()) {
+                $billGroups = collect([
+                    ['student' => null, 'payments' => $allPayments],
+                ]);
+            }
+        @endphp
+
+        @foreach($billGroups as $group)
+            @php
+                $student = $group['student'] ?? null;
+                $groupPayments = collect($group['payments'] ?? []);
+                $studentName = $student?->name ?? 'Siswa';
+                $studentGroup = $student?->group ?? null;
+            @endphp
+
+            <div class="guest-bills-group">
+                <div class="guest-bills-group-header">
+                    <div class="guest-bills-group-title">👧 {{ $studentName }}</div>
+                    @if($studentGroup)
+                        <div class="guest-bills-group-meta">Kelompok {{ $studentGroup }}</div>
+                    @endif
+                </div>
+
+                @if($groupPayments->count() === 0)
+                    <div class="guest-bills-empty">Belum ada tagihan untuk {{ $studentName }}.</div>
+                @else
+                    <div class="guest-bills-list">
+                        @foreach($groupPayments as $sp)
                 @php
                     $paymentName = $sp->payment?->name ?? '-';
                     $period = $sp->payment_period ?? '-';
@@ -966,8 +1022,11 @@
                         @endif
                     </div>
                 </div>
-            @endforeach
-        </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        @endforeach
     @endif
 
         </div>
@@ -1074,6 +1133,26 @@
     </div>
 </div>
 
+@php
+    $bankOptions = collect($paymentMethods ?? [])->where('type', 'bank')->map(function ($m) {
+        return [
+            'id' => $m->id,
+            'label' => (string)($m->label ?? ''),
+            'account_number' => (string)($m->account_number ?? ''),
+            'account_name' => (string)($m->account_name ?? ''),
+        ];
+    })->values()->all();
+
+    $ewalletOptions = collect($paymentMethods ?? [])->where('type', 'ewallet')->map(function ($m) {
+        return [
+            'id' => $m->id,
+            'label' => (string)($m->label ?? ''),
+            'account_number' => (string)($m->account_number ?? ''),
+            'account_name' => (string)($m->account_name ?? ''),
+        ];
+    })->values()->all();
+@endphp
+
 <script>
     (function () {
         const modal = document.getElementById('guest-pay-modal');
@@ -1120,19 +1199,9 @@
             modal.setAttribute('aria-hidden', 'true');
         }
 
-        const bankOptions = @json(collect($paymentMethods ?? [])->where('type', 'bank')->map(fn($m) => [
-            'id' => $m->id,
-            'label' => (string)($m->label ?? ''),
-            'account_number' => (string)($m->account_number ?? ''),
-            'account_name' => (string)($m->account_name ?? ''),
-        ])->values()->all());
+        const bankOptions = @json($bankOptions);
 
-        const ewalletOptions = @json(collect($paymentMethods ?? [])->where('type', 'ewallet')->map(fn($m) => [
-            'id' => $m->id,
-            'label' => (string)($m->label ?? ''),
-            'account_number' => (string)($m->account_number ?? ''),
-            'account_name' => (string)($m->account_name ?? ''),
-        ])->values()->all());
+        const ewalletOptions = @json($ewalletOptions);
 
         function renderMethodItemOptions(kind) {
             if (!methodItemGroup || !methodItemSelect) return;

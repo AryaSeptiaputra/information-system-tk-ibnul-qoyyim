@@ -13,14 +13,23 @@
     $teacherHonor = $teacherHonor ?? null;
     $facility = $facility ?? null;
 
+    $position = $position ?? null;
+    $allowanceType = $allowanceType ?? null;
+    $teacherPosition = $teacherPosition ?? null;
+    $positionAllowance = $positionAllowance ?? null;
+    $teacherAttendanceRate = $teacherAttendanceRate ?? null;
+
     $payment = $payment ?? null;
     $studentPayment = $studentPayment ?? null;
 
     $students = $students ?? collect();
     $payments = $payments ?? collect();
+    $teachers = $teachers ?? collect();
+    $positions = $positions ?? collect();
+    $allowanceTypes = $allowanceTypes ?? collect();
 
     $modalId = $action === 'create' ? "add-{$type}-modal" : "edit-{$type}-modal";
-    $entity = $user ?? $teacher ?? $registration ?? $parent ?? $student ?? $schoolClass ?? $studentAttendance ?? $teacherAttendance ?? $teacherHonor ?? $facility ?? $payment ?? $studentPayment ?? null;
+    $entity = $user ?? $teacher ?? $registration ?? $parent ?? $student ?? $schoolClass ?? $studentAttendance ?? $teacherAttendance ?? $teacherHonor ?? $facility ?? $position ?? $allowanceType ?? $teacherPosition ?? $positionAllowance ?? $teacherAttendanceRate ?? $payment ?? $studentPayment ?? null;
     $isEdit = $action === 'edit' && $entity;
 
     $label = match($type) {
@@ -33,6 +42,11 @@
         'student-attendance' => 'Absensi Murid',
         'teacher-attendance' => 'Absensi Guru',
         'teacher-honor' => 'Honor Guru',
+        'position' => 'Posisi Guru',
+        'teacher-position' => 'Penugasan Posisi',
+        'allowance-type' => 'Jenis Tunjangan',
+        'position-allowance' => 'Tunjangan Posisi',
+        'teacher-attendance-rate' => 'Tarif Kehadiran',
         'facility' => 'Sarana & Prasarana',
         'payment' => 'Payment',
         'student-payment' => 'Tagihan Murid',
@@ -52,6 +66,11 @@
         'student-attendance' => $isEdit ? route('admin.student-attendance.update', $studentAttendance) : route('admin.student-attendance.store'),
         'teacher-attendance' => $isEdit ? route('admin.teacher-attendance.update', $teacherAttendance) : route('admin.teacher-attendance.store'),
         'teacher-honor' => $isEdit ? route('admin.teacher-honors.update', $teacherHonor) : route('admin.teacher-honors.store'),
+        'position' => $isEdit ? route('admin.positions.update', $position) : route('admin.positions.store'),
+        'teacher-position' => $isEdit ? route('admin.teacher-positions.update', $teacherPosition) : route('admin.teacher-positions.store'),
+        'allowance-type' => $isEdit ? route('admin.allowance-types.update', $allowanceType) : route('admin.allowance-types.store'),
+        'position-allowance' => $isEdit ? route('admin.position-allowances.update', $positionAllowance) : route('admin.position-allowances.store'),
+        'teacher-attendance-rate' => $isEdit ? route('admin.teacher-attendance-rates.update', $teacherAttendanceRate) : route('admin.teacher-attendance-rates.store'),
         'facility' => $isEdit ? route('admin.facilities.update', $facility) : route('admin.facilities.store'),
         'payment' => $isEdit ? route('admin.payments.update', $payment) : route('admin.payments.store'),
         'student-payment' => $isEdit ? route('admin.student-payments.update', $studentPayment) : route('admin.student-payments.store'),
@@ -228,6 +247,94 @@
                             placeholder="Masukkan nama guru"
                         >
                         @error('name')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-position" class="form-label">Jabatan</label>
+                        <input
+                            type="text"
+                            id="form-position"
+                            name="position"
+                            class="form-input"
+                            value="{{ $teacher?->position ?? old('position') }}"
+                            placeholder="Contoh: Wali Kelas"
+                        >
+                        @error('position')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-nip" class="form-label">NIP (Opsional)</label>
+                        <input
+                            type="text"
+                            id="form-nip"
+                            name="nip"
+                            class="form-input"
+                            value="{{ $teacher?->nip ?? old('nip') }}"
+                            placeholder="Nomor Induk Pegawai"
+                        >
+                        @error('nip')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-nuptk" class="form-label">NUPTK (Opsional)</label>
+                        <input
+                            type="text"
+                            id="form-nuptk"
+                            name="nuptk"
+                            class="form-input"
+                            value="{{ $teacher?->nuptk ?? old('nuptk') }}"
+                            placeholder="Nomor Unik Pendidik"
+                        >
+                        @error('nuptk')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-birth-place" class="form-label">Tempat Lahir</label>
+                        <input
+                            type="text"
+                            id="form-birth-place"
+                            name="birth_place"
+                            class="form-input"
+                            value="{{ $teacher?->birth_place ?? old('birth_place') }}"
+                            placeholder="Contoh: Makassar"
+                        >
+                        @error('birth_place')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-birth-date" class="form-label">Tanggal Lahir</label>
+                        <input
+                            type="date"
+                            id="form-birth-date"
+                            name="birth_date"
+                            class="form-input"
+                            value="{{ $teacher?->birth_date?->format('Y-m-d') ?? old('birth_date') }}"
+                        >
+                        @error('birth_date')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-start-work-date" class="form-label">Tanggal Mulai Kerja</label>
+                        <input
+                            type="date"
+                            id="form-start-work-date"
+                            name="start_work_date"
+                            class="form-input"
+                            value="{{ $teacher?->start_work_date?->format('Y-m-d') ?? old('start_work_date') }}"
+                        >
+                        @error('start_work_date')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                     </div>
@@ -656,6 +763,21 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="form-religion" class="form-label">Agama</label>
+                        <input
+                            type="text"
+                            id="form-religion"
+                            name="religion"
+                            class="form-input"
+                            value="{{ $student?->religion ?? old('religion') }}"
+                            placeholder="Contoh: Islam"
+                        >
+                        @error('religion')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="form-group" class="form-label">Grup</label>
                         <input type="text" id="form-group" name="group" class="form-input" value="{{ $student?->group ?? old('group') }}" placeholder="A / B">
                         @error('group')
@@ -881,7 +1003,13 @@
                     @php
                         $attendanceCountValue = (int)($teacherHonor?->attendance_count ?? old('attendance_count') ?? 0);
                         $amountValue = (float)($teacherHonor?->amount ?? old('amount') ?? 0);
-                        $derivedRate = $attendanceCountValue > 0 ? ($amountValue / $attendanceCountValue) : 0;
+                        $rateValue = (float)($teacherHonor?->rate_snapshot ?? old('rate_snapshot') ?? 0);
+                        $allowanceTotalValue = (float)($teacherHonor?->allowance_total ?? old('allowance_total') ?? 0);
+                        $manualAdjustmentValue = (float)($teacherHonor?->manual_adjustment ?? old('manual_adjustment') ?? 0);
+                        $defaultStart = now()->startOfMonth()->format('Y-m-d');
+                        $defaultEnd = now()->endOfMonth()->format('Y-m-d');
+                        $periodStartValue = $teacherHonor?->period_start?->format('Y-m-d') ?? old('period_start') ?? $defaultStart;
+                        $periodEndValue = $teacherHonor?->period_end?->format('Y-m-d') ?? old('period_end') ?? $defaultEnd;
                     @endphp
 
                     <div class="form-group">
@@ -907,37 +1035,31 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="form-month" class="form-label">Bulan</label>
-                        <select id="form-month" name="month" class="form-input form-select" required>
-                            @php
-                                $monthValue = (int)($teacherHonor?->month ?? old('month') ?? (int)now()->format('n'));
-                            @endphp
-                            @for($m = 1; $m <= 12; $m++)
-                                <option value="{{ $m }}" @selected($monthValue === $m)>{{ $m }}</option>
-                            @endfor
-                        </select>
-                        @error('month')
+                        <label for="form-period-start" class="form-label">Periode Mulai</label>
+                        <input
+                            type="date"
+                            id="form-period-start"
+                            name="period_start"
+                            class="form-input"
+                            value="{{ $periodStartValue }}"
+                            required
+                        >
+                        @error('period_start')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="form-year" class="form-label">Tahun</label>
-                        @php
-                            $yearValue = (int)($teacherHonor?->year ?? old('year') ?? (int)now()->format('Y'));
-                        @endphp
+                        <label for="form-period-end" class="form-label">Periode Akhir</label>
                         <input
-                            type="number"
-                            id="form-year"
-                            name="year"
+                            type="date"
+                            id="form-period-end"
+                            name="period_end"
                             class="form-input"
-                            value="{{ $yearValue }}"
-                            min="2000"
-                            max="2100"
-                            step="1"
+                            value="{{ $periodEndValue }}"
                             required
                         >
-                        @error('year')
+                        @error('period_end')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                     </div>
@@ -950,8 +1072,10 @@
                         <div class="registration-detail-row"><span>Sakit</span><strong data-honor-recap-sakit>0</strong></div>
                         <div class="registration-detail-row"><span>Alpa</span><strong data-honor-recap-alpa>0</strong></div>
                         <div class="registration-detail-row"><span>Total Pertemuan</span><strong data-honor-recap-total>0</strong></div>
-                        <div class="registration-detail-row"><span>Preview Total Honor (Hadir × Rate)</span><strong data-honor-recap-amount>Rp 0</strong></div>
-                        <span class="form-label-hint" data-honor-recap-note>Pilih guru + bulan/tahun untuk melihat rekap.</span>
+                        <div class="registration-detail-row"><span>Rate per Hadir</span><strong data-honor-recap-rate>Rp 0</strong></div>
+                        <div class="registration-detail-row"><span>Total Tunjangan</span><strong data-honor-recap-allowance>Rp 0</strong></div>
+                        <div class="registration-detail-row"><span>Preview Total Honor</span><strong data-honor-recap-amount>Rp 0</strong></div>
+                        <span class="form-label-hint" data-honor-recap-note>Pilih guru + periode untuk melihat rekap.</span>
                     </div>
 
                     <div class="form-group">
@@ -964,10 +1088,12 @@
                             value="{{ $attendanceCountValue }}"
                             min="0"
                             step="1"
+                            readonly
                         >
                         @error('attendance_count')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
+                        <span class="form-label-hint">Diisi otomatis dari absensi pada periode terpilih.</span>
                     </div>
 
                     <div class="form-group">
@@ -980,6 +1106,7 @@
                             value="{{ $teacherHonor?->permission_count ?? old('permission_count') ?? 0 }}"
                             min="0"
                             step="1"
+                            readonly
                         >
                         @error('permission_count')
                             <span class="form-error">{{ $message }}</span>
@@ -996,6 +1123,7 @@
                             value="{{ $teacherHonor?->sickness_count ?? old('sickness_count') ?? 0 }}"
                             min="0"
                             step="1"
+                            readonly
                         >
                         @error('sickness_count')
                             <span class="form-error">{{ $message }}</span>
@@ -1012,6 +1140,7 @@
                             value="{{ $teacherHonor?->absence_count ?? old('absence_count') ?? 0 }}"
                             min="0"
                             step="1"
+                            readonly
                         >
                         @error('absence_count')
                             <span class="form-error">{{ $message }}</span>
@@ -1019,17 +1148,47 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="form-rate-per-meeting" class="form-label">Honor per Pertemuan</label>
+                        <label for="form-rate-per-attendance" class="form-label">Tarif per Hadir (Otomatis)</label>
                         <input
                             type="number"
-                            id="form-rate-per-meeting"
-                            name="rate_per_meeting"
+                            id="form-rate-per-attendance"
                             class="form-input"
-                            value="{{ old('rate_per_meeting') ?? $derivedRate }}"
+                            value="{{ $rateValue }}"
                             min="0"
                             step="0.01"
+                            readonly
                         >
-                        <span class="form-label-hint">Total honor dihitung dari: jumlah hadir × honor per pertemuan.</span>
+                        <span class="form-label-hint">Tarif otomatis diambil dari tabel tarif per guru.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-allowance-total" class="form-label">Total Tunjangan (Otomatis)</label>
+                        <input
+                            type="number"
+                            id="form-allowance-total"
+                            class="form-input"
+                            value="{{ $allowanceTotalValue }}"
+                            min="0"
+                            step="0.01"
+                            readonly
+                        >
+                        <span class="form-label-hint">Total tunjangan berasal dari semua posisi aktif.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-manual-adjustment" class="form-label">Penyesuaian Manual (+/-)</label>
+                        <input
+                            type="number"
+                            id="form-manual-adjustment"
+                            name="manual_adjustment"
+                            class="form-input"
+                            value="{{ $manualAdjustmentValue }}"
+                            step="0.01"
+                        >
+                        @error('manual_adjustment')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                        <span class="form-label-hint">Gunakan untuk bonus/potongan tanpa mengubah data absensi.</span>
                     </div>
 
                     <div class="form-group">
@@ -1063,6 +1222,278 @@
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                         <span class="form-label-hint">Kosongkan jika belum dibayar.</span>
+                    </div>
+                @elseif($type === 'position')
+                    <div class="form-group">
+                        <label for="form-name" class="form-label">Nama Posisi</label>
+                        <input
+                            type="text"
+                            id="form-name"
+                            name="name"
+                            class="form-input"
+                            value="{{ $position?->name ?? old('name') }}"
+                            required
+                            placeholder="Contoh: Kepala Sekolah"
+                        >
+                        @error('name')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-description" class="form-label">Deskripsi (Opsional)</label>
+                        <textarea id="form-description" name="description" class="form-input" rows="3" placeholder="Opsional">{{ $position?->description ?? old('description') }}</textarea>
+                        @error('description')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-is-active" class="form-label">Status</label>
+                        @php
+                            $positionActive = (int)($position?->is_active ?? old('is_active') ?? 1);
+                        @endphp
+                        <select id="form-is-active" name="is_active" class="form-input form-select">
+                            <option value="1" @selected($positionActive === 1)>Aktif</option>
+                            <option value="0" @selected($positionActive === 0)>Nonaktif</option>
+                        </select>
+                        @error('is_active')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                @elseif($type === 'allowance-type')
+                    <div class="form-group">
+                        <label for="form-name" class="form-label">Nama Tunjangan</label>
+                        <input
+                            type="text"
+                            id="form-name"
+                            name="name"
+                            class="form-input"
+                            value="{{ $allowanceType?->name ?? old('name') }}"
+                            required
+                            placeholder="Contoh: Tunjangan Jabatan"
+                        >
+                        @error('name')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-description" class="form-label">Deskripsi (Opsional)</label>
+                        <textarea id="form-description" name="description" class="form-input" rows="3" placeholder="Opsional">{{ $allowanceType?->description ?? old('description') }}</textarea>
+                        @error('description')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-is-active" class="form-label">Status</label>
+                        @php
+                            $typeActive = (int)($allowanceType?->is_active ?? old('is_active') ?? 1);
+                        @endphp
+                        <select id="form-is-active" name="is_active" class="form-input form-select">
+                            <option value="1" @selected($typeActive === 1)>Aktif</option>
+                            <option value="0" @selected($typeActive === 0)>Nonaktif</option>
+                        </select>
+                        @error('is_active')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                @elseif($type === 'teacher-position')
+                    <div class="form-group">
+                        <label for="form-id-teacher" class="form-label">Guru</label>
+                        <select id="form-id-teacher" name="id_teacher" class="form-input form-select" required>
+                            <option value="">-- Pilih Guru --</option>
+                            @foreach(($teachers ?? []) as $t)
+                                <option value="{{ $t->id_teacher }}" @selected((int)($teacherPosition?->id_teacher ?? old('id_teacher')) === (int)$t->id_teacher)>
+                                    {{ $t->name ?? '-' }} (ID: {{ $t->id_teacher }}){{ ($t->status ?? 'active') === 'inactive' ? ' - Nonaktif' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_teacher')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-id-position" class="form-label">Posisi</label>
+                        <select id="form-id-position" name="id_position" class="form-input form-select" required>
+                            <option value="">-- Pilih Posisi --</option>
+                            @foreach(($positions ?? []) as $p)
+                                <option value="{{ $p->id_position }}" @selected((int)($teacherPosition?->id_position ?? old('id_position')) === (int)$p->id_position)>
+                                    {{ $p->name ?? '-' }}{{ ($p->is_active ?? true) ? '' : ' - Nonaktif' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_position')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-effective-from" class="form-label">Periode Mulai</label>
+                        <input
+                            type="date"
+                            id="form-effective-from"
+                            name="effective_from"
+                            class="form-input"
+                            value="{{ $teacherPosition?->effective_from?->format('Y-m-d') ?? old('effective_from') }}"
+                            required
+                        >
+                        @error('effective_from')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-effective-to" class="form-label">Periode Akhir (Opsional)</label>
+                        <input
+                            type="date"
+                            id="form-effective-to"
+                            name="effective_to"
+                            class="form-input"
+                            value="{{ $teacherPosition?->effective_to?->format('Y-m-d') ?? old('effective_to') }}"
+                        >
+                        @error('effective_to')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                @elseif($type === 'position-allowance')
+                    <div class="form-group">
+                        <label for="form-id-position" class="form-label">Posisi</label>
+                        <select id="form-id-position" name="id_position" class="form-input form-select" required>
+                            <option value="">-- Pilih Posisi --</option>
+                            @foreach(($positions ?? []) as $p)
+                                <option value="{{ $p->id_position }}" @selected((int)($positionAllowance?->id_position ?? old('id_position')) === (int)$p->id_position)>
+                                    {{ $p->name ?? '-' }}{{ ($p->is_active ?? true) ? '' : ' - Nonaktif' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_position')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-id-allowance-type" class="form-label">Jenis Tunjangan</label>
+                        <select id="form-id-allowance-type" name="id_allowance_type" class="form-input form-select" required>
+                            <option value="">-- Pilih Jenis --</option>
+                            @foreach(($allowanceTypes ?? []) as $t)
+                                <option value="{{ $t->id_allowance_type }}" @selected((int)($positionAllowance?->id_allowance_type ?? old('id_allowance_type')) === (int)$t->id_allowance_type)>
+                                    {{ $t->name ?? '-' }}{{ ($t->is_active ?? true) ? '' : ' - Nonaktif' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_allowance_type')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-amount" class="form-label">Nominal</label>
+                        <input
+                            type="number"
+                            id="form-amount"
+                            name="amount"
+                            class="form-input"
+                            value="{{ $positionAllowance?->amount ?? old('amount') }}"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+                        @error('amount')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-effective-from" class="form-label">Periode Mulai</label>
+                        <input
+                            type="date"
+                            id="form-effective-from"
+                            name="effective_from"
+                            class="form-input"
+                            value="{{ $positionAllowance?->effective_from?->format('Y-m-d') ?? old('effective_from') }}"
+                            required
+                        >
+                        @error('effective_from')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-effective-to" class="form-label">Periode Akhir (Opsional)</label>
+                        <input
+                            type="date"
+                            id="form-effective-to"
+                            name="effective_to"
+                            class="form-input"
+                            value="{{ $positionAllowance?->effective_to?->format('Y-m-d') ?? old('effective_to') }}"
+                        >
+                        @error('effective_to')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+                @elseif($type === 'teacher-attendance-rate')
+                    <div class="form-group">
+                        <label for="form-id-teacher" class="form-label">Guru</label>
+                        <select id="form-id-teacher" name="id_teacher" class="form-input form-select" required>
+                            <option value="">-- Pilih Guru --</option>
+                            @foreach(($teachers ?? []) as $t)
+                                <option value="{{ $t->id_teacher }}" @selected((int)($teacherAttendanceRate?->id_teacher ?? old('id_teacher')) === (int)$t->id_teacher)>
+                                    {{ $t->name ?? '-' }} (ID: {{ $t->id_teacher }}){{ ($t->status ?? 'active') === 'inactive' ? ' - Nonaktif' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_teacher')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-amount" class="form-label">Tarif per Hadir</label>
+                        <input
+                            type="number"
+                            id="form-amount"
+                            name="amount_per_attendance"
+                            class="form-input"
+                            value="{{ $teacherAttendanceRate?->amount_per_attendance ?? old('amount_per_attendance') }}"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+                        @error('amount_per_attendance')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-effective-from" class="form-label">Periode Mulai</label>
+                        <input
+                            type="date"
+                            id="form-effective-from"
+                            name="effective_from"
+                            class="form-input"
+                            value="{{ $teacherAttendanceRate?->effective_from?->format('Y-m-d') ?? old('effective_from') }}"
+                            required
+                        >
+                        @error('effective_from')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-effective-to" class="form-label">Periode Akhir (Opsional)</label>
+                        <input
+                            type="date"
+                            id="form-effective-to"
+                            name="effective_to"
+                            class="form-input"
+                            value="{{ $teacherAttendanceRate?->effective_to?->format('Y-m-d') ?? old('effective_to') }}"
+                        >
+                        @error('effective_to')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
                     </div>
                 @elseif($type === 'facility')
                     <div class="form-group">
@@ -1117,6 +1548,54 @@
                             placeholder="Contoh: Baik"
                         >
                         @error('condition')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-fund-source" class="form-label">Sumber Dana (Opsional)</label>
+                        <input
+                            type="text"
+                            id="form-fund-source"
+                            name="fund_source"
+                            class="form-input"
+                            value="{{ $facility?->fund_source ?? old('fund_source') }}"
+                            placeholder="Contoh: BOS"
+                        >
+                        @error('fund_source')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-acquisition-year" class="form-label">Tahun Perolehan (Opsional)</label>
+                        <input
+                            type="number"
+                            id="form-acquisition-year"
+                            name="acquisition_year"
+                            class="form-input"
+                            value="{{ $facility?->acquisition_year ?? old('acquisition_year') }}"
+                            min="1900"
+                            max="2100"
+                            step="1"
+                            placeholder="2025"
+                        >
+                        @error('acquisition_year')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-category" class="form-label">Kategori (Opsional)</label>
+                        <input
+                            type="text"
+                            id="form-category"
+                            name="category"
+                            class="form-input"
+                            value="{{ $facility?->category ?? old('category') }}"
+                            placeholder="Contoh: Perabot"
+                        >
+                        @error('category')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                     </div>

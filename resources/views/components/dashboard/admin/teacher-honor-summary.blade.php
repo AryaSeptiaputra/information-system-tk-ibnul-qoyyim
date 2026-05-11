@@ -20,6 +20,13 @@
         return ($monthNames[$m] ?? (string)$m) . ' ' . $y;
     };
 
+    $formatPeriodRange = static function ($row) use ($formatPeriod): string {
+        if ($row?->period_start && $row?->period_end) {
+            return $row->period_start->format('Y-m-d') . ' s/d ' . $row->period_end->format('Y-m-d');
+        }
+        return $formatPeriod((int)($row?->month ?? 0), (int)($row?->year ?? 0));
+    };
+
     $formatRupiah = static function ($amount): string {
         $val = (float)($amount ?? 0);
         return 'Rp ' . number_format($val, 0, ',', '.');
@@ -46,7 +53,7 @@
             <div class="finance-item">
                 <span class="finance-label">Periode Saat Ini</span>
                 <span class="finance-value finance-value-green">
-                    {{ $myHonor ? $formatPeriod((int)($myHonor->month ?? 0), (int)($myHonor->year ?? 0)) : '-' }}
+                    {{ $myHonor ? $formatPeriodRange($myHonor) : '-' }}
                 </span>
             </div>
 
@@ -69,7 +76,7 @@
                 <span class="finance-label">Pembayaran Terakhir</span>
                 <span class="finance-value finance-value-blue">
                     @if($myHonorLatest)
-                        {{ $formatPeriod((int)($myHonorLatest->month ?? 0), (int)($myHonorLatest->year ?? 0)) }}
+                        {{ $formatPeriodRange($myHonorLatest) }}
                     @else
                         -
                     @endif
@@ -93,7 +100,7 @@
         <div class="admin-finance-summary">
             @forelse($myHonorList as $row)
                 <div class="finance-item">
-                    <span class="finance-label">{{ $formatPeriod((int)($row->month ?? 0), (int)($row->year ?? 0)) }}</span>
+                    <span class="finance-label">{{ $formatPeriodRange($row) }}</span>
                     <span class="finance-value {{ $row->payment_date ? 'finance-value-green' : 'finance-value-orange' }}">
                         {{ $formatRupiah($row->amount ?? 0) }}
                     </span>

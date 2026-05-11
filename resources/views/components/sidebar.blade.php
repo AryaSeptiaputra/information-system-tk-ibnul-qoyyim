@@ -31,6 +31,11 @@
                     ['icon' => '👨‍🏫', 'label' => 'Manajemen Guru', 'route' => route('admin.teachers.index'), 'key' => 'admin.teachers.index'],
                     ['icon' => '📝', 'label' => 'Absensi Guru', 'route' => route('admin.teacher-attendance.index'), 'key' => 'admin.teacher-attendance.index'],
                     ['icon' => '💰', 'label' => 'Honor Guru', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
+                    ['icon' => '🧭', 'label' => 'Posisi Guru', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
+                    ['icon' => '🧩', 'label' => 'Penugasan Posisi', 'route' => route('admin.teacher-positions.index'), 'key' => 'admin.teacher-positions.index'],
+                    ['icon' => '🎁', 'label' => 'Jenis Tunjangan', 'route' => route('admin.allowance-types.index'), 'key' => 'admin.allowance-types.index'],
+                    ['icon' => '💼', 'label' => 'Tunjangan Posisi', 'route' => route('admin.position-allowances.index'), 'key' => 'admin.position-allowances.index'],
+                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
                 ],
             ],
             [
@@ -88,6 +93,11 @@
                     ['icon' => '🧾', 'label' => 'Master Payment', 'route' => route('admin.payments.index'), 'key' => 'admin.payments.index'],
                     ['icon' => '💳', 'label' => 'Tagihan Murid', 'route' => route('admin.student-payments.index'), 'key' => 'admin.student-payments.index'],
                     ['icon' => '💰', 'label' => 'Honor Guru', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
+                    ['icon' => '🧭', 'label' => 'Posisi Guru', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
+                    ['icon' => '🧩', 'label' => 'Penugasan Posisi', 'route' => route('admin.teacher-positions.index'), 'key' => 'admin.teacher-positions.index'],
+                    ['icon' => '🎁', 'label' => 'Jenis Tunjangan', 'route' => route('admin.allowance-types.index'), 'key' => 'admin.allowance-types.index'],
+                    ['icon' => '💼', 'label' => 'Tunjangan Posisi', 'route' => route('admin.position-allowances.index'), 'key' => 'admin.position-allowances.index'],
+                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
                 ],
             ],
             [
@@ -136,6 +146,12 @@
                 'items' => [
                     ['icon' => '🧾', 'label' => 'Master Payment', 'route' => route('admin.payments.index'), 'key' => 'admin.payments.index'],
                     ['icon' => '💳', 'label' => 'Tagihan Murid', 'route' => route('admin.student-payments.index'), 'key' => 'admin.student-payments.index'],
+                    ['icon' => '💰', 'label' => 'Honor Guru', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
+                    ['icon' => '🧭', 'label' => 'Posisi Guru', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
+                    ['icon' => '🧩', 'label' => 'Penugasan Posisi', 'route' => route('admin.teacher-positions.index'), 'key' => 'admin.teacher-positions.index'],
+                    ['icon' => '🎁', 'label' => 'Jenis Tunjangan', 'route' => route('admin.allowance-types.index'), 'key' => 'admin.allowance-types.index'],
+                    ['icon' => '💼', 'label' => 'Tunjangan Posisi', 'route' => route('admin.position-allowances.index'), 'key' => 'admin.position-allowances.index'],
+                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
                 ],
             ],
             [
@@ -175,6 +191,7 @@
                 'items' => [
                     ['icon' => '📊', 'label' => 'Dashboard', 'route' => route('dashboard'), 'key' => 'dashboard'],
                     ['icon' => '👨‍👩‍👧‍👦', 'label' => 'Info Murid & Orang Tua', 'route' => route('dashboard.info'), 'key' => 'dashboard.info'],
+                    ['icon' => '🧑‍🎓', 'label' => 'Data Murid & Absensi', 'route' => route('dashboard.students'), 'key' => 'dashboard.students'],
                     ['icon' => '🧾', 'label' => 'Tagihan', 'route' => route('dashboard.bills'), 'key' => 'dashboard.bills'],
                 ],
             ],

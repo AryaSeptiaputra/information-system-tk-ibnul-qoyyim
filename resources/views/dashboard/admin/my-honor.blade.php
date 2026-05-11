@@ -19,6 +19,13 @@
         }
         return ($monthNames[$m] ?? (string)$m) . ' ' . $y;
     };
+
+    $formatPeriodRange = static function ($row) use ($formatPeriod): string {
+        if ($row?->period_start && $row?->period_end) {
+            return $row->period_start->format('Y-m-d') . ' s/d ' . $row->period_end->format('Y-m-d');
+        }
+        return $formatPeriod((int)($row?->month ?? 0), (int)($row?->year ?? 0));
+    };
 @endphp
 
 <div class="admin-my-honor-page">
@@ -67,7 +74,7 @@
                             @endphp
                             <tr class="admin-table-row">
                                 <td class="col-id">{{ ($honors->firstItem() ?? 1) + $i }}</td>
-                                <td>{{ $formatPeriod((int)($row->month ?? 0), (int)($row->year ?? 0)) }}</td>
+                                <td>{{ $formatPeriodRange($row) }}</td>
                                 <td>{{ (int)($row->attendance_count ?? 0) }}</td>
                                 <td>{{ (int)($row->permission_count ?? 0) }}</td>
                                 <td>{{ (int)($row->sickness_count ?? 0) }}</td>

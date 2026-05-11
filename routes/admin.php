@@ -11,6 +11,11 @@ use App\Http\Controllers\Admin\TeacherManagementController;
 use App\Http\Controllers\Admin\TeacherAttendanceManagementController;
 use App\Http\Controllers\Admin\TeacherHonorManagementController;
 use App\Http\Controllers\Admin\TeacherHonorSelfController;
+use App\Http\Controllers\Admin\PositionManagementController;
+use App\Http\Controllers\Admin\AllowanceTypeManagementController;
+use App\Http\Controllers\Admin\PositionAllowanceManagementController;
+use App\Http\Controllers\Admin\TeacherPositionManagementController;
+use App\Http\Controllers\Admin\TeacherAttendanceRateManagementController;
 use App\Http\Controllers\Admin\FacilityManagementController;
 use App\Http\Controllers\Admin\PaymentManagementController;
 use App\Http\Controllers\Admin\PaymentSettingManagementController;
@@ -188,6 +193,91 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
             Route::post('/', [TeacherHonorManagementController::class, 'store'])->name('store');
             Route::get('/{teacherHonor}/edit', [TeacherHonorManagementController::class, 'edit'])->name('edit');
             Route::put('/{teacherHonor}', [TeacherHonorManagementController::class, 'update'])->name('update');
+        });
+    });
+
+    // Positions (Honor) Management Routes
+    Route::prefix('positions')->name('positions.')->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+            Route::get('/', [PositionManagementController::class, 'index'])->name('index');
+            Route::get('/export', [PositionManagementController::class, 'export'])->name('export');
+            Route::get('/{position}', [PositionManagementController::class, 'show'])->whereNumber('position')->name('show');
+        });
+
+        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+            Route::get('/create', [PositionManagementController::class, 'create'])->name('create');
+            Route::post('/', [PositionManagementController::class, 'store'])->name('store');
+            Route::get('/{position}/edit', [PositionManagementController::class, 'edit'])->whereNumber('position')->name('edit');
+            Route::put('/{position}', [PositionManagementController::class, 'update'])->whereNumber('position')->name('update');
+            Route::delete('/{position}', [PositionManagementController::class, 'destroy'])->whereNumber('position')->name('destroy');
+        });
+    });
+
+    // Allowance Types (Honor) Management Routes
+    Route::prefix('allowance-types')->name('allowance-types.')->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+            Route::get('/', [AllowanceTypeManagementController::class, 'index'])->name('index');
+            Route::get('/export', [AllowanceTypeManagementController::class, 'export'])->name('export');
+            Route::get('/{allowanceType}', [AllowanceTypeManagementController::class, 'show'])->whereNumber('allowanceType')->name('show');
+        });
+
+        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+            Route::get('/create', [AllowanceTypeManagementController::class, 'create'])->name('create');
+            Route::post('/', [AllowanceTypeManagementController::class, 'store'])->name('store');
+            Route::get('/{allowanceType}/edit', [AllowanceTypeManagementController::class, 'edit'])->whereNumber('allowanceType')->name('edit');
+            Route::put('/{allowanceType}', [AllowanceTypeManagementController::class, 'update'])->whereNumber('allowanceType')->name('update');
+            Route::delete('/{allowanceType}', [AllowanceTypeManagementController::class, 'destroy'])->whereNumber('allowanceType')->name('destroy');
+        });
+    });
+
+    // Position Allowances (Honor) Management Routes
+    Route::prefix('position-allowances')->name('position-allowances.')->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+            Route::get('/', [PositionAllowanceManagementController::class, 'index'])->name('index');
+            Route::get('/export', [PositionAllowanceManagementController::class, 'export'])->name('export');
+            Route::get('/{positionAllowance}', [PositionAllowanceManagementController::class, 'show'])->whereNumber('positionAllowance')->name('show');
+        });
+
+        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+            Route::get('/create', [PositionAllowanceManagementController::class, 'create'])->name('create');
+            Route::post('/', [PositionAllowanceManagementController::class, 'store'])->name('store');
+            Route::get('/{positionAllowance}/edit', [PositionAllowanceManagementController::class, 'edit'])->whereNumber('positionAllowance')->name('edit');
+            Route::put('/{positionAllowance}', [PositionAllowanceManagementController::class, 'update'])->whereNumber('positionAllowance')->name('update');
+            Route::delete('/{positionAllowance}', [PositionAllowanceManagementController::class, 'destroy'])->whereNumber('positionAllowance')->name('destroy');
+        });
+    });
+
+    // Teacher Positions (Honor) Management Routes
+    Route::prefix('teacher-positions')->name('teacher-positions.')->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+            Route::get('/', [TeacherPositionManagementController::class, 'index'])->name('index');
+            Route::get('/export', [TeacherPositionManagementController::class, 'export'])->name('export');
+            Route::get('/{teacherPosition}', [TeacherPositionManagementController::class, 'show'])->whereNumber('teacherPosition')->name('show');
+        });
+
+        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+            Route::get('/create', [TeacherPositionManagementController::class, 'create'])->name('create');
+            Route::post('/', [TeacherPositionManagementController::class, 'store'])->name('store');
+            Route::get('/{teacherPosition}/edit', [TeacherPositionManagementController::class, 'edit'])->whereNumber('teacherPosition')->name('edit');
+            Route::put('/{teacherPosition}', [TeacherPositionManagementController::class, 'update'])->whereNumber('teacherPosition')->name('update');
+            Route::delete('/{teacherPosition}', [TeacherPositionManagementController::class, 'destroy'])->whereNumber('teacherPosition')->name('destroy');
+        });
+    });
+
+    // Teacher Attendance Rates (Honor) Management Routes
+    Route::prefix('teacher-attendance-rates')->name('teacher-attendance-rates.')->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+            Route::get('/', [TeacherAttendanceRateManagementController::class, 'index'])->name('index');
+            Route::get('/export', [TeacherAttendanceRateManagementController::class, 'export'])->name('export');
+            Route::get('/{teacherAttendanceRate}', [TeacherAttendanceRateManagementController::class, 'show'])->whereNumber('teacherAttendanceRate')->name('show');
+        });
+
+        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+            Route::get('/create', [TeacherAttendanceRateManagementController::class, 'create'])->name('create');
+            Route::post('/', [TeacherAttendanceRateManagementController::class, 'store'])->name('store');
+            Route::get('/{teacherAttendanceRate}/edit', [TeacherAttendanceRateManagementController::class, 'edit'])->whereNumber('teacherAttendanceRate')->name('edit');
+            Route::put('/{teacherAttendanceRate}', [TeacherAttendanceRateManagementController::class, 'update'])->whereNumber('teacherAttendanceRate')->name('update');
+            Route::delete('/{teacherAttendanceRate}', [TeacherAttendanceRateManagementController::class, 'destroy'])->whereNumber('teacherAttendanceRate')->name('destroy');
         });
     });
 

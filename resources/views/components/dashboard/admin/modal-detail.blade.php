@@ -11,6 +11,11 @@
     $teacherAttendance = $teacherAttendance ?? null;
     $teacherHonor = $teacherHonor ?? null;
     $facility = $facility ?? null;
+    $position = $position ?? null;
+    $allowanceType = $allowanceType ?? null;
+    $teacherPosition = $teacherPosition ?? null;
+    $positionAllowance = $positionAllowance ?? null;
+    $teacherAttendanceRate = $teacherAttendanceRate ?? null;
     $payment = $payment ?? null;
     $studentPayment = $studentPayment ?? null;
 
@@ -23,7 +28,7 @@
      * Supported types: user, teacher, registration, parent, student, class, payment, student-payment
      */
     $modalId = "view-{$type}-modal";
-    $entity = $user ?? $teacher ?? $registration ?? $parent ?? $student ?? $schoolClass ?? $studentAttendance ?? $teacherAttendance ?? $teacherHonor ?? $facility ?? $payment ?? $studentPayment ?? null;
+    $entity = $user ?? $teacher ?? $registration ?? $parent ?? $student ?? $schoolClass ?? $studentAttendance ?? $teacherAttendance ?? $teacherHonor ?? $facility ?? $position ?? $allowanceType ?? $teacherPosition ?? $positionAllowance ?? $teacherAttendanceRate ?? $payment ?? $studentPayment ?? null;
 
     $label = match($type) {
         'user' => 'Pengguna',
@@ -35,6 +40,11 @@
         'student-attendance' => 'Absensi Murid',
         'teacher-attendance' => 'Absensi Guru',
         'teacher-honor' => 'Honor Guru',
+        'position' => 'Posisi Guru',
+        'teacher-position' => 'Penugasan Posisi',
+        'allowance-type' => 'Jenis Tunjangan',
+        'position-allowance' => 'Tunjangan Posisi',
+        'teacher-attendance-rate' => 'Tarif Kehadiran',
         'facility' => 'Sarana & Prasarana',
         'payment' => 'Payment',
         'student-payment' => 'Tagihan Murid',
@@ -110,6 +120,11 @@
         'student-attendance' => $studentAttendance?->id_attendance,
         'teacher-attendance' => $teacherAttendance?->id_attendance,
         'teacher-honor' => $teacherHonor?->id_honors,
+        'position' => $position?->id_position,
+        'teacher-position' => $teacherPosition?->id_teacher_position,
+        'allowance-type' => $allowanceType?->id_allowance_type,
+        'position-allowance' => $positionAllowance?->id_position_allowance,
+        'teacher-attendance-rate' => $teacherAttendanceRate?->id_teacher_attendance_rate,
         'facility' => $facility?->id,
         'payment' => $payment?->id_payment,
         'student-payment' => $studentPayment?->id_student_payment,
@@ -128,6 +143,11 @@
         ?? $parent?->father_name
         ?? $student?->name
         ?? ($teacherHonor?->teacher?->name ? ($teacherHonor->teacher->name . ' - ' . sprintf('%02d/%d', (int)($teacherHonor->month ?? 0), (int)($teacherHonor->year ?? 0))) : null)
+        ?? $position?->name
+        ?? $allowanceType?->name
+        ?? ($teacherPosition?->teacher?->name ? ($teacherPosition->teacher->name . ' - ' . ($teacherPosition?->position?->name ?? '-')) : null)
+        ?? ($positionAllowance?->position?->name ? ($positionAllowance->position->name . ' - ' . ($positionAllowance?->allowanceType?->name ?? '-')) : null)
+        ?? ($teacherAttendanceRate?->teacher?->name ? ($teacherAttendanceRate->teacher->name . ' - tarif') : null)
         ?? $facility?->name
         ?? $schoolClass?->class_name
         ?? ($studentAttendance?->student?->name ? ($studentAttendance->student->name . ' - ' . ($studentAttendance->date?->format('Y-m-d') ?? '-')) : null)
@@ -256,12 +276,31 @@
                 </div>
 
             @elseif($type === 'teacher')
+                @php
+                    $startWork = $teacher?->start_work_date;
+                    $masaKerjaLabel = '-';
+                    if ($startWork && is_object($startWork) && method_exists($startWork, 'diff')) {
+                        $diff = $startWork->diff(now());
+                        $years = (int)($diff->y ?? 0);
+                        $months = (int)($diff->m ?? 0);
+                        $masaParts = [];
+                        if ($years > 0) $masaParts[] = $years . ' th';
+                        if ($months > 0) $masaParts[] = $months . ' bln';
+                        $masaKerjaLabel = !empty($masaParts) ? implode(' ', $masaParts) : '0 bln';
+                    }
+                @endphp
                 <div class="registration-detail-grid">
                     <div class="registration-detail-block">
                         <h3>Profil Guru</h3>
                         <div class="registration-detail-row"><span>ID Guru</span><strong>{{ $teacher?->id_teacher ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>ID User</span><strong>{{ $teacher?->id_user ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Nama</span><strong>{{ $teacher?->name ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Jabatan</span><strong>{{ $teacher?->position ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>NIP</span><strong>{{ $teacher?->nip ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>NUPTK</span><strong>{{ $teacher?->nuptk ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>TTL</span><strong>{{ $teacher?->birth_place ?? '-' }}, {{ $teacher?->birth_date?->format('Y-m-d') ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Tgl Mulai Kerja</span><strong>{{ $teacher?->start_work_date?->format('Y-m-d') ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Masa Kerja</span><strong>{{ $masaKerjaLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Status</span><strong>{{ ($teacher?->status ?? 'active') === 'active' ? 'Aktif' : 'Nonaktif' }}</strong></div>
                         <div class="registration-detail-row"><span>Pendidikan</span><strong>{{ $teacher?->education ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Telepon</span><strong>{{ $teacher?->phone_num ?? '-' }}</strong></div>
@@ -750,6 +789,7 @@
                         <div class="registration-detail-row"><span>Nama</span><strong>{{ $student?->name ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>TTL</span><strong>{{ $student?->birth_place ?? '-' }}, {{ $student?->birth_date?->format('Y-m-d') ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Gender</span><strong>{{ $student?->gender ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Agama</span><strong>{{ $student?->religion ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Grup</span><strong>{{ $student?->group ?? '-' }}</strong></div>
                         @php
                             $studentStatusValue = $student?->status ?? null;
@@ -958,9 +998,15 @@
             @elseif($type === 'teacher-honor')
                 @php
                     $teacherName = $teacher?->name ?? $teacherHonor?->teacher?->name ?? '-';
-                    $periodLabel = sprintf('%02d/%d', (int)($teacherHonor?->month ?? 0), (int)($teacherHonor?->year ?? 0));
+                    $periodLabel = ($teacherHonor?->period_start && $teacherHonor?->period_end)
+                        ? ($teacherHonor->period_start->format('Y-m-d') . ' s/d ' . $teacherHonor->period_end->format('Y-m-d'))
+                        : sprintf('%02d/%d', (int)($teacherHonor?->month ?? 0), (int)($teacherHonor?->year ?? 0));
                     $isPaid = (bool)($teacherHonor?->payment_date);
                     $statusLabel = $isPaid ? 'Paid' : 'Unpaid';
+                    $rateLabel = 'Rp ' . number_format((float)($teacherHonor?->rate_snapshot ?? 0), 0, ',', '.');
+                    $allowanceLabel = 'Rp ' . number_format((float)($teacherHonor?->allowance_total ?? 0), 0, ',', '.');
+                    $adjustmentLabel = 'Rp ' . number_format((float)($teacherHonor?->manual_adjustment ?? 0), 0, ',', '.');
+                    $amountLabel = 'Rp ' . number_format((float)($teacherHonor?->amount ?? 0), 0, ',', '.');
                 @endphp
 
                 <div class="registration-detail-grid">
@@ -971,12 +1017,108 @@
                         <div class="registration-detail-row"><span>Periode</span><strong>{{ $periodLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Status</span><strong>{{ $statusLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Tanggal Pembayaran</span><strong>{{ $teacherHonor?->payment_date?->format('Y-m-d') ?? '-' }}</strong></div>
-                        <div class="registration-detail-row"><span>Nominal</span><strong>Rp {{ number_format((float)($teacherHonor?->amount ?? 0), 0, ',', '.') }}</strong></div>
+                        <div class="registration-detail-row"><span>Rate per Hadir</span><strong>{{ $rateLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Total Tunjangan</span><strong>{{ $allowanceLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Penyesuaian</span><strong>{{ $adjustmentLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Nominal</span><strong>{{ $amountLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Hadir</span><strong>{{ (int)($teacherHonor?->attendance_count ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Izin</span><strong>{{ (int)($teacherHonor?->permission_count ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Sakit</span><strong>{{ (int)($teacherHonor?->sickness_count ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Alpa</span><strong>{{ (int)($teacherHonor?->absence_count ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $teacherHonor?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                    </div>
+                </div>
+            @elseif($type === 'position')
+                @php
+                    $isActive = (bool)($position?->is_active ?? true);
+                    $statusLabel = $isActive ? 'Aktif' : 'Nonaktif';
+                @endphp
+
+                <div class="registration-detail-grid">
+                    <div class="registration-detail-block">
+                        <h3>Data Posisi</h3>
+                        <div class="registration-detail-row"><span>ID</span><strong>{{ $position?->id_position ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Nama</span><strong>{{ $position?->name ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Deskripsi</span><strong>{{ $position?->description ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Status</span><strong>{{ $statusLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $position?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Diperbarui</span><strong>{{ $position?->updated_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                    </div>
+                </div>
+            @elseif($type === 'allowance-type')
+                @php
+                    $isActive = (bool)($allowanceType?->is_active ?? true);
+                    $statusLabel = $isActive ? 'Aktif' : 'Nonaktif';
+                @endphp
+
+                <div class="registration-detail-grid">
+                    <div class="registration-detail-block">
+                        <h3>Jenis Tunjangan</h3>
+                        <div class="registration-detail-row"><span>ID</span><strong>{{ $allowanceType?->id_allowance_type ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Nama</span><strong>{{ $allowanceType?->name ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Deskripsi</span><strong>{{ $allowanceType?->description ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Status</span><strong>{{ $statusLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $allowanceType?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Diperbarui</span><strong>{{ $allowanceType?->updated_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                    </div>
+                </div>
+            @elseif($type === 'teacher-position')
+                @php
+                    $teacherName = $teacherPosition?->teacher?->name ?? '-';
+                    $positionName = $teacherPosition?->position?->name ?? '-';
+                    $periodLabel = $teacherPosition?->effective_from
+                        ? $teacherPosition->effective_from->format('Y-m-d') . ' s/d ' . ($teacherPosition->effective_to?->format('Y-m-d') ?? '-')
+                        : '-';
+                @endphp
+
+                <div class="registration-detail-grid">
+                    <div class="registration-detail-block">
+                        <h3>Penugasan Posisi</h3>
+                        <div class="registration-detail-row"><span>ID</span><strong>{{ $teacherPosition?->id_teacher_position ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Guru</span><strong>{{ $teacherName }}</strong></div>
+                        <div class="registration-detail-row"><span>Posisi</span><strong>{{ $positionName }}</strong></div>
+                        <div class="registration-detail-row"><span>Periode</span><strong>{{ $periodLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $teacherPosition?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                    </div>
+                </div>
+            @elseif($type === 'position-allowance')
+                @php
+                    $positionName = $positionAllowance?->position?->name ?? '-';
+                    $typeName = $positionAllowance?->allowanceType?->name ?? '-';
+                    $amountLabel = 'Rp ' . number_format((float)($positionAllowance?->amount ?? 0), 0, ',', '.');
+                    $periodLabel = $positionAllowance?->effective_from
+                        ? $positionAllowance->effective_from->format('Y-m-d') . ' s/d ' . ($positionAllowance->effective_to?->format('Y-m-d') ?? '-')
+                        : '-';
+                @endphp
+
+                <div class="registration-detail-grid">
+                    <div class="registration-detail-block">
+                        <h3>Tunjangan Posisi</h3>
+                        <div class="registration-detail-row"><span>ID</span><strong>{{ $positionAllowance?->id_position_allowance ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Posisi</span><strong>{{ $positionName }}</strong></div>
+                        <div class="registration-detail-row"><span>Jenis Tunjangan</span><strong>{{ $typeName }}</strong></div>
+                        <div class="registration-detail-row"><span>Nominal</span><strong>{{ $amountLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Periode</span><strong>{{ $periodLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $positionAllowance?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                    </div>
+                </div>
+            @elseif($type === 'teacher-attendance-rate')
+                @php
+                    $teacherName = $teacherAttendanceRate?->teacher?->name ?? '-';
+                    $amountLabel = 'Rp ' . number_format((float)($teacherAttendanceRate?->amount_per_attendance ?? 0), 0, ',', '.');
+                    $periodLabel = $teacherAttendanceRate?->effective_from
+                        ? $teacherAttendanceRate->effective_from->format('Y-m-d') . ' s/d ' . ($teacherAttendanceRate->effective_to?->format('Y-m-d') ?? '-')
+                        : '-';
+                @endphp
+
+                <div class="registration-detail-grid">
+                    <div class="registration-detail-block">
+                        <h3>Tarif Kehadiran</h3>
+                        <div class="registration-detail-row"><span>ID</span><strong>{{ $teacherAttendanceRate?->id_teacher_attendance_rate ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Guru</span><strong>{{ $teacherName }}</strong></div>
+                        <div class="registration-detail-row"><span>Tarif</span><strong>{{ $amountLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Periode</span><strong>{{ $periodLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $teacherAttendanceRate?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
                     </div>
                 </div>
 
@@ -993,6 +1135,9 @@
                         <div class="registration-detail-row"><span>Nama</span><strong>{{ $facility?->name ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Jumlah</span><strong>{{ (int)($facility?->quantity ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Kondisi</span><strong>{{ $facility?->condition ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Sumber Dana</span><strong>{{ $facility?->fund_source ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Tahun Perolehan</span><strong>{{ $facility?->acquisition_year ?? '-' }}</strong></div>
+                        <div class="registration-detail-row"><span>Kategori</span><strong>{{ $facility?->category ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Loc Path Gambar</span><strong>{{ $facility?->image_path ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Status</span><strong>{{ $statusLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $facility?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
@@ -1063,7 +1208,7 @@
                     <div class="form-group admin-detail-status-form-action">
                         <label for="registration-status-action" class="form-label admin-detail-status-form-label">Aksi</label>
                         <select id="registration-status-action" name="status" class="form-input form-select" data-reject-reason-toggle>
-                            <option value="active" selected>✅ Approve</option>
+                            <option value="approved_awaiting_payment" selected>✅ Approve (Menunggu Pembayaran)</option>
                             <option value="rejected">⛔ Tolak</option>
                         </select>
                     </div>

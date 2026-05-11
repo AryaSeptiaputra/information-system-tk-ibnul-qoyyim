@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
 
     // Guest pages (detail pages for dashboard sections)
     Route::get('/dashboard/info', [DashboardController::class, 'guestInfo'])->name('dashboard.info');
+    Route::get('/dashboard/students', [DashboardController::class, 'guestStudents'])->name('dashboard.students');
     Route::get('/dashboard/bills', [DashboardController::class, 'guestBills'])->name('dashboard.bills');
     Route::post('/dashboard/bills/{studentPayment}/pay', [DashboardController::class, 'guestBillsPay'])->name('dashboard.bills.pay');
     Route::post('/dashboard/bills/{studentPayment}/installments/{installment}/pay', [DashboardController::class, 'guestBillsInstallmentPay'])->name('dashboard.bills.installments.pay');

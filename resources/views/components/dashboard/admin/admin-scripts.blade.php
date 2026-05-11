@@ -279,15 +279,17 @@
 
             const teacherSelect = form.querySelector('#form-id-teacher');
             const teacherHidden = form.querySelector('input[name="id_teacher"]');
-            const monthSelect = form.querySelector('#form-month');
-            const yearInput = form.querySelector('#form-year');
+            const periodStartInput = form.querySelector('#form-period-start');
+            const periodEndInput = form.querySelector('#form-period-end');
 
             const hadirInput = form.querySelector('#form-attendance-count');
             const izinInput = form.querySelector('#form-permission-count');
             const sakitInput = form.querySelector('#form-sickness-count');
             const alpaInput = form.querySelector('#form-absence-count');
 
-            const rateInput = form.querySelector('#form-rate-per-meeting');
+            const rateInput = form.querySelector('#form-rate-per-attendance');
+            const allowanceInput = form.querySelector('#form-allowance-total');
+            const manualAdjustmentInput = form.querySelector('#form-manual-adjustment');
             const amountInput = form.querySelector('#form-amount');
 
             const attendancePreview = form.querySelector('[data-honor-attendance-preview]');
@@ -300,6 +302,8 @@
             const recapSakit = form.querySelector('[data-honor-recap-sakit]');
             const recapAlpa = form.querySelector('[data-honor-recap-alpa]');
             const recapTotal = form.querySelector('[data-honor-recap-total]');
+            const recapRate = form.querySelector('[data-honor-recap-rate]');
+            const recapAllowance = form.querySelector('[data-honor-recap-allowance]');
             const recapAmount = form.querySelector('[data-honor-recap-amount]');
             const recapNote = form.querySelector('[data-honor-recap-note]');
 
@@ -314,7 +318,7 @@
 
             function toFloat(value) {
                 const n = parseFloat((value ?? '').toString());
-                return Number.isFinite(n) && n >= 0 ? n : 0;
+                return Number.isFinite(n) ? n : 0;
             }
 
             function formatRupiah(num) {
@@ -327,10 +331,10 @@
             }
 
             function getPeriodText() {
-                const month = (monthSelect?.value ?? '').toString();
-                const year = (yearInput?.value ?? '').toString();
-                if (!month || !year) return '-';
-                return `${month}/${year}`;
+                const start = (periodStartInput?.value ?? '').toString();
+                const end = (periodEndInput?.value ?? '').toString();
+                if (!start || !end) return '-';
+                return `${start} s/d ${end}`;
             }
 
             function updateRecapCard(data, opts = {}) {
@@ -352,7 +356,11 @@
                 if (recapTotal) recapTotal.textContent = total;
 
                 const rate = toFloat(rateInput?.value);
-                const estimated = hadir * rate;
+                const allowance = toFloat(allowanceInput?.value);
+                const manual = toFloat(manualAdjustmentInput?.value);
+                const estimated = (hadir * rate) + allowance + manual;
+                if (recapRate) recapRate.textContent = formatRupiah(rate);
+                if (recapAllowance) recapAllowance.textContent = formatRupiah(allowance);
                 if (recapAmount) recapAmount.textContent = formatRupiah(estimated);
 
                 if (recapNote) {
@@ -370,11 +378,13 @@
                 if (!hadirInput || !rateInput || !amountInput) return;
                 const hadir = toInt(hadirInput.value);
                 const rate = toFloat(rateInput.value);
-                const total = hadir * rate;
+                const allowance = toFloat(allowanceInput?.value);
+                const manual = toFloat(manualAdjustmentInput?.value);
+                const total = (hadir * rate) + allowance + manual;
 
                 amountInput.value = (Math.round(total * 100) / 100).toFixed(2);
                 if (totalPreview) {
-                    totalPreview.textContent = `Preview total honor: ${hadir} × ${rate} = ${formatRupiah(total)}`;
+                    totalPreview.textContent = `Preview total honor: ${hadir} × ${rate} + ${allowance} + ${manual} = ${formatRupiah(total)}`;
                 }
 
                 // Keep recap card's estimated total in sync with current inputs
@@ -396,10 +406,15 @@
                 const izin = toInt(data.izin);
                 const sakit = toInt(data.sakit);
                 const alpa = toInt(data.alpa);
+                const rate = toFloat(data.rate);
+                const allowanceTotal = toFloat(data.allowance_total);
 
                 if (attendancePreview) {
                     attendancePreview.textContent = `Rekap absensi: Hadir ${hadir}, Izin ${izin}, Sakit ${sakit}, Alpa ${alpa}`;
                 }
+
+                if (rateInput) rateInput.value = rate.toFixed(2);
+                if (allowanceInput) allowanceInput.value = allowanceTotal.toFixed(2);
 
                 updateRecapCard({ hadir, izin, sakit, alpa, total: toInt(data.total) });
             }
@@ -414,19 +429,19 @@
 
             function fetchAttendanceSummary() {
                 const teacherId = getTeacherId();
-                const month = monthSelect?.value;
-                const year = yearInput?.value;
+                const periodStart = periodStartInput?.value;
+                const periodEnd = periodEndInput?.value;
 
-                if (!teacherId || !month || !year) {
+                if (!teacherId || !periodStart || !periodEnd) {
                     if (attendancePreview) attendancePreview.textContent = 'Rekap absensi: -';
-                    updateRecapCard(null, { message: 'Pilih guru + bulan/tahun untuk melihat rekap.' });
+                    updateRecapCard(null, { message: 'Pilih guru + periode untuk melihat rekap.' });
                     computeTotal();
                     return;
                 }
 
                 updateRecapCard(null, { loading: true });
 
-                const url = `/admin/teacher-honors/attendance-summary?id_teacher=${encodeURIComponent(teacherId)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}`;
+                const url = `/admin/teacher-honors/attendance-summary?id_teacher=${encodeURIComponent(teacherId)}&period_start=${encodeURIComponent(periodStart)}&period_end=${encodeURIComponent(periodEnd)}`;
 
                 fetch(url, {
                     cache: 'no-store',
@@ -457,13 +472,13 @@
                     });
             }
 
-            [teacherSelect, monthSelect, yearInput].forEach(el => {
+            [teacherSelect, periodStartInput, periodEndInput].forEach(el => {
                 if (!el) return;
                 el.addEventListener('change', fetchAttendanceSummary);
                 el.addEventListener('input', fetchAttendanceSummary);
             });
 
-            [hadirInput, rateInput].forEach(el => {
+            [hadirInput, rateInput, allowanceInput, manualAdjustmentInput].forEach(el => {
                 if (!el) return;
                 el.addEventListener('input', computeTotal);
                 el.addEventListener('change', computeTotal);
@@ -520,6 +535,11 @@
             if (modalId.includes('student-attendance')) return 'student-attendance';
             if (modalId.includes('teacher-attendance')) return 'teacher-attendance';
             if (modalId.includes('teacher-honor')) return 'teacher-honor';
+            if (modalId.includes('teacher-attendance-rate')) return 'teacher-attendance-rate';
+            if (modalId.includes('teacher-position')) return 'teacher-position';
+            if (modalId.includes('position-allowance')) return 'position-allowance';
+            if (modalId.includes('allowance-type')) return 'allowance-type';
+            if (modalId.includes('position')) return 'position';
             if (modalId.includes('facility')) return 'facility';
             if (modalId.includes('user')) return 'user';
             if (modalId.includes('teacher')) return 'teacher';
@@ -541,6 +561,11 @@
                 case 'student-attendance': return 'student-attendance';
                 case 'teacher-attendance': return 'teacher-attendance';
                 case 'teacher-honor': return 'teacher-honors';
+                case 'position': return 'positions';
+                case 'teacher-position': return 'teacher-positions';
+                case 'allowance-type': return 'allowance-types';
+                case 'position-allowance': return 'position-allowances';
+                case 'teacher-attendance-rate': return 'teacher-attendance-rates';
                 case 'facility': return 'facilities';
                 case 'payment': return 'payments';
                 case 'student-payment': return 'student-payments';
@@ -559,6 +584,11 @@
                 case 'student-attendance': return 'absensi murid';
                 case 'teacher-attendance': return 'absensi guru';
                 case 'teacher-honor': return 'honor guru';
+                case 'position': return 'posisi guru';
+                case 'teacher-position': return 'penugasan posisi';
+                case 'allowance-type': return 'jenis tunjangan';
+                case 'position-allowance': return 'tunjangan posisi';
+                case 'teacher-attendance-rate': return 'tarif kehadiran';
                 case 'facility': return 'fasilitas';
                 case 'payment': return 'payment';
                 case 'student-payment': return 'tagihan murid';

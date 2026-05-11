@@ -153,7 +153,9 @@
             <div class="status-card-action">
                 <button type="button" class="btn-small secondary" data-modal-open="registration-detail">📋 Lihat Detail</button>
                 @if(($pendingRegistration->status ?? null) === 'rejected')
-                    <a href="{{ route('dashboard') }}#registration-form" class="btn-small primary">📝 Daftar Ulang</a>
+                    <a href="{{ route('registration.create') }}" class="btn-small primary">📝 Daftar Ulang</a>
+                @else
+                    <a href="{{ route('registration.create') }}" class="btn-small primary">➕ Daftar Anak Lain</a>
                 @endif
             </div>
         </div>
@@ -169,6 +171,7 @@
             </p>
             <div class="status-card-action">
                 <button type="button" class="btn-small secondary" data-modal-open="registration-detail">📋 Lihat Detail</button>
+                <a href="{{ route('registration.create') }}" class="btn-small primary">➕ Daftar Anak Lain</a>
             </div>
         </div>
     </div>
@@ -177,7 +180,7 @@
         <h3>📭 Belum Ada Pendaftaran</h3>
         <p>Anda belum memiliki pendaftaran anak. Silakan mulai pendaftaran melalui tombol di bawah.</p>
         <p>
-            <a href="{{ route('dashboard') }}#registration-form">Daftar Anak Sekarang</a>
+            <a href="{{ route('registration.create') }}">Daftar Anak Sekarang</a>
         </p>
     </div>
 @endif

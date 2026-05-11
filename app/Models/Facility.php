@@ -16,6 +16,9 @@ class Facility extends Model
         'description',
         'quantity',
         'condition',
+        'fund_source',
+        'acquisition_year',
+        'category',
         'image_path',
         'is_active',
     ];
@@ -23,6 +26,7 @@ class Facility extends Model
     protected $casts = [
         'quantity' => 'integer',
         'is_active' => 'boolean',
+        'acquisition_year' => 'integer',
     ];
 
     public function scopeActive($query)

@@ -7,7 +7,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['id_teacher', 'date', 'status', 'information'])]
+#[Fillable([
+    'id_teacher',
+    'date',
+    'check_in_time',
+    'is_late',
+    'late_minutes',
+    'status',
+    'information',
+    'attachment_path',
+    'source',
+])]
 class TeacherAttendance extends Model
 {
     use HasFactory;
@@ -20,6 +30,9 @@ class TeacherAttendance extends Model
     {
         return [
             'date' => 'date',
+            'check_in_time' => 'datetime',
+            'is_late' => 'boolean',
+            'late_minutes' => 'integer',
         ];
     }
 

@@ -3,89 +3,99 @@
 @section('title', 'Honor Saya - TK Ibnul Qoyyim')
 @section('page_title', 'Honor Saya')
 
-@section('content')
-
 @php
+    $rp = static fn ($n) => 'Rp ' . number_format((float) $n, 0, ',', '.');
     $monthNames = [
         1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
         7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
     ];
-
-    $formatPeriod = static function (?int $month, ?int $year) use ($monthNames): string {
-        $m = (int)($month ?? 0);
-        $y = (int)($year ?? 0);
-        if ($m < 1 || $m > 12 || $y < 1) {
-            return '-';
-        }
-        return ($monthNames[$m] ?? (string)$m) . ' ' . $y;
-    };
-
-    $formatPeriodRange = static function ($row) use ($formatPeriod): string {
+    $periodLabel = static function ($row) use ($monthNames) {
         if ($row?->period_start && $row?->period_end) {
-            return $row->period_start->format('Y-m-d') . ' s/d ' . $row->period_end->format('Y-m-d');
+            return $row->period_start->format('d M') . ' – ' . $row->period_end->format('d M Y');
         }
-        return $formatPeriod((int)($row?->month ?? 0), (int)($row?->year ?? 0));
+        $m = (int) ($row?->month ?? 0);
+        $y = (int) ($row?->year ?? 0);
+        return $m && $y ? ($monthNames[$m] . ' ' . $y) : '-';
     };
 @endphp
 
-<div class="admin-my-honor-page">
-    <div class="admin-section-header">
-        <p class="admin-section-subtitle">Ringkasan dan riwayat honor Anda.</p>
+@section('content')
+
+<x-ui.page-header title="Honor Saya" />
+
+@if(!$teacher)
+    <x-ui.empty-state message="Akun Anda belum tertaut ke data guru. Hubungi admin." />
+@else
+    {{-- Bulan berjalan (StatCard besar) --}}
+    <div class="ui-section">
+        @if($myHonor)
+            @php
+                $isPaid = (bool) $myHonor->payment_date;
+            @endphp
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--ui-space-md);">
+                <div>
+                    <div class="ui-stat-card__label">Bulan Berjalan ({{ $periodLabel($myHonor) }})</div>
+                    <div style="font-size: var(--ui-font-2xl); font-weight: 700; color: var(--color-primary-dark); margin-top: var(--ui-space-xs);">
+                        {{ $rp($myHonor->amount) }}
+                    </div>
+                    <div class="ui-stat-card__hint" style="margin-top: var(--ui-space-xs);">
+                        {{ (int) $myHonor->attendance_count }} hadir ·
+                        {{ (int) $myHonor->permission_count }} izin ·
+                        {{ (int) $myHonor->sickness_count }} sakit ·
+                        {{ (int) $myHonor->late_count }} telat
+                    </div>
+                </div>
+                <div>
+                    @if($isPaid)
+                        <x-ui.badge variant="success">Paid {{ $myHonor->payment_date?->format('d M Y') }}</x-ui.badge>
+                    @else
+                        <x-ui.badge variant="warning">Unpaid</x-ui.badge>
+                    @endif
+                </div>
+            </div>
+        @else
+            <div class="ui-stat-card__label">Bulan Berjalan</div>
+            <div style="font-size: var(--ui-font-lg); color: var(--color-muted); margin-top: var(--ui-space-xs);">
+                Honor bulan ini belum di-generate oleh admin/bendahara.
+            </div>
+        @endif
     </div>
 
-    @include('components.dashboard.admin.teacher-honor-summary', [
-        'user' => $user ?? auth()->user(),
-        'myTeacherDetail' => $myTeacherDetail ?? null,
-        'myHonor' => $myHonor ?? null,
-        'myHonorLatest' => $myHonorLatest ?? null,
-        'myHonorList' => $myHonorList ?? collect(),
-        'showAllLink' => false,
-    ])
+    {{-- Riwayat pencairan --}}
+    <div class="ui-section">
+        <h3 class="ui-section__title">Riwayat Pencairan</h3>
 
-    <div class="admin-section-card">
-        <div class="admin-section-card-header">
-            <h3>Daftar Honor</h3>
-        </div>
-
-        @if(!$teacher)
-            <p class="text-empty">Data guru belum terhubung ke akun ini.</p>
-        @elseif(!$honors || ($honors->total() ?? 0) === 0)
-            <p class="text-empty">Belum ada data honor.</p>
+        @if(!$honors || $honors->total() === 0)
+            <x-ui.empty-state icon="📭" message="Belum ada riwayat honor." />
         @else
-            <div class="admin-table-wrapper admin-table-wrapper-fixed-10">
-                <table class="admin-management-table admin-management-table-center-ends">
-                    <thead class="admin-table-header">
+            <div class="ui-table-wrapper" style="box-shadow: none; border: none;">
+                <table class="ui-table">
+                    <thead>
                         <tr>
-                            <th class="col-id">No</th>
                             <th>Periode</th>
                             <th>Hadir</th>
-                            <th>Izin</th>
-                            <th>Sakit</th>
-                            <th>Alpa</th>
                             <th>Nominal</th>
+                            <th>Tgl Bayar</th>
                             <th>Status</th>
-                            <th>Tanggal Bayar</th>
                         </tr>
                     </thead>
-                    <tbody class="admin-table-body">
-                        @foreach($honors as $i => $row)
+                    <tbody>
+                        @foreach($honors as $h)
                             @php
-                                $paid = (bool)($row->payment_date);
+                                $isPaid = (bool) $h->payment_date;
                             @endphp
-                            <tr class="admin-table-row">
-                                <td class="col-id">{{ ($honors->firstItem() ?? 1) + $i }}</td>
-                                <td>{{ $formatPeriodRange($row) }}</td>
-                                <td>{{ (int)($row->attendance_count ?? 0) }}</td>
-                                <td>{{ (int)($row->permission_count ?? 0) }}</td>
-                                <td>{{ (int)($row->sickness_count ?? 0) }}</td>
-                                <td>{{ (int)($row->absence_count ?? 0) }}</td>
-                                <td>Rp {{ number_format((float)($row->amount ?? 0), 0, ',', '.') }}</td>
+                            <tr>
+                                <td>{{ $periodLabel($h) }}</td>
+                                <td>{{ (int) ($h->attendance_count ?? 0) }}</td>
+                                <td><strong>{{ $rp($h->amount) }}</strong></td>
+                                <td>{{ $h->payment_date?->format('d M Y') ?? '-' }}</td>
                                 <td>
-                                    <span class="admin-badge {{ $paid ? 'admin-badge-success' : 'admin-badge-warning' }}">
-                                        {{ $paid ? 'paid' : 'unpaid' }}
-                                    </span>
+                                    @if($isPaid)
+                                        <x-ui.badge variant="success">Paid</x-ui.badge>
+                                    @else
+                                        <x-ui.badge variant="warning">Unpaid</x-ui.badge>
+                                    @endif
                                 </td>
-                                <td>{{ $row->payment_date ? $row->payment_date->format('d/m/Y') : '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -98,6 +108,6 @@
             ])
         @endif
     </div>
-</div>
+@endif
 
 @endsection

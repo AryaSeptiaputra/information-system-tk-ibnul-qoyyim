@@ -3,45 +3,34 @@
     // Define menu structure for each role
     $menus = [
         'superadmin' => [
+            // Sidebar role superadmin = power user & system admin. 11 menu sesuai wireframe-superadmin-pages.md.
             [
                 'group' => 'Utama',
                 'items' => [
-                    ['icon' => '📊', 'label' => 'Dashboard', 'route' => route('admin.dashboard'), 'key' => 'admin.dashboard'],
+                    ['icon' => '🏦', 'label' => 'Dashboard', 'route' => route('admin.dashboard'), 'key' => 'admin.dashboard'],
                 ],
             ],
             [
-                'group' => 'Administrasi',
+                'group' => 'Pengguna',
                 'items' => [
                     ['icon' => '👥', 'label' => 'Manajemen Pengguna', 'route' => route('admin.users.index'), 'key' => 'admin.users.index'],
-                    ['icon' => '📝', 'label' => 'Manajemen Pendaftaran', 'route' => route('admin.registrations.index'), 'key' => 'admin.registrations.index'],
                 ],
             ],
             [
-                'group' => 'Murid',
+                'group' => 'Master Data',
                 'items' => [
-                    ['icon' => '👨‍👩‍👧‍👦', 'label' => 'Data Orang Tua', 'route' => route('admin.parents.index'), 'key' => 'admin.parents.index'],
                     ['icon' => '🧒', 'label' => 'Data Murid', 'route' => route('admin.students.index'), 'key' => 'admin.students.index'],
-                    ['icon' => '📊', 'label' => 'Data Kelas', 'route' => route('admin.classes.index'), 'key' => 'admin.classes.index'],
-                    ['icon' => '📝', 'label' => 'Absensi Murid', 'route' => route('admin.student-attendance.index'), 'key' => 'admin.student-attendance.index'],
-                ],
-            ],
-            [
-                'group' => 'Guru',
-                'items' => [
-                    ['icon' => '👨‍🏫', 'label' => 'Manajemen Guru', 'route' => route('admin.teachers.index'), 'key' => 'admin.teachers.index'],
-                    ['icon' => '📝', 'label' => 'Absensi Guru', 'route' => route('admin.teacher-attendance.index'), 'key' => 'admin.teacher-attendance.index'],
-                    ['icon' => '💰', 'label' => 'Honor Guru', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
-                    ['icon' => '🧭', 'label' => 'Posisi Guru', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
-                    ['icon' => '🧩', 'label' => 'Penugasan Posisi', 'route' => route('admin.teacher-positions.index'), 'key' => 'admin.teacher-positions.index'],
-                    ['icon' => '🎁', 'label' => 'Jenis Tunjangan', 'route' => route('admin.allowance-types.index'), 'key' => 'admin.allowance-types.index'],
-                    ['icon' => '💼', 'label' => 'Tunjangan Posisi', 'route' => route('admin.position-allowances.index'), 'key' => 'admin.position-allowances.index'],
-                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
-                ],
-            ],
-            [
-                'group' => 'Sarpras',
-                'items' => [
+                    ['icon' => '👨‍🏫', 'label' => 'Data Guru', 'route' => route('admin.teachers.index'), 'key' => 'admin.teachers.index'],
                     ['icon' => '🏗️', 'label' => 'Sarpras', 'route' => route('admin.facilities.index'), 'key' => 'admin.facilities.index'],
+                    ['icon' => '🗓️', 'label' => 'Hari Libur', 'route' => Route::has('admin.holidays.index') ? route('admin.holidays.index') : '#', 'key' => 'admin.holidays.index'],
+                ],
+            ],
+            [
+                'group' => 'Honor & Tunjangan',
+                'items' => [
+                    ['icon' => '💼', 'label' => 'Posisi & Tunjangan', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
+                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
+                    ['icon' => '💰', 'label' => 'Honor Guru', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
                 ],
             ],
             [
@@ -59,140 +48,127 @@
             ],
         ],
         'headmaster' => [
+            // Sidebar role headmaster = laporan & monitoring. 4 menu sesuai wireframe-headmaster-pages.md.
             [
                 'group' => 'Utama',
                 'items' => [
-                    ['icon' => '📊', 'label' => 'Dashboard', 'route' => route('admin.dashboard'), 'key' => 'admin.dashboard'],
+                    ['icon' => '📊', 'label' => 'Dashboard', 'route' => Route::has('admin.headmaster.dashboard') ? route('admin.headmaster.dashboard') : route('admin.dashboard'), 'key' => 'admin.headmaster.dashboard'],
                 ],
             ],
             [
-                'group' => 'Administrasi',
+                'group' => 'Laporan',
                 'items' => [
-                    ['icon' => '📝', 'label' => 'Pendaftaran', 'route' => route('admin.registrations.index'), 'key' => 'admin.registrations.index'],
+                    ['icon' => '📋', 'label' => 'Laporan Bulanan', 'route' => Route::has('admin.headmaster.reports') ? route('admin.headmaster.reports') : '#', 'key' => 'admin.headmaster.reports'],
                 ],
             ],
             [
                 'group' => 'Data',
                 'items' => [
-                    ['icon' => '👨‍👩‍👧‍👦', 'label' => 'Data Orang Tua', 'route' => route('admin.parents.index'), 'key' => 'admin.parents.index'],
-                    ['icon' => '👥', 'label' => 'Data Siswa', 'route' => route('admin.students.index'), 'key' => 'admin.students.index'],
-                    ['icon' => '📊', 'label' => 'Data Kelas', 'route' => route('admin.classes.index'), 'key' => 'admin.classes.index'],
-                    ['icon' => '👨‍🏫', 'label' => 'Data Guru', 'route' => route('admin.teachers.index'), 'key' => 'admin.teachers.index'],
-                ],
-            ],
-            [
-                'group' => 'Akademik',
-                'items' => [
-                    ['icon' => '📝', 'label' => 'Absensi Murid', 'route' => route('admin.student-attendance.index'), 'key' => 'admin.student-attendance.index'],
-                    ['icon' => '📝', 'label' => 'Absensi Guru', 'route' => route('admin.teacher-attendance.index'), 'key' => 'admin.teacher-attendance.index'],
-                ],
-            ],
-            [
-                'group' => 'Keuangan',
-                'items' => [
-                    ['icon' => '🧾', 'label' => 'Master Payment', 'route' => route('admin.payments.index'), 'key' => 'admin.payments.index'],
-                    ['icon' => '💳', 'label' => 'Tagihan Murid', 'route' => route('admin.student-payments.index'), 'key' => 'admin.student-payments.index'],
-                    ['icon' => '💰', 'label' => 'Honor Guru', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
-                    ['icon' => '🧭', 'label' => 'Posisi Guru', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
-                    ['icon' => '🧩', 'label' => 'Penugasan Posisi', 'route' => route('admin.teacher-positions.index'), 'key' => 'admin.teacher-positions.index'],
-                    ['icon' => '🎁', 'label' => 'Jenis Tunjangan', 'route' => route('admin.allowance-types.index'), 'key' => 'admin.allowance-types.index'],
-                    ['icon' => '💼', 'label' => 'Tunjangan Posisi', 'route' => route('admin.position-allowances.index'), 'key' => 'admin.position-allowances.index'],
-                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
-                ],
-            ],
-            [
-                'group' => 'Sarpras',
-                'items' => [
-                    ['icon' => '🏗️', 'label' => 'Sarpras', 'route' => route('admin.facilities.index'), 'key' => 'admin.facilities.index'],
-                ],
-            ],
-            [
-                'group' => 'Pengaturan',
-                'items' => [
-                    ['icon' => '⚙️', 'label' => 'Info Pembayaran', 'route' => route('admin.settings.payment-info.edit'), 'key' => 'admin.settings.payment-info.edit'],
+                    ['icon' => '👨‍🏫', 'label' => 'Daftar Guru', 'route' => route('admin.teachers.index'), 'key' => 'admin.teachers.index'],
+                    ['icon' => '🧒', 'label' => 'Daftar Murid', 'route' => route('admin.students.index'), 'key' => 'admin.students.index'],
                 ],
             ],
         ],
         'administration' => [
+            // Sidebar role administration = Bendahara (sesuai kebijakan operasional sekolah).
+            // 9 menu utama sesuai wireframe-bendahara-pages.md.
             [
                 'group' => 'Utama',
                 'items' => [
-                    ['icon' => '📊', 'label' => 'Dashboard', 'route' => route('admin.dashboard'), 'key' => 'admin.dashboard'],
+                    ['icon' => '🏦', 'label' => 'Dashboard', 'route' => Route::has('admin.bendahara.dashboard') ? route('admin.bendahara.dashboard') : route('admin.dashboard'), 'key' => 'admin.bendahara.dashboard'],
                 ],
             ],
             [
-                'group' => 'Administrasi',
+                'group' => 'Operasional',
                 'items' => [
                     ['icon' => '📝', 'label' => 'Pendaftaran', 'route' => route('admin.registrations.index'), 'key' => 'admin.registrations.index'],
-                ],
-            ],
-            [
-                'group' => 'Data',
-                'items' => [
-                    ['icon' => '👨‍👩‍👧‍👦', 'label' => 'Data Orang Tua', 'route' => route('admin.parents.index'), 'key' => 'admin.parents.index'],
-                    ['icon' => '👥', 'label' => 'Data Siswa', 'route' => route('admin.students.index'), 'key' => 'admin.students.index'],
-                    ['icon' => '📊', 'label' => 'Data Kelas', 'route' => route('admin.classes.index'), 'key' => 'admin.classes.index'],
-                ],
-            ],
-            [
-                'group' => 'Akademik',
-                'items' => [
-                    ['icon' => '📝', 'label' => 'Absensi Murid', 'route' => route('admin.student-attendance.index'), 'key' => 'admin.student-attendance.index'],
-                    ['icon' => '📝', 'label' => 'Absensi Guru', 'route' => route('admin.teacher-attendance.index'), 'key' => 'admin.teacher-attendance.index'],
-                ],
-            ],
-            [
-                'group' => 'Keuangan',
-                'items' => [
-                    ['icon' => '🧾', 'label' => 'Master Payment', 'route' => route('admin.payments.index'), 'key' => 'admin.payments.index'],
                     ['icon' => '💳', 'label' => 'Tagihan Murid', 'route' => route('admin.student-payments.index'), 'key' => 'admin.student-payments.index'],
-                    ['icon' => '💰', 'label' => 'Honor Guru', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
-                    ['icon' => '🧭', 'label' => 'Posisi Guru', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
-                    ['icon' => '🧩', 'label' => 'Penugasan Posisi', 'route' => route('admin.teacher-positions.index'), 'key' => 'admin.teacher-positions.index'],
-                    ['icon' => '🎁', 'label' => 'Jenis Tunjangan', 'route' => route('admin.allowance-types.index'), 'key' => 'admin.allowance-types.index'],
-                    ['icon' => '💼', 'label' => 'Tunjangan Posisi', 'route' => route('admin.position-allowances.index'), 'key' => 'admin.position-allowances.index'],
-                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
+                    ['icon' => '💸', 'label' => 'Honor Guru', 'route' => Route::has('admin.bendahara.honors.index') ? route('admin.bendahara.honors.index') : '#', 'key' => 'admin.bendahara.honors.index'],
                 ],
             ],
             [
-                'group' => 'Pengaturan',
+                'group' => 'Data & Pengaturan',
                 'items' => [
-                    ['icon' => '⚙️', 'label' => 'Info Pembayaran', 'route' => route('admin.settings.payment-info.edit'), 'key' => 'admin.settings.payment-info.edit'],
+                    ['icon' => '💼', 'label' => 'Posisi & Tunjangan', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
+                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
+                    ['icon' => '🏗️', 'label' => 'Sarpras', 'route' => route('admin.facilities.index'), 'key' => 'admin.facilities.index'],
+                    ['icon' => '👨‍👩‍👧', 'label' => 'Data Orangtua-Murid', 'route' => route('admin.parents.index'), 'key' => 'admin.parents.index'],
+                ],
+            ],
+            [
+                'group' => 'Laporan',
+                'items' => [
+                    ['icon' => '📊', 'label' => 'Riwayat Dana', 'route' => Route::has('admin.bendahara.transactions.index') ? route('admin.bendahara.transactions.index') : '#', 'key' => 'admin.bendahara.transactions.index'],
                 ],
             ],
         ],
         'teacher' => [
+            // Sidebar role teacher = self-service. 5 menu sesuai wireframe-teacher-pages.md.
             [
                 'group' => 'Utama',
                 'items' => [
-                    ['icon' => '📊', 'label' => 'Dashboard', 'route' => route('admin.dashboard'), 'key' => 'admin.dashboard'],
+                    ['icon' => '🏠', 'label' => 'Dashboard Saya', 'route' => Route::has('admin.teacher.dashboard') ? route('admin.teacher.dashboard') : route('admin.dashboard'), 'key' => 'admin.teacher.dashboard'],
                 ],
             ],
             [
-                'group' => 'Akademik',
+                'group' => 'Aktivitas',
                 'items' => [
-                    ['icon' => '👥', 'label' => 'Data Siswa', 'route' => route('admin.students.index'), 'key' => 'admin.students.index'],
-                    ['icon' => '📊', 'label' => 'Data Kelas', 'route' => route('admin.classes.index'), 'key' => 'admin.classes.index'],
-                    ['icon' => '📝', 'label' => 'Absensi Murid', 'route' => route('admin.student-attendance.index'), 'key' => 'admin.student-attendance.index'],
-                    ['icon' => '📝', 'label' => 'Absensi Guru', 'route' => route('admin.teacher-attendance.index'), 'key' => 'admin.teacher-attendance.index'],
+                    ['icon' => '🕒', 'label' => 'Absen Saya', 'route' => route('admin.my-attendance.index'), 'key' => 'admin.my-attendance.index'],
+                    ['icon' => '🧒', 'label' => 'Murid Kelas Saya', 'route' => Route::has('admin.teacher.students') ? route('admin.teacher.students') : '#', 'key' => 'admin.teacher.students'],
+                ],
+            ],
+            [
+                'group' => 'Akun',
+                'items' => [
                     ['icon' => '💰', 'label' => 'Honor Saya', 'route' => route('admin.my-honor.index'), 'key' => 'admin.my-honor.index'],
+                    ['icon' => '👤', 'label' => 'Profil Saya', 'route' => Route::has('admin.teacher.profile.edit') ? route('admin.teacher.profile.edit') : '#', 'key' => 'admin.teacher.profile.edit'],
+                ],
+            ],
+        ],
+        'bendahara' => [
+            [
+                'group' => 'Utama',
+                'items' => [
+                    ['icon' => '📊', 'label' => 'Dashboard Bendahara', 'route' => Route::has('admin.bendahara.dashboard') ? route('admin.bendahara.dashboard') : '#', 'key' => 'admin.bendahara.dashboard'],
                 ],
             ],
             [
-                'group' => 'Materi',
+                'group' => 'Pembayaran',
                 'items' => [
-                    ['icon' => '📚', 'label' => 'Materi Ajar', 'route' => '#', 'key' => 'materials'],
+                    ['icon' => '💰', 'label' => 'Pembayaran Honor', 'route' => Route::has('admin.bendahara.honors.index') ? route('admin.bendahara.honors.index') : '#', 'key' => 'admin.bendahara.honors.index'],
+                    ['icon' => '🧾', 'label' => 'Honor (Generate)', 'route' => route('admin.teacher-honors.index'), 'key' => 'admin.teacher-honors.index'],
+                ],
+            ],
+            [
+                'group' => 'Pengaturan Honor',
+                'items' => [
+                    ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
+                    ['icon' => '🧭', 'label' => 'Posisi Guru', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
+                    ['icon' => '🧩', 'label' => 'Penugasan Posisi', 'route' => route('admin.teacher-positions.index'), 'key' => 'admin.teacher-positions.index'],
+                    ['icon' => '🎁', 'label' => 'Jenis Tunjangan', 'route' => route('admin.allowance-types.index'), 'key' => 'admin.allowance-types.index'],
+                    ['icon' => '💼', 'label' => 'Tunjangan Posisi', 'route' => route('admin.position-allowances.index'), 'key' => 'admin.position-allowances.index'],
                 ],
             ],
         ],
         'guest' => [
+            // Sidebar role guest = orangtua. 4 menu sesuai wireframe-guest-pages.md.
             [
                 'group' => 'Utama',
                 'items' => [
-                    ['icon' => '📊', 'label' => 'Dashboard', 'route' => route('dashboard'), 'key' => 'dashboard'],
-                    ['icon' => '👨‍👩‍👧‍👦', 'label' => 'Info Murid & Orang Tua', 'route' => route('dashboard.info'), 'key' => 'dashboard.info'],
-                    ['icon' => '🧑‍🎓', 'label' => 'Data Murid & Absensi', 'route' => route('dashboard.students'), 'key' => 'dashboard.students'],
-                    ['icon' => '🧾', 'label' => 'Tagihan', 'route' => route('dashboard.bills'), 'key' => 'dashboard.bills'],
+                    ['icon' => '🏠', 'label' => 'Beranda', 'route' => route('dashboard'), 'key' => 'dashboard'],
+                ],
+            ],
+            [
+                'group' => 'Anak Saya',
+                'items' => [
+                    ['icon' => '📝', 'label' => 'Absensi Anak', 'route' => route('dashboard.students'), 'key' => 'dashboard.students'],
+                    ['icon' => '💳', 'label' => 'Tagihan & Bayar', 'route' => route('dashboard.bills'), 'key' => 'dashboard.bills'],
+                ],
+            ],
+            [
+                'group' => 'Akun',
+                'items' => [
+                    ['icon' => '👤', 'label' => 'Profil & Info', 'route' => route('dashboard.info'), 'key' => 'dashboard.info'],
                 ],
             ],
         ],

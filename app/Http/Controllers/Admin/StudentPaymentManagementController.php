@@ -11,6 +11,7 @@ use App\Models\Registration;
 use App\Models\Student;
 use App\Models\StudentPayment;
 use App\Models\StudentPaymentInstallment;
+use App\Services\FundCreditService;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -35,8 +36,17 @@ class StudentPaymentManagementController extends Controller
             });
         }
 
-        if ($request->filled('status') && $request->input('status') !== 'all') {
-            $query->where('status', $request->input('status'));
+        // Tab filter (default: unpaid). Nilai: unpaid | paid | awaiting_approval | all
+        $tab = $request->input('tab', 'unpaid');
+        if (!in_array($tab, ['unpaid', 'paid', 'awaiting_approval', 'all'], true)) {
+            $tab = 'unpaid';
+        }
+        if ($tab === 'unpaid') {
+            $query->whereIn('status', ['pending', 'failed']);
+        } elseif ($tab === 'paid') {
+            $query->where('status', 'paid');
+        } elseif ($tab === 'awaiting_approval') {
+            $query->whereHas('proofs', fn($q) => $q->where('status', 'pending'));
         }
 
         if ($request->filled('id_payment') && $request->input('id_payment') !== 'all') {
@@ -50,13 +60,23 @@ class StudentPaymentManagementController extends Controller
 
         $payments = Payment::query()->orderBy('name')->get(['id_payment', 'name']);
 
+        // Counts per tab untuk badge.
+        $tabCounts = [
+            'unpaid' => (int) StudentPayment::query()->whereIn('status', ['pending', 'failed'])->count(),
+            'paid' => (int) StudentPayment::query()->where('status', 'paid')->count(),
+            'awaiting_approval' => (int) StudentPayment::query()
+                ->whereHas('proofs', fn($q) => $q->where('status', 'pending'))
+                ->count(),
+        ];
+
         return view('dashboard.admin.student-payments', [
             'studentPayments' => $studentPayments,
             'payments' => $payments,
             'search' => $request->input('search', ''),
-            'status' => $request->input('status', 'all'),
+            'tab' => $tab,
             'id_payment' => $request->input('id_payment', 'all'),
             'per_page' => $perPage,
+            'tabCounts' => $tabCounts,
         ]);
     }
 
@@ -209,6 +229,9 @@ class StudentPaymentManagementController extends Controller
                     'proof_file' => $paymentProof->file_path ?? $proofable->proof_file,
                 ]);
 
+                // Auto-credit ke fund_sources (Bendahara) saat StudentPayment fully paid.
+                app(FundCreditService::class)->creditFromStudentPayment($proofable->fresh(['payment']));
+
                 $activationNote = $this->maybeActivateRegistrationAfterRegistrationFeePaid($proofable);
 
                 return response()->json([
@@ -251,6 +274,13 @@ class StudentPaymentManagementController extends Controller
                 $proofable->load('studentPayment');
                 if ($proofable->studentPayment) {
                     $paymentService->syncStudentPaymentStatusFromInstallments($proofable->studentPayment);
+
+                    // Jika parent payment naik jadi 'paid' (semua cicilan lunas),
+                    // credit ke fund_sources. Service idempotent jika sudah pernah dicredit.
+                    $parent = $proofable->studentPayment->fresh(['payment']);
+                    if ($parent && ($parent->status ?? '') === 'paid') {
+                        app(FundCreditService::class)->creditFromStudentPayment($parent);
+                    }
                 }
 
                 return response()->json([

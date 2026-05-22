@@ -99,6 +99,8 @@
                 @elseif($isTeacherAttendanceTable)
                     <th class="col-id">Tanggal</th>
                     <th class="col-name">Nama Guru</th>
+                    <th>Check-in</th>
+                    <th>Telat</th>
                     <th class="col-status">Status</th>
                     <th class="col-actions">Aksi</th>
                 @elseif($isTeacherHonorTable)
@@ -377,9 +379,21 @@
                                 'alpa' => 'admin-badge-danger',
                                 default => 'admin-badge-warning',
                             };
+                            $tzAtt = config('attendance.timezone', 'Asia/Makassar');
+                            $checkInTz = $item->check_in_time?->copy()->setTimezone($tzAtt);
                         @endphp
                         <td class="col-id">{{ $item->date?->format('Y-m-d') ?? '-' }}</td>
                         <td class="col-name">{{ $item->teacher?->name ?? '-' }}</td>
+                        <td>{{ $checkInTz?->format('H:i') ?? '-' }}</td>
+                        <td>
+                            @if($item->is_late)
+                                <span class="admin-badge admin-badge-danger">Telat {{ (int) $item->late_minutes }} mnt</span>
+                            @elseif($checkInTz)
+                                <span class="admin-badge admin-badge-success">Tepat</span>
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td class="col-status"><span class="admin-badge {{ $statusBadgeClass }}">{{ $statusLabel }}</span></td>
                     @elseif($isTeacherHonorTable)
                         @php

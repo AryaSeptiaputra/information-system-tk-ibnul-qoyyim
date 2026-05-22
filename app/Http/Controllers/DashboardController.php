@@ -30,7 +30,7 @@ class DashboardController extends Controller
         $role = $roleRaw === 'super_admin' ? 'superadmin' : $roleRaw;
 
         // Staff roles use the staff portal (/admin). Keep /dashboard as guest portal.
-        if (in_array($role, ['superadmin', 'administration', 'teacher', 'headmaster'], true)) {
+        if (in_array($role, ['superadmin', 'administration', 'teacher', 'headmaster', 'bendahara'], true)) {
             return redirect()->route('admin.dashboard');
         }
         

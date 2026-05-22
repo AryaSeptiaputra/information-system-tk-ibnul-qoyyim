@@ -14,6 +14,10 @@ class CoreRequiredSeeder extends Seeder
         $this->call([
             SuperAdminUserSeeder::class,
             PaymentMasterSeeder::class,
+            HolidaySeeder::class,
+            PositionSeeder::class,
+            AllowanceTypeSeeder::class,
+            FundSourceSeeder::class,
         ]);
     }
 }

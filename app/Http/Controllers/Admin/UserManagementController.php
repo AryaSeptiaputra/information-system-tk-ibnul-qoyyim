@@ -75,7 +75,7 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'phone_num' => 'required|string|max:20',
-            'role' => 'required|in:superadmin,headmaster,administration,teacher,guest',
+            'role' => 'required|in:superadmin,headmaster,administration,bendahara,teacher,guest',
             'status' => 'nullable|in:active,inactive',
             'password' => 'required|string|min:8|confirmed',
         ]);
@@ -125,7 +125,7 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone_num' => 'required|string|max:20',
-            'role' => 'required|in:superadmin,headmaster,administration,teacher,guest',
+            'role' => 'required|in:superadmin,headmaster,administration,bendahara,teacher,guest',
             'status' => 'nullable|in:active,inactive',
         ]);
 

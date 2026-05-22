@@ -91,7 +91,7 @@ class StudentManagementController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
             'gender' => 'nullable|in:pria,perempuan',
-            'religion' => 'nullable|string|max:50',
+            'religion' => 'nullable|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
             'group' => 'nullable|string|max:50',
             'status' => 'nullable|in:pending_payment,aktif,non-aktif,lulus,pindah,rejected',
         ]);
@@ -125,7 +125,7 @@ class StudentManagementController extends Controller
      */
     public function show(Student $student)
     {
-        $student->loadMissing(['parent', 'registration']);
+        $student->loadMissing(['parent.user', 'registration']);
 
         return response()->json(['view' => view('components.dashboard.admin.modal-detail', [
             'type' => 'student',
@@ -145,7 +145,7 @@ class StudentManagementController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
             'gender' => 'nullable|in:pria,perempuan',
-            'religion' => 'nullable|string|max:50',
+            'religion' => 'nullable|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu',
             'group' => 'nullable|string|max:50',
             'status' => 'nullable|in:pending_payment,aktif,non-aktif,lulus,pindah,rejected',
         ]);

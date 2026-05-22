@@ -1,30 +1,28 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Pengaturan Info Pembayaran')
-@section('page_title', 'Pengaturan')
+@section('title', 'Info Pembayaran - TK Ibnul Qoyyim')
+@section('page_title', 'Info Pembayaran')
 
 @section('content')
-<div class="admin-users-page">
-    <div class="admin-section-header">
-        <p class="admin-section-subtitle">Kelola informasi pembayaran yang tampil di halaman Tagihan (guest).</p>
-    </div>
 
-    @if (session('success'))
-        <div class="registration-detail-block admin-settings-message">
-            <span class="admin-badge admin-badge-success">{{ session('success') }}</span>
-        </div>
-    @endif
+<x-ui.page-header title="Info Pembayaran" />
 
-    @if ($errors->any())
-        <div class="registration-detail-block admin-settings-message">
-            <span class="admin-badge admin-badge-danger">Gagal menyimpan. Periksa input.</span>
-            <div class="registration-detail-divider"></div>
+@if (session('success'))
+    <x-ui.toast variant="success">{{ session('success') }}</x-ui.toast>
+@endif
+
+@if ($errors->any())
+    <x-ui.toast variant="danger">
+        <strong>Gagal menyimpan. Periksa input:</strong>
+        <ul style="margin: 4px 0 0 16px;">
             @foreach ($errors->all() as $error)
-                <div class="registration-detail-row"><span>Error</span><strong>{{ $error }}</strong></div>
+                <li>{{ $error }}</li>
             @endforeach
-        </div>
-    @endif
+        </ul>
+    </x-ui.toast>
+@endif
 
+<div class="admin-users-page">
     <div class="registration-detail-grid">
         <div class="registration-detail-block">
             <h3>Transfer Bank (Daftar)</h3>

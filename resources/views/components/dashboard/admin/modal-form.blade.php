@@ -89,7 +89,7 @@
         </div>
 
         <!-- Modal Body with Form -->
-        <form id="admin-form-{{ $type }}-{{ $isEdit ? 'edit' : 'create' }}" class="admin-modal-form" method="POST" action="{{ $formAction }}" @if(in_array($type, ['facility', 'student-payment'], true)) enctype="multipart/form-data" @endif>
+        <form id="admin-form-{{ $type }}-{{ $isEdit ? 'edit' : 'create' }}" class="admin-modal-form" method="POST" action="{{ $formAction }}" @if(in_array($type, ['facility', 'student-payment', 'teacher-attendance'], true)) enctype="multipart/form-data" @endif>
             @csrf
             @if($isEdit)
                 @method('PUT')
@@ -153,6 +153,7 @@
                             <option value="superadmin" @selected(($user?->role ?? old('role')) === 'superadmin')>Super Admin</option>
                             <option value="headmaster" @selected(($user?->role ?? old('role')) === 'headmaster')>Kepala Sekolah</option>
                             <option value="administration" @selected(($user?->role ?? old('role')) === 'administration')>Administrasi</option>
+                            <option value="bendahara" @selected(($user?->role ?? old('role')) === 'bendahara')>Bendahara</option>
                             <option value="teacher" @selected(($user?->role ?? old('role')) === 'teacher')>Guru</option>
                             <option value="guest" @selected(($user?->role ?? old('role')) === 'guest')>Orang Tua</option>
                         </select>
@@ -764,14 +765,16 @@
 
                     <div class="form-group">
                         <label for="form-religion" class="form-label">Agama</label>
-                        <input
-                            type="text"
-                            id="form-religion"
-                            name="religion"
-                            class="form-input"
-                            value="{{ $student?->religion ?? old('religion') }}"
-                            placeholder="Contoh: Islam"
-                        >
+                        @php
+                            $religionOptions = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu'];
+                            $currentReligion = $student?->religion ?? old('religion');
+                        @endphp
+                        <select id="form-religion" name="religion" class="form-input form-select">
+                            <option value="">-- Pilih Agama --</option>
+                            @foreach($religionOptions as $religionOption)
+                                <option value="{{ $religionOption }}" @selected($currentReligion === $religionOption)>{{ $religionOption }}</option>
+                            @endforeach
+                        </select>
                         @error('religion')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
@@ -991,10 +994,41 @@
                         @enderror
                     </div>
 
+                    @if($isEdit)
+                        @php
+                            $tzCheckIn = config('attendance.timezone', 'Asia/Makassar');
+                            $checkInValue = $teacherAttendance?->check_in_time
+                                ? $teacherAttendance->check_in_time->copy()->setTimezone($tzCheckIn)->format('Y-m-d\TH:i')
+                                : old('check_in_time');
+                        @endphp
+                        <div class="form-group">
+                            <label for="form-check-in-time" class="form-label">Jam Check-in (WITA)</label>
+                            <input type="datetime-local" id="form-check-in-time" name="check_in_time" class="form-input" value="{{ $checkInValue }}">
+                            <span class="form-label-hint">Kosongkan jika status izin/sakit/alpa. Batas tepat waktu: {{ config('attendance.late_after') }} WITA.</span>
+                            @error('check_in_time')
+                                <span class="form-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endif
+
                     <div class="form-group">
                         <label for="form-information" class="form-label">Keterangan</label>
                         <textarea id="form-information" name="information" class="form-input" rows="3" placeholder="Opsional">{{ $teacherAttendance?->information ?? old('information') }}</textarea>
                         @error('information')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-attachment" class="form-label">Bukti / Lampiran</label>
+                        @if($isEdit && $teacherAttendance?->attachment_path)
+                            <div style="margin-bottom:.5rem;">
+                                <a href="{{ asset($teacherAttendance->attachment_path) }}" target="_blank" rel="noopener">Lihat bukti saat ini</a>
+                            </div>
+                        @endif
+                        <input type="file" id="form-attachment" name="attachment" class="form-input" accept=".pdf,.jpg,.jpeg,.png">
+                        <span class="form-label-hint">Wajib jika status = Izin. Format: PDF/JPG/PNG, max 2MB.</span>
+                        @error('attachment')
                             <span class="form-error">{{ $message }}</span>
                         @enderror
                     </div>
@@ -1539,14 +1573,16 @@
 
                     <div class="form-group">
                         <label for="form-condition" class="form-label">Kondisi (Opsional)</label>
-                        <input
-                            type="text"
-                            id="form-condition"
-                            name="condition"
-                            class="form-input"
-                            value="{{ $facility?->condition ?? old('condition') }}"
-                            placeholder="Contoh: Baik"
-                        >
+                        @php
+                            $conditionOptions = ['Baik', 'Rusak Ringan', 'Rusak Berat'];
+                            $currentCondition = $facility?->condition ?? old('condition');
+                        @endphp
+                        <select id="form-condition" name="condition" class="form-input form-select">
+                            <option value="">-- Pilih Kondisi --</option>
+                            @foreach($conditionOptions as $conditionOption)
+                                <option value="{{ $conditionOption }}" @selected($currentCondition === $conditionOption)>{{ $conditionOption }}</option>
+                            @endforeach
+                        </select>
                         @error('condition')
                             <span class="form-error">{{ $message }}</span>
                         @enderror

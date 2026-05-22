@@ -47,9 +47,11 @@ DB saat ini:
 TODO:
 - [ ] Tambah kolom `students.religion` (nullable)
 - [ ] (Opsional) Tambah `students.address` jika ke depannya dibutuhkan (tidak ada di header audit saat ini)
-- [ ] Review mapping “PEKERJAAN ORANG TUA”:
-  - opsi A: isi ke `father_occupation` **dan** `mother_occupation` (jika hanya 1 kolom di Excel)
-  - opsi B: buat kolom `parents.guardian_occupation` (jika ingin 1 sumber)
+- [x] Review mapping “PEKERJAAN ORANG TUA” — **Keputusan: status quo (2 kolom terpisah)**.
+  - Form admin: 2 field terpisah (`father_occupation`, `mother_occupation`) — sudah berjalan.
+  - Import Excel (jika nanti diaktifkan): asumsikan kolom tunggal Excel = pekerjaan ayah, isi ke `father_occupation` saja.
+  - Export ke format Excel: render `father_occupation` sebagai "PEKERJAAN ORANG TUA".
+  - Alasan: form admin sudah lebih informatif daripada Excel; import adalah jalur sekunder; tidak ada konsep "wali" yang berbeda dari ortu kandung. Tinjau ulang jika kasus wali muncul.
 - [ ] Update form/UI siswa agar bisa input `religion` (dan pekerjaan ortu sesuai keputusan)
 - [ ] Pastikan tampilan list/detail siswa menampilkan field baru
 
@@ -100,17 +102,22 @@ DB saat ini:
 - `facilities`: `name, description, quantity, condition, image_path, is_active`
 
 TODO:
-- [ ] Tambah kolom `facilities.fund_source` (string, nullable)
-- [ ] Tambah kolom `facilities.acquisition_year` (unsignedSmallInteger/int, nullable)
-- [ ] (Opsional) tambah `facilities.category` bila dibutuhkan nanti
-- [ ] Update form/UI sarana agar input field baru
+- [x] Tambah kolom `facilities.fund_source` (string, nullable) — migrasi `2026_05_11_000003`
+- [x] Tambah kolom `facilities.acquisition_year` (unsignedSmallInteger/int, nullable) — migrasi `2026_05_11_000003`
+- [x] Tambah `facilities.category` — migrasi `2026_05_11_000003`
+- [x] Update form/UI sarana agar input field baru
+- [x] Standardisasi `facilities.condition` — **Keputusan: validation-level enum, 3 nilai: `Baik`, `Rusak Ringan`, `Rusak Berat`**.
+  - Schema tetap `string` (tidak migrasi).
+  - Form: `<select>` di `modal-form.blade.php`.
+  - Validasi `in:Baik,Rusak Ringan,Rusak Berat` di `FacilityManagementController` (store + update).
+  - Tambah opsi baru = ubah array di Blade + validasi controller (no migration).
 
 **Mapping kolom Excel → DB:**
 - `SARANA/BARANG` → `facilities.name`
 - `JUMLAH` → `facilities.quantity`
-- `KONDISI` → `facilities.condition`
-- `SUMBER DANA` → `facilities.fund_source` (baru)
-- `TAHUN` → `facilities.acquisition_year` (baru)
+- `KONDISI` → `facilities.condition` (dropdown: Baik/Rusak Ringan/Rusak Berat)
+- `SUMBER DANA` → `facilities.fund_source`
+- `TAHUN` → `facilities.acquisition_year`
 
 ---
 

@@ -58,12 +58,22 @@ class RegistrationManagementController extends Controller
         $perPage = $request->input('per_page', 10);
         $registrations = $query->paginate($perPage)->appends($request->query());
 
+        // Counts per tab untuk badge di tab bar.
+        $statusCounts = [
+            'pending' => (int) Registration::query()
+                ->whereIn('status', ['pending', 'approved_awaiting_payment', 'pending_due'])
+                ->count(),
+            'active' => (int) Registration::query()->where('status', 'active')->count(),
+            'rejected' => (int) Registration::query()->where('status', 'rejected')->count(),
+        ];
+
         return view('dashboard.admin.registrations', [
             'registrations' => $registrations,
             'search' => $request->input('search', ''),
             'status' => $request->input('status', 'all'),
             'group' => $request->input('group', 'all'),
             'per_page' => $perPage,
+            'statusCounts' => $statusCounts,
         ]);
     }
 

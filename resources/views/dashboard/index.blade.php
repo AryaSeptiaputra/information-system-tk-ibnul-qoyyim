@@ -45,22 +45,89 @@
     @endif
 
     @if(($hasStudent ?? false) || ($approvedRegistration ?? null) || ($pendingRegistration ?? null))
-        <div class="card" style="margin-bottom: 32px;">
-            <h2 style="margin-bottom: 12px;">⚡ Quick Access</h2>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="{{ route('dashboard.info') }}" class="btn-secondary">👨‍👩‍👧‍👦 Info Murid & Orang Tua</a>
-                <a href="{{ route('dashboard.students') }}" class="btn-secondary">🧑‍🎓 Data Murid & Absensi</a>
-                <a href="{{ route('dashboard.bills') }}" class="btn-primary">🧾 Lihat Tagihan</a>
-                <a href="{{ route('registration.create') }}" class="btn-secondary">➕ Daftar Anak Lain</a>
+        @php
+            $rp = static fn ($n) => 'Rp ' . number_format((float) $n, 0, ',', '.');
+            $bs = $billSummary ?? [];
+        @endphp
+
+        {{-- Ringkasan KPI Orangtua --}}
+        <div class="ui-stat-card-grid" style="margin-bottom: var(--ui-space-lg);">
+            <x-ui.stat-card
+                label="Tagihan Belum Lunas"
+                :value="(int)($bs['pending_bills'] ?? 0) + (int)($bs['failed_bills'] ?? 0)"
+                :hint="$rp($bs['outstanding_amount'] ?? 0) . ' outstanding'"
+            />
+            <x-ui.stat-card
+                label="Anak Terdaftar"
+                :value="(int)($bs['student_count'] ?? 0) . ' anak'"
+                hint="status aktif"
+            />
+            <x-ui.stat-card
+                label="Menunggu Verifikasi"
+                :value="(int)($bs['waiting_verification'] ?? 0)"
+                hint="bukti bayar di-review"
+            />
+        </div>
+
+        {{-- Aksi cepat --}}
+        <div class="ui-section">
+            <h3 class="ui-section__title">Aksi Cepat</h3>
+            <div style="display: flex; gap: var(--ui-space-sm); flex-wrap: wrap;">
+                <a href="{{ route('dashboard.bills') }}" class="ui-btn ui-btn--primary">💳 Bayar Tagihan</a>
+                <a href="{{ route('dashboard.students') }}" class="ui-btn ui-btn--secondary">📝 Absensi Anak</a>
+                <a href="{{ route('dashboard.info') }}" class="ui-btn ui-btn--secondary">👤 Profil & Info</a>
+                <a href="{{ route('registration.create') }}" class="ui-btn ui-btn--ghost">+ Daftar Anak Lain</a>
             </div>
         </div>
-    @endif
 
-    @if(($hasStudent ?? false) || (($studentSummaries ?? collect())->count() > 0))
-        @include('components.dashboard.guest-summary', [
-            'billSummary' => $billSummary ?? [],
-            'studentSummaries' => $studentSummaries ?? collect(),
-        ])
+        {{-- Ringkasan per anak --}}
+        @if(($studentSummaries ?? collect())->count() > 0)
+            <div class="ui-section">
+                <h3 class="ui-section__title">Anak Saya</h3>
+                <div class="ui-table-wrapper" style="box-shadow: none; border: none;">
+                    <table class="ui-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Grup</th>
+                                <th>Status</th>
+                                <th>Tagihan Pending</th>
+                                <th>Absensi Terakhir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($studentSummaries as $sum)
+                                @php
+                                    $statusBadge = match (strtolower($sum['status_label'] ?? '')) {
+                                        'aktif' => 'success',
+                                        'ditolak', 'rejected' => 'danger',
+                                        default => 'neutral',
+                                    };
+                                @endphp
+                                <tr>
+                                    <td><strong>{{ $sum['name'] ?? '-' }}</strong></td>
+                                    <td>{{ $sum['group'] ?? '-' }}</td>
+                                    <td><x-ui.badge :variant="$statusBadge">{{ $sum['status_label'] ?? '-' }}</x-ui.badge></td>
+                                    <td>
+                                        @if((int)($sum['pending_bills'] ?? 0) > 0)
+                                            <x-ui.badge variant="warning">{{ $sum['pending_bills'] }}</x-ui.badge>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td style="color: var(--color-muted);">
+                                        {{ $sum['latest_attendance'] ?? '-' }}
+                                        @if(!empty($sum['latest_attendance_date']))
+                                            <span class="ui-stat-card__hint">({{ $sum['latest_attendance_date'] }})</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
     @endif
 
     @if($detailRegistration)
@@ -121,6 +188,17 @@
 
         window.addEventListener('hashchange', syncFromHash);
         syncFromHash();
+
+        // Expose tombol "Tutup Formulir" → hide form, show status guest section.
+        window.closeRegistrationForm = function () {
+            // Reset hash dulu agar syncFromHash tidak otomatis show form lagi.
+            if (window.location.hash === '#registration-form') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+            setVisibility(false);
+            // Scroll ke atas supaya status section terlihat.
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
         // Registration detail modal (popup)
         const modal = document.getElementById('registration-detail-modal');

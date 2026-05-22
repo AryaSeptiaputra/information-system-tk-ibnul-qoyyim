@@ -207,7 +207,7 @@ class TeacherManagementController extends Controller
             $file = fopen('php://output', 'w');
             
             // Header row
-            fputcsv($file, ['ID Guru', 'ID User', 'Nama', 'Jabatan', 'NIP', 'NUPTK', 'TTL', 'Tgl Mulai Kerja', 'Email', 'Phone', 'Pendidikan', 'Status', 'Dibuat', 'Diperbarui']);
+            fputcsv($file, ['ID Guru', 'ID User', 'Nama', 'Jabatan', 'NIP', 'NUPTK', 'TTL', 'Tgl Mulai Kerja', 'Masa Kerja', 'Email', 'Phone', 'Pendidikan', 'Status', 'Dibuat', 'Diperbarui']);
             
             // Data rows
             foreach ($teachers as $teacher) {
@@ -229,6 +229,7 @@ class TeacherManagementController extends Controller
                     $teacher->nuptk ?? '-',
                     $ttlLabel,
                     $teacher->start_work_date?->format('Y-m-d') ?? '-',
+                    $teacher->masa_kerja,
                     $emailValue,
                     $phoneValue,
                     $teacher->education ?? '-',

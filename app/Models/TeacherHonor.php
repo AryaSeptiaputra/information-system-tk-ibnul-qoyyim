@@ -17,6 +17,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'permission_count',
     'sickness_count',
     'absence_count',
+    'workday_count',
+    'holiday_credit_count',
+    'effective_attendance_count',
+    'late_count',
+    'late_penalty',
+    'permission_penalty',
     'rate_snapshot',
     'allowance_total',
     'manual_adjustment',
@@ -41,6 +47,12 @@ class TeacherHonor extends Model
             'rate_snapshot' => 'decimal:2',
             'allowance_total' => 'decimal:2',
             'manual_adjustment' => 'decimal:2',
+            'late_penalty' => 'decimal:2',
+            'permission_penalty' => 'decimal:2',
+            'workday_count' => 'integer',
+            'holiday_credit_count' => 'integer',
+            'effective_attendance_count' => 'integer',
+            'late_count' => 'integer',
         ];
     }
 

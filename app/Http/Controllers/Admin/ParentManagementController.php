@@ -4,63 +4,72 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParentGuardian;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class ParentManagementController extends Controller
 {
     /**
-     * Display a listing of parents/guardians with search
+     * Display a listing of parents/guardians with search.
+     * Halaman gabungan 2 tab: orangtua | murid
      */
     public function index(Request $request)
     {
-        $query = ParentGuardian::with([
-            'user',
-            'students:id_student,id_parents,name',
-        ]);
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('father_name', 'like', "%{$search}%")
-                    ->orWhere('mother_name', 'like', "%{$search}%")
-                    ->orWhere('father_phone_num', 'like', "%{$search}%")
-                    ->orWhere('mother_phone_num', 'like', "%{$search}%")
-                    ->orWhere('father_occupation', 'like', "%{$search}%")
-                    ->orWhere('mother_occupation', 'like', "%{$search}%");
-            });
+        $tab = $request->input('tab', 'orangtua');
+        if (!in_array($tab, ['orangtua', 'murid'], true)) {
+            $tab = 'orangtua';
         }
 
-        // Helpful filter: contact availability
-        if ($request->filled('contact') && $request->input('contact') !== 'all') {
-            $contact = $request->input('contact');
-            if ($contact === 'has_contact') {
-                $query->where(function ($q) {
-                    $q->whereNotNull('father_phone_num')->where('father_phone_num', '!=', '')
-                        ->orWhereNotNull('mother_phone_num')->where('mother_phone_num', '!=', '');
+        $search = (string) $request->input('search', '');
+        $perPage = (int) $request->input('per_page', 10);
+
+        $parents = null;
+        $students = null;
+
+        if ($tab === 'orangtua') {
+            $query = ParentGuardian::with([
+                'user',
+                'students:id_student,id_parents,name',
+            ]);
+
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->where('father_name', 'like', "%{$search}%")
+                        ->orWhere('mother_name', 'like', "%{$search}%")
+                        ->orWhere('father_phone_num', 'like', "%{$search}%")
+                        ->orWhere('mother_phone_num', 'like', "%{$search}%");
                 });
             }
 
-            if ($contact === 'no_contact') {
-                $query->where(function ($q) {
-                    $q->whereNull('father_phone_num')->orWhere('father_phone_num', '=', '');
-                })->where(function ($q) {
-                    $q->whereNull('mother_phone_num')->orWhere('mother_phone_num', '=', '');
+            $parents = $query
+                ->orderByDesc('id_parents')
+                ->paginate($perPage)
+                ->appends($request->query());
+        } else { // murid
+            $query = Student::with(['parent:id_parents,father_name,mother_name']);
+
+            if ($search !== '') {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('parent', function ($pq) use ($search) {
+                            $pq->where('father_name', 'like', "%{$search}%")
+                                ->orWhere('mother_name', 'like', "%{$search}%");
+                        });
                 });
             }
+
+            $students = $query
+                ->orderByDesc('id_student')
+                ->paginate($perPage)
+                ->appends($request->query());
         }
-
-        $sortBy = $request->input('sort', 'id_parents');
-        $sortOrder = $request->input('order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        $perPage = $request->input('per_page', 10);
-        $parents = $query->paginate($perPage)->appends($request->query());
 
         return view('dashboard.admin.parents', [
+            'tab' => $tab,
             'parents' => $parents,
-            'search' => $request->input('search', ''),
-            'contact' => $request->input('contact', 'all'),
+            'students' => $students,
+            'search' => $search,
             'per_page' => $perPage,
         ]);
     }

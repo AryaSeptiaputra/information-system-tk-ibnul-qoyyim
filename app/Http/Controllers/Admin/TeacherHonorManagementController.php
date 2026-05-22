@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Holiday;
 use App\Models\TeacherAttendance;
 use App\Models\TeacherAttendanceRate;
 use App\Models\TeacherDetail;
@@ -10,6 +11,7 @@ use App\Models\TeacherHonor;
 use App\Models\TeacherPosition;
 use App\Models\PositionAllowance;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 
 class TeacherHonorManagementController extends Controller
@@ -32,6 +34,12 @@ class TeacherHonorManagementController extends Controller
             'rate' => (float) $summary['rate'],
             'allowance_total' => (float) $summary['allowance_total'],
             'allowances' => $summary['allowances'],
+            'workday_count' => (int) $summary['workday_count'],
+            'holiday_credit_count' => (int) $summary['holiday_credit_count'],
+            'effective_attendance_count' => (int) $summary['effective_attendance_count'],
+            'late_count' => (int) $summary['late_count'],
+            'late_penalty' => (float) $summary['late_penalty'],
+            'permission_penalty' => (float) $summary['permission_penalty'],
             'estimated_amount' => (float) $summary['estimated_amount'],
         ]);
 
@@ -133,8 +141,12 @@ class TeacherHonorManagementController extends Controller
         $summary = $this->buildHonorSummary((int) $validated['id_teacher'], $periodStart, $periodEnd);
         $manualAdjustment = (float) ($validated['manual_adjustment'] ?? 0);
 
-        $attendanceCount = (int) ($summary['counts']['hadir'] ?? 0);
-        $amount = ($attendanceCount * (float) $summary['rate']) + (float) $summary['allowance_total'] + $manualAdjustment;
+        $effective = (int) $summary['effective_attendance_count'];
+        $amount = ($effective * (float) $summary['rate'])
+            + (float) $summary['allowance_total']
+            - (float) $summary['late_penalty']
+            - (float) $summary['permission_penalty']
+            + $manualAdjustment;
 
         $teacherHonor = TeacherHonor::create([
             'id_teacher' => (int) $validated['id_teacher'],
@@ -146,6 +158,12 @@ class TeacherHonorManagementController extends Controller
             'permission_count' => (int) ($summary['counts']['izin'] ?? 0),
             'sickness_count' => (int) ($summary['counts']['sakit'] ?? 0),
             'absence_count' => (int) ($summary['counts']['alpa'] ?? 0),
+            'workday_count' => (int) $summary['workday_count'],
+            'holiday_credit_count' => (int) $summary['holiday_credit_count'],
+            'effective_attendance_count' => $effective,
+            'late_count' => (int) $summary['late_count'],
+            'late_penalty' => (float) $summary['late_penalty'],
+            'permission_penalty' => (float) $summary['permission_penalty'],
             'rate_snapshot' => (float) $summary['rate'],
             'allowance_total' => (float) $summary['allowance_total'],
             'manual_adjustment' => $manualAdjustment,
@@ -204,8 +222,12 @@ class TeacherHonorManagementController extends Controller
         $summary = $this->buildHonorSummary((int) $validated['id_teacher'], $periodStart, $periodEnd);
         $manualAdjustment = (float) ($validated['manual_adjustment'] ?? ($teacherHonor->manual_adjustment ?? 0));
 
-        $attendanceCount = (int) ($summary['counts']['hadir'] ?? 0);
-        $amount = ($attendanceCount * (float) $summary['rate']) + (float) $summary['allowance_total'] + $manualAdjustment;
+        $effective = (int) $summary['effective_attendance_count'];
+        $amount = ($effective * (float) $summary['rate'])
+            + (float) $summary['allowance_total']
+            - (float) $summary['late_penalty']
+            - (float) $summary['permission_penalty']
+            + $manualAdjustment;
 
         $teacherHonor->update([
             'id_teacher' => (int) $validated['id_teacher'],
@@ -217,6 +239,12 @@ class TeacherHonorManagementController extends Controller
             'permission_count' => (int) ($summary['counts']['izin'] ?? 0),
             'sickness_count' => (int) ($summary['counts']['sakit'] ?? 0),
             'absence_count' => (int) ($summary['counts']['alpa'] ?? 0),
+            'workday_count' => (int) $summary['workday_count'],
+            'holiday_credit_count' => (int) $summary['holiday_credit_count'],
+            'effective_attendance_count' => $effective,
+            'late_count' => (int) $summary['late_count'],
+            'late_penalty' => (float) $summary['late_penalty'],
+            'permission_penalty' => (float) $summary['permission_penalty'],
             'rate_snapshot' => (float) $summary['rate'],
             'allowance_total' => (float) $summary['allowance_total'],
             'manual_adjustment' => $manualAdjustment,
@@ -287,6 +315,12 @@ class TeacherHonorManagementController extends Controller
                 'Izin',
                 'Sakit',
                 'Alpa',
+                'Hari Kerja',
+                'Kredit Libur',
+                'Hadir Efektif',
+                'Telat',
+                'Potongan Telat',
+                'Potongan Izin',
                 'Rate/Hadir',
                 'Total Tunjangan',
                 'Penyesuaian',
@@ -307,6 +341,12 @@ class TeacherHonorManagementController extends Controller
                     (int)($h->permission_count ?? 0),
                     (int)($h->sickness_count ?? 0),
                     (int)($h->absence_count ?? 0),
+                    (int)($h->workday_count ?? 0),
+                    (int)($h->holiday_credit_count ?? 0),
+                    (int)($h->effective_attendance_count ?? 0),
+                    (int)($h->late_count ?? 0),
+                    (float)($h->late_penalty ?? 0),
+                    (float)($h->permission_penalty ?? 0),
                     (float)($h->rate_snapshot ?? 0),
                     (float)($h->allowance_total ?? 0),
                     (float)($h->manual_adjustment ?? 0),
@@ -324,10 +364,13 @@ class TeacherHonorManagementController extends Controller
 
     private function buildHonorSummary(int $teacherId, Carbon $periodStart, Carbon $periodEnd): array
     {
+        $startDate = $periodStart->toDateString();
+        $endDate = $periodEnd->toDateString();
+
         $rows = TeacherAttendance::query()
             ->selectRaw('status, COUNT(*) as total')
             ->where('id_teacher', $teacherId)
-            ->whereBetween('date', [$periodStart->toDateString(), $periodEnd->toDateString()])
+            ->whereBetween('date', [$startDate, $endDate])
             ->groupBy('status')
             ->pluck('total', 'status');
 
@@ -337,6 +380,69 @@ class TeacherHonorManagementController extends Controller
             'sakit' => (int) ($rows['sakit'] ?? 0),
             'alpa' => (int) ($rows['alpa'] ?? 0),
         ];
+
+        $workdays = (array) config('attendance.workdays', [1, 2, 3, 4, 5]);
+        $latePenaltyAmount = (float) config('attendance.late_penalty', 10000);
+        $permissionPenaltyAmount = (float) config('attendance.permission_penalty', 10000);
+        $graceDays = (int) config('attendance.permission_grace_days', 2);
+
+        // (a) Jumlah hari kerja (Senin–Jumat) dalam periode.
+        $workdayCount = 0;
+        foreach (CarbonPeriod::create($periodStart->copy()->startOfDay(), $periodEnd->copy()->startOfDay()) as $day) {
+            if (in_array($day->dayOfWeekIso, $workdays, true)) {
+                $workdayCount++;
+            }
+        }
+
+        // (b) Hari libur non-mingguan dalam periode → auto credit hadir.
+        $holidayCreditCount = Holiday::query()
+            ->active()
+            ->whereBetween('date', [$startDate, $endDate])
+            ->get(['date'])
+            ->filter(fn ($h) => in_array($h->date->dayOfWeekIso, $workdays, true))
+            ->count();
+
+        // (c) Jumlah hari telat dari attendance rows.
+        $lateCount = (int) TeacherAttendance::query()
+            ->where('id_teacher', $teacherId)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->where('is_late', true)
+            ->count();
+        $latePenalty = $lateCount * $latePenaltyAmount;
+
+        // (d) Potongan izin >grace hari berturut (per run konsekutif di hari kerja).
+        $permissionDates = TeacherAttendance::query()
+            ->where('id_teacher', $teacherId)
+            ->where('status', 'izin')
+            ->whereBetween('date', [$startDate, $endDate])
+            ->orderBy('date')
+            ->pluck('date')
+            ->map(fn ($d) => Carbon::parse($d))
+            ->all();
+
+        $permissionPenaltyDays = 0;
+        $runLength = 0;
+        $prevDate = null;
+        foreach ($permissionDates as $date) {
+            if ($prevDate === null) {
+                $runLength = 1;
+            } else {
+                // Konsekutif di hari kerja: next workday dari prevDate harus == date.
+                $nextWorkday = $this->nextWorkday($prevDate, $workdays);
+                if ($nextWorkday->isSameDay($date)) {
+                    $runLength++;
+                } else {
+                    $permissionPenaltyDays += max(0, $runLength - $graceDays);
+                    $runLength = 1;
+                }
+            }
+            $prevDate = $date;
+        }
+        $permissionPenaltyDays += max(0, $runLength - $graceDays);
+        $permissionPenalty = $permissionPenaltyDays * $permissionPenaltyAmount;
+
+        // (e) Effective attendance = hadir + holiday credit (untuk dikalikan rate).
+        $effectiveAttendance = (int) $counts['hadir'] + (int) $holidayCreditCount;
 
         $rate = TeacherAttendanceRate::query()
             ->where('id_teacher', $teacherId)
@@ -389,8 +495,10 @@ class TeacherHonorManagementController extends Controller
         })->values();
 
         $allowanceTotal = (float) $allowanceSnapshots->sum('amount');
-        $attendanceCount = (int) ($counts['hadir'] ?? 0);
-        $estimated = ($attendanceCount * $rateValue) + $allowanceTotal;
+        $estimated = ($effectiveAttendance * $rateValue)
+            + $allowanceTotal
+            - $latePenalty
+            - $permissionPenalty;
 
         return [
             'counts' => $counts,
@@ -398,7 +506,25 @@ class TeacherHonorManagementController extends Controller
             'rate' => $rateValue,
             'allowance_total' => $allowanceTotal,
             'allowances' => $allowanceSnapshots->all(),
-            'estimated_amount' => $estimated,
+            'workday_count' => $workdayCount,
+            'holiday_credit_count' => $holidayCreditCount,
+            'effective_attendance_count' => $effectiveAttendance,
+            'late_count' => $lateCount,
+            'late_penalty' => $latePenalty,
+            'permission_penalty' => $permissionPenalty,
+            'estimated_amount' => max(0, $estimated),
         ];
+    }
+
+    /**
+     * Hari kerja berikutnya setelah $date (lewati Sabtu/Minggu sesuai config workdays).
+     */
+    private function nextWorkday(Carbon $date, array $workdays): Carbon
+    {
+        $next = $date->copy()->addDay();
+        while (!in_array($next->dayOfWeekIso, $workdays, true)) {
+            $next->addDay();
+        }
+        return $next;
     }
 }

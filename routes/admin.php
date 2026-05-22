@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\BendaharaDashboardController;
+use App\Http\Controllers\Admin\BendaharaFundController;
+use App\Http\Controllers\Admin\BendaharaHonorController;
+use App\Http\Controllers\Admin\BendaharaTransactionController;
 use App\Http\Controllers\Admin\ParentManagementController;
 use App\Http\Controllers\Admin\RegistrationManagementController;
 use App\Http\Controllers\Admin\SchoolClassManagementController;
@@ -9,6 +13,7 @@ use App\Http\Controllers\Admin\StudentAttendanceManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\TeacherManagementController;
 use App\Http\Controllers\Admin\TeacherAttendanceManagementController;
+use App\Http\Controllers\Admin\TeacherAttendanceSelfController;
 use App\Http\Controllers\Admin\TeacherHonorManagementController;
 use App\Http\Controllers\Admin\TeacherHonorSelfController;
 use App\Http\Controllers\Admin\PositionManagementController;
@@ -23,7 +28,7 @@ use App\Http\Controllers\Admin\StudentPaymentManagementController;
 use Illuminate\Support\Facades\Route;
 
 // Admin routes - staff only (non-guest). Fine-grained per-module access below.
-Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headmaster'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headmaster,bendahara'])->prefix('admin')->name('admin.')->group(function () {
     
     // Admin Dashboard - Statistics & Overview (staff)
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -167,8 +172,9 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
             Route::get('/{teacherAttendance}', [TeacherAttendanceManagementController::class, 'show'])->whereNumber('teacherAttendance')->name('show');
         });
 
-        // Manage (superadmin, administration, teacher)
-        Route::middleware(['ensure.role:superadmin,administration,teacher'])->group(function () {
+        // Manage (superadmin, administration, headmaster) — guru tidak diizinkan edit/hapus
+        // Kebijakan: edit absen hanya kepala sekolah / admin.
+        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
             Route::get('/create', [TeacherAttendanceManagementController::class, 'create'])->name('create');
             Route::post('/', [TeacherAttendanceManagementController::class, 'store'])->name('store');
             Route::get('/{teacherAttendance}/edit', [TeacherAttendanceManagementController::class, 'edit'])->name('edit');
@@ -177,18 +183,42 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
         });
     });
 
+    // Teacher self-service: absen mandiri (TEACHER ONLY) — guru hanya bisa absen sekarang,
+    // ajukan izin, atau lapor sakit. Tidak ada edit/hapus.
+    Route::middleware(['ensure.role:teacher'])->prefix('my-attendance')->name('my-attendance.')->group(function () {
+        Route::get('/', [TeacherAttendanceSelfController::class, 'index'])->name('index');
+        Route::post('/check-in', [TeacherAttendanceSelfController::class, 'checkIn'])->name('check-in');
+        Route::post('/permission', [TeacherAttendanceSelfController::class, 'permission'])->name('permission');
+        Route::post('/sick', [TeacherAttendanceSelfController::class, 'sick'])->name('sick');
+    });
+
+    // Headmaster portal: dashboard & laporan (HEADMASTER + SUPERADMIN).
+    Route::middleware(['ensure.role:superadmin,headmaster'])->prefix('headmaster')->name('headmaster.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\HeadmasterDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/reports', [\App\Http\Controllers\Admin\HeadmasterReportController::class, 'index'])->name('reports');
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\HeadmasterReportController::class, 'export'])->name('reports.export');
+    });
+
+    // Teacher portal: dashboard, murid kelas, profil (TEACHER ONLY).
+    Route::middleware(['ensure.role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\TeacherDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/students', [\App\Http\Controllers\Admin\TeacherStudentController::class, 'index'])->name('students');
+        Route::get('/profile', [\App\Http\Controllers\Admin\TeacherProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [\App\Http\Controllers\Admin\TeacherProfileController::class, 'update'])->name('profile.update');
+    });
+
     // Teacher Honor Management Routes
     Route::prefix('teacher-honors')->name('teacher-honors.')->group(function () {
-        // View (superadmin, administration, headmaster)
-        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+        // View (superadmin, administration, headmaster, bendahara)
+        Route::middleware(['ensure.role:superadmin,administration,headmaster,bendahara'])->group(function () {
             Route::get('/', [TeacherHonorManagementController::class, 'index'])->name('index');
             Route::get('/attendance-summary', [TeacherHonorManagementController::class, 'attendanceSummary'])->name('attendance-summary');
             Route::get('/export', [TeacherHonorManagementController::class, 'export'])->name('export');
             Route::get('/{teacherHonor}', [TeacherHonorManagementController::class, 'show'])->whereNumber('teacherHonor')->name('show');
         });
 
-        // Manage (superadmin, administration)
-        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+        // Manage (superadmin, administration, bendahara)
+        Route::middleware(['ensure.role:superadmin,administration,bendahara'])->group(function () {
             Route::get('/create', [TeacherHonorManagementController::class, 'create'])->name('create');
             Route::post('/', [TeacherHonorManagementController::class, 'store'])->name('store');
             Route::get('/{teacherHonor}/edit', [TeacherHonorManagementController::class, 'edit'])->name('edit');
@@ -198,13 +228,13 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
 
     // Positions (Honor) Management Routes
     Route::prefix('positions')->name('positions.')->group(function () {
-        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster,bendahara'])->group(function () {
             Route::get('/', [PositionManagementController::class, 'index'])->name('index');
             Route::get('/export', [PositionManagementController::class, 'export'])->name('export');
             Route::get('/{position}', [PositionManagementController::class, 'show'])->whereNumber('position')->name('show');
         });
 
-        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,bendahara'])->group(function () {
             Route::get('/create', [PositionManagementController::class, 'create'])->name('create');
             Route::post('/', [PositionManagementController::class, 'store'])->name('store');
             Route::get('/{position}/edit', [PositionManagementController::class, 'edit'])->whereNumber('position')->name('edit');
@@ -215,13 +245,13 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
 
     // Allowance Types (Honor) Management Routes
     Route::prefix('allowance-types')->name('allowance-types.')->group(function () {
-        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster,bendahara'])->group(function () {
             Route::get('/', [AllowanceTypeManagementController::class, 'index'])->name('index');
             Route::get('/export', [AllowanceTypeManagementController::class, 'export'])->name('export');
             Route::get('/{allowanceType}', [AllowanceTypeManagementController::class, 'show'])->whereNumber('allowanceType')->name('show');
         });
 
-        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,bendahara'])->group(function () {
             Route::get('/create', [AllowanceTypeManagementController::class, 'create'])->name('create');
             Route::post('/', [AllowanceTypeManagementController::class, 'store'])->name('store');
             Route::get('/{allowanceType}/edit', [AllowanceTypeManagementController::class, 'edit'])->whereNumber('allowanceType')->name('edit');
@@ -232,13 +262,13 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
 
     // Position Allowances (Honor) Management Routes
     Route::prefix('position-allowances')->name('position-allowances.')->group(function () {
-        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster,bendahara'])->group(function () {
             Route::get('/', [PositionAllowanceManagementController::class, 'index'])->name('index');
             Route::get('/export', [PositionAllowanceManagementController::class, 'export'])->name('export');
             Route::get('/{positionAllowance}', [PositionAllowanceManagementController::class, 'show'])->whereNumber('positionAllowance')->name('show');
         });
 
-        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,bendahara'])->group(function () {
             Route::get('/create', [PositionAllowanceManagementController::class, 'create'])->name('create');
             Route::post('/', [PositionAllowanceManagementController::class, 'store'])->name('store');
             Route::get('/{positionAllowance}/edit', [PositionAllowanceManagementController::class, 'edit'])->whereNumber('positionAllowance')->name('edit');
@@ -249,13 +279,13 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
 
     // Teacher Positions (Honor) Management Routes
     Route::prefix('teacher-positions')->name('teacher-positions.')->group(function () {
-        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster,bendahara'])->group(function () {
             Route::get('/', [TeacherPositionManagementController::class, 'index'])->name('index');
             Route::get('/export', [TeacherPositionManagementController::class, 'export'])->name('export');
             Route::get('/{teacherPosition}', [TeacherPositionManagementController::class, 'show'])->whereNumber('teacherPosition')->name('show');
         });
 
-        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,bendahara'])->group(function () {
             Route::get('/create', [TeacherPositionManagementController::class, 'create'])->name('create');
             Route::post('/', [TeacherPositionManagementController::class, 'store'])->name('store');
             Route::get('/{teacherPosition}/edit', [TeacherPositionManagementController::class, 'edit'])->whereNumber('teacherPosition')->name('edit');
@@ -266,13 +296,13 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
 
     // Teacher Attendance Rates (Honor) Management Routes
     Route::prefix('teacher-attendance-rates')->name('teacher-attendance-rates.')->group(function () {
-        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster,bendahara'])->group(function () {
             Route::get('/', [TeacherAttendanceRateManagementController::class, 'index'])->name('index');
             Route::get('/export', [TeacherAttendanceRateManagementController::class, 'export'])->name('export');
             Route::get('/{teacherAttendanceRate}', [TeacherAttendanceRateManagementController::class, 'show'])->whereNumber('teacherAttendanceRate')->name('show');
         });
 
-        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,bendahara'])->group(function () {
             Route::get('/create', [TeacherAttendanceRateManagementController::class, 'create'])->name('create');
             Route::post('/', [TeacherAttendanceRateManagementController::class, 'store'])->name('store');
             Route::get('/{teacherAttendanceRate}/edit', [TeacherAttendanceRateManagementController::class, 'edit'])->whereNumber('teacherAttendanceRate')->name('edit');
@@ -372,6 +402,20 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
         });
     });
 
+    // Holiday Management (superadmin + administration)
+    Route::prefix('holidays')->name('holidays.')->group(function () {
+        Route::middleware(['ensure.role:superadmin,administration,headmaster'])->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\HolidayManagementController::class, 'index'])->name('index');
+        });
+        Route::middleware(['ensure.role:superadmin,administration'])->group(function () {
+            Route::get('/create', [\App\Http\Controllers\Admin\HolidayManagementController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\HolidayManagementController::class, 'store'])->name('store');
+            Route::get('/{holiday}/edit', [\App\Http\Controllers\Admin\HolidayManagementController::class, 'edit'])->whereNumber('holiday')->name('edit');
+            Route::put('/{holiday}', [\App\Http\Controllers\Admin\HolidayManagementController::class, 'update'])->whereNumber('holiday')->name('update');
+            Route::delete('/{holiday}', [\App\Http\Controllers\Admin\HolidayManagementController::class, 'destroy'])->whereNumber('holiday')->name('destroy');
+        });
+    });
+
     // Settings
     Route::prefix('settings')->name('settings.')->group(function () {
         // View (superadmin, administration, headmaster)
@@ -392,6 +436,29 @@ Route::middleware(['auth', 'ensure.role:superadmin,administration,teacher,headma
                 ->name('payment-info.methods.destroy');
 
             Route::put('/payment-info/qris', [PaymentSettingManagementController::class, 'updateQris'])->name('payment-info.qris.update');
+        });
+    });
+
+    // Bendahara: dashboard saldo + input dana + bayar honor.
+    // Akses: superadmin + administration (peran administrasi dipakai untuk fungsi bendahara di sekolah ini)
+    //        + bendahara (untuk fleksibilitas role terpisah jika dipakai di masa depan).
+    Route::middleware(['ensure.role:superadmin,administration,bendahara'])->prefix('bendahara')->name('bendahara.')->group(function () {
+        Route::get('/', [BendaharaDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/fund', [BendaharaFundController::class, 'store'])->name('fund.store');
+
+        Route::prefix('honors')->name('honors.')->group(function () {
+            Route::get('/', [BendaharaHonorController::class, 'index'])->name('index');
+            Route::get('/{teacherHonor}', [BendaharaHonorController::class, 'show'])->whereNumber('teacherHonor')->name('show');
+            Route::put('/{teacherHonor}/component', [BendaharaHonorController::class, 'updateComponent'])->whereNumber('teacherHonor')->name('update-component');
+            Route::post('/{teacherHonor}/pay', [BendaharaHonorController::class, 'pay'])->whereNumber('teacherHonor')->name('pay');
+        });
+
+        Route::prefix('transactions')->name('transactions.')->group(function () {
+            Route::get('/', [BendaharaTransactionController::class, 'index'])->name('index');
+            Route::get('/export', [BendaharaTransactionController::class, 'export'])->name('export');
+            Route::get('/by-source/{fundSource}', [BendaharaTransactionController::class, 'bySource'])
+                ->whereNumber('fundSource')
+                ->name('by-source');
         });
     });
 });

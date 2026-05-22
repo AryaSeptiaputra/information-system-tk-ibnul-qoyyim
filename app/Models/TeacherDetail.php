@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,12 +32,36 @@ class TeacherDetail extends Model
     protected $primaryKey = 'id_teacher';
     public $timestamps = true;
 
+    protected $appends = ['masa_kerja'];
+
     protected function casts(): array
     {
         return [
             'birth_date' => 'date',
             'start_work_date' => 'date',
         ];
+    }
+
+    protected function masaKerja(): Attribute
+    {
+        return Attribute::make(
+            get: function (): string {
+                $start = $this->start_work_date;
+                if (!$start) {
+                    return '-';
+                }
+
+                $diff = $start->diff(now());
+                $years = (int) $diff->y;
+                $months = (int) $diff->m;
+
+                $parts = [];
+                if ($years > 0) $parts[] = $years . ' th';
+                if ($months > 0) $parts[] = $months . ' bln';
+
+                return $parts ? implode(' ', $parts) : '0 bln';
+            },
+        );
     }
 
     public function user(): BelongsTo

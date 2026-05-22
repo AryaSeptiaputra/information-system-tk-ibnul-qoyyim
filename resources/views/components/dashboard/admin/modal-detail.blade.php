@@ -276,19 +276,6 @@
                 </div>
 
             @elseif($type === 'teacher')
-                @php
-                    $startWork = $teacher?->start_work_date;
-                    $masaKerjaLabel = '-';
-                    if ($startWork && is_object($startWork) && method_exists($startWork, 'diff')) {
-                        $diff = $startWork->diff(now());
-                        $years = (int)($diff->y ?? 0);
-                        $months = (int)($diff->m ?? 0);
-                        $masaParts = [];
-                        if ($years > 0) $masaParts[] = $years . ' th';
-                        if ($months > 0) $masaParts[] = $months . ' bln';
-                        $masaKerjaLabel = !empty($masaParts) ? implode(' ', $masaParts) : '0 bln';
-                    }
-                @endphp
                 <div class="registration-detail-grid">
                     <div class="registration-detail-block">
                         <h3>Profil Guru</h3>
@@ -300,7 +287,7 @@
                         <div class="registration-detail-row"><span>NUPTK</span><strong>{{ $teacher?->nuptk ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>TTL</span><strong>{{ $teacher?->birth_place ?? '-' }}, {{ $teacher?->birth_date?->format('Y-m-d') ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Tgl Mulai Kerja</span><strong>{{ $teacher?->start_work_date?->format('Y-m-d') ?? '-' }}</strong></div>
-                        <div class="registration-detail-row"><span>Masa Kerja</span><strong>{{ $masaKerjaLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Masa Kerja</span><strong>{{ $teacher?->masa_kerja ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Status</span><strong>{{ ($teacher?->status ?? 'active') === 'active' ? 'Aktif' : 'Nonaktif' }}</strong></div>
                         <div class="registration-detail-row"><span>Pendidikan</span><strong>{{ $teacher?->education ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Telepon</span><strong>{{ $teacher?->phone_num ?? '-' }}</strong></div>
@@ -782,6 +769,21 @@
                 </div>
 
             @elseif($type === 'student')
+                @php
+                    $studentStatusValue = $student?->status ?? null;
+                    $studentStatusLabel = match($studentStatusValue) {
+                        'aktif', 'active' => 'Aktif',
+                        'non-aktif', 'inactive' => 'Nonaktif',
+                        'pending_payment' => 'Belum Aktif',
+                        'lulus' => 'Lulus',
+                        'pindah' => 'Pindah',
+                        'rejected' => 'Ditolak',
+                        null => '-',
+                        default => $studentStatusValue,
+                    };
+                    $parentGuardian = $student?->parent;
+                @endphp
+
                 <div class="registration-detail-grid">
                     <div class="registration-detail-block">
                         <h3>Profil Murid</h3>
@@ -791,21 +793,28 @@
                         <div class="registration-detail-row"><span>Gender</span><strong>{{ $student?->gender ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Agama</span><strong>{{ $student?->religion ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Grup</span><strong>{{ $student?->group ?? '-' }}</strong></div>
-                        @php
-                            $studentStatusValue = $student?->status ?? null;
-                            $studentStatusLabel = match($studentStatusValue) {
-                                'aktif', 'active' => 'Aktif',
-                                'non-aktif', 'inactive' => 'Nonaktif',
-                                'pending_payment' => 'Belum Aktif',
-                                'lulus' => 'Lulus',
-                                'pindah' => 'Pindah',
-                                'rejected' => 'Ditolak',
-                                null => '-',
-                                default => $studentStatusValue,
-                            };
-                        @endphp
                         <div class="registration-detail-row"><span>Status</span><strong>{{ $studentStatusLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $student?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                    </div>
+
+                    <div class="registration-detail-block">
+                        <h3>Data Orangtua / Wali</h3>
+                        @if(!$parentGuardian)
+                            <div class="registration-detail-row"><span>Belum tertaut ke data orangtua</span><strong>-</strong></div>
+                        @else
+                            <div class="registration-detail-row"><span>ID Orangtua</span><strong>{{ $parentGuardian->id_parents ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Nama Ayah</span><strong>{{ $parentGuardian->father_name ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Pekerjaan Ayah</span><strong>{{ $parentGuardian->father_occupation ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Telepon Ayah</span><strong>{{ $parentGuardian->father_phone_num ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Alamat Ayah</span><strong>{{ $parentGuardian->father_address ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Nama Ibu</span><strong>{{ $parentGuardian->mother_name ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Pekerjaan Ibu</span><strong>{{ $parentGuardian->mother_occupation ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Telepon Ibu</span><strong>{{ $parentGuardian->mother_phone_num ?? '-' }}</strong></div>
+                            <div class="registration-detail-row"><span>Alamat Ibu</span><strong>{{ $parentGuardian->mother_address ?? '-' }}</strong></div>
+                            @if($parentGuardian->user)
+                                <div class="registration-detail-row"><span>Akun (Email)</span><strong>{{ $parentGuardian->user->email ?? '-' }}</strong></div>
+                            @endif
+                        @endif
                     </div>
                 </div>
 
@@ -967,6 +976,9 @@
                         default => $statusValue,
                     };
 
+                    $tzAtt = config('attendance.timezone', 'Asia/Makassar');
+                    $checkInTz = $teacherAttendance?->check_in_time?->copy()->setTimezone($tzAtt);
+
                     $teacherClassesLabel = ($teacher?->classes ?? collect())
                         ->pluck('class_name')
                         ->filter()
@@ -980,7 +992,31 @@
                         <div class="registration-detail-row"><span>ID</span><strong>{{ $teacherAttendance?->id_attendance ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Tanggal</span><strong>{{ $teacherAttendance?->date?->format('Y-m-d') ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Status</span><strong>{{ $statusLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Check-in (WITA)</span><strong>{{ $checkInTz?->format('Y-m-d H:i') ?? '-' }}</strong></div>
+                        <div class="registration-detail-row">
+                            <span>Telat</span>
+                            <strong>
+                                @if($teacherAttendance?->is_late)
+                                    {{ (int) $teacherAttendance->late_minutes }} menit
+                                @elseif($checkInTz)
+                                    Tepat waktu
+                                @else
+                                    -
+                                @endif
+                            </strong>
+                        </div>
                         <div class="registration-detail-row"><span>Keterangan</span><strong>{{ $teacherAttendance?->information ?? '-' }}</strong></div>
+                        <div class="registration-detail-row">
+                            <span>Bukti</span>
+                            <strong>
+                                @if($teacherAttendance?->attachment_path)
+                                    <a href="{{ asset($teacherAttendance->attachment_path) }}" target="_blank" rel="noopener">Lihat</a>
+                                @else
+                                    -
+                                @endif
+                            </strong>
+                        </div>
+                        <div class="registration-detail-row"><span>Sumber</span><strong>{{ $teacherAttendance?->source ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $teacherAttendance?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
                     </div>
 
@@ -1007,6 +1043,8 @@
                     $allowanceLabel = 'Rp ' . number_format((float)($teacherHonor?->allowance_total ?? 0), 0, ',', '.');
                     $adjustmentLabel = 'Rp ' . number_format((float)($teacherHonor?->manual_adjustment ?? 0), 0, ',', '.');
                     $amountLabel = 'Rp ' . number_format((float)($teacherHonor?->amount ?? 0), 0, ',', '.');
+                    $latePenaltyLabel = 'Rp ' . number_format((float)($teacherHonor?->late_penalty ?? 0), 0, ',', '.');
+                    $permissionPenaltyLabel = 'Rp ' . number_format((float)($teacherHonor?->permission_penalty ?? 0), 0, ',', '.');
                 @endphp
 
                 <div class="registration-detail-grid">
@@ -1019,8 +1057,13 @@
                         <div class="registration-detail-row"><span>Tanggal Pembayaran</span><strong>{{ $teacherHonor?->payment_date?->format('Y-m-d') ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Rate per Hadir</span><strong>{{ $rateLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Total Tunjangan</span><strong>{{ $allowanceLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Potongan Telat</span><strong>{{ $latePenaltyLabel }} ({{ (int)($teacherHonor?->late_count ?? 0) }} hari)</strong></div>
+                        <div class="registration-detail-row"><span>Potongan Izin</span><strong>{{ $permissionPenaltyLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Penyesuaian</span><strong>{{ $adjustmentLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Nominal</span><strong>{{ $amountLabel }}</strong></div>
+                        <div class="registration-detail-row"><span>Hari Kerja Periode</span><strong>{{ (int)($teacherHonor?->workday_count ?? 0) }}</strong></div>
+                        <div class="registration-detail-row"><span>Kredit Libur (Sen–Jum)</span><strong>{{ (int)($teacherHonor?->holiday_credit_count ?? 0) }}</strong></div>
+                        <div class="registration-detail-row"><span>Hadir Efektif (utk Rate)</span><strong>{{ (int)($teacherHonor?->effective_attendance_count ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Hadir</span><strong>{{ (int)($teacherHonor?->attendance_count ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Izin</span><strong>{{ (int)($teacherHonor?->permission_count ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Sakit</span><strong>{{ (int)($teacherHonor?->sickness_count ?? 0) }}</strong></div>

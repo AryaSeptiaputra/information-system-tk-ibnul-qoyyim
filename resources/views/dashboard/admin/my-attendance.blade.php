@@ -82,8 +82,8 @@
                             <button type="submit" class="ui-btn ui-btn--primary">🕒 Absen Sekarang</button>
                         </form>
                     @endif
-                    <button type="button" class="ui-btn ui-btn--secondary" @click="$dispatch('open-modal', 'modal-izin')">📝 Ajukan Izin</button>
-                    <button type="button" class="ui-btn ui-btn--secondary" @click="$dispatch('open-modal', 'modal-sakit')">🤒 Lapor Sakit</button>
+                    <button type="button" class="ui-btn ui-btn--secondary" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'modal-izin' }))">📝 Ajukan Izin</button>
+                    <button type="button" class="ui-btn ui-btn--secondary" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'modal-sakit' }))">🤒 Lapor Sakit</button>
                 </div>
             </div>
             @if(!$window['can_check_in'])
@@ -175,7 +175,7 @@
                 <span class="ui-form-hint">PDF/JPG/PNG, max 2 MB</span>
             </div>
             <div style="display: flex; gap: var(--ui-space-sm); justify-content: flex-end;">
-                <button type="button" class="ui-btn ui-btn--secondary" @click="open = false">Batal</button>
+                <button type="button" class="ui-btn ui-btn--secondary" onclick="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'modal-izin' }))">Batal</button>
                 <button type="submit" class="ui-btn ui-btn--primary">Kirim Izin</button>
             </div>
         </form>
@@ -199,7 +199,7 @@
                 <span class="ui-form-hint">PDF/JPG/PNG, max 2 MB</span>
             </div>
             <div style="display: flex; gap: var(--ui-space-sm); justify-content: flex-end;">
-                <button type="button" class="ui-btn ui-btn--secondary" @click="open = false">Batal</button>
+                <button type="button" class="ui-btn ui-btn--secondary" onclick="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'modal-sakit' }))">Batal</button>
                 <button type="submit" class="ui-btn ui-btn--primary">Kirim Sakit</button>
             </div>
         </form>

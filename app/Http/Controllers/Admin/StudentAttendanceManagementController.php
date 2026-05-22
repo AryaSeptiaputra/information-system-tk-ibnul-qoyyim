@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\StudentAttendance;
+use App\Models\TeacherDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class StudentAttendanceManagementController extends Controller
@@ -88,6 +91,37 @@ class StudentAttendanceManagementController extends Controller
         ]);
 
         $studentIds = array_values(array_unique($validated['id_student']));
+
+        // Security: kalau yang submit adalah teacher, pastikan id_student[] semua
+        // berada di kelas yang dia ajar. Admin/headmaster boleh untuk semua siswa.
+        $user = Auth::user();
+        if (($user?->role ?? null) === 'teacher') {
+            $teacher = TeacherDetail::query()->where('id_user', (int) $user->id)->first();
+            if (!$teacher) {
+                throw ValidationException::withMessages([
+                    'id_student' => ['Akun Anda belum tertaut ke data guru.'],
+                ]);
+            }
+
+            $teacherClassIds = DB::table('class_teacher')
+                ->where('id_teacher', $teacher->id_teacher)
+                ->pluck('id_class')
+                ->all();
+
+            $allowedStudentIds = DB::table('class_student')
+                ->whereIn('id_class', $teacherClassIds)
+                ->pluck('id_student')
+                ->all();
+
+            $allowedLookup = array_flip($allowedStudentIds);
+            $disallowed = array_filter($studentIds, fn ($id) => !isset($allowedLookup[$id]));
+
+            if (!empty($disallowed)) {
+                throw ValidationException::withMessages([
+                    'id_student' => ['Anda hanya boleh mencatat absensi murid di kelas yang Anda ajar.'],
+                ]);
+            }
+        }
 
         $existingIds = StudentAttendance::query()
             ->whereIn('id_student', $studentIds)

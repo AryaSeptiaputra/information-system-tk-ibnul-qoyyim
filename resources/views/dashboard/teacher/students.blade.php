@@ -24,15 +24,24 @@
 @elseif($classes->isEmpty())
     <x-ui.empty-state icon="📭" message="Anda belum ditugaskan mengajar kelas manapun." />
 @else
-    @if(count($tabs) > 1)
-        <x-ui.tab-bar :tabs="$tabs" :active="(string) $activeClassId" />
-    @endif
-
+    {{-- Filter kelas: dropdown, SELALU muncul. Sumber: kelas yang guru ajar (dari tabel classes via pivot class_teacher). --}}
     <div class="ui-toolbar">
         <form method="GET" action="{{ route('admin.teacher.students') }}" class="ui-toolbar__search">
             <input type="hidden" name="class" value="{{ $activeClassId }}">
-            <input type="search" name="search" value="{{ $search }}" class="ui-input" placeholder="Cari murid...">
+            <input type="search" name="search" value="{{ $search }}" class="ui-input" placeholder="Cari murid di kelas ini...">
         </form>
+        <div class="ui-toolbar__filters">
+            <form method="GET" action="{{ route('admin.teacher.students') }}">
+                <input type="hidden" name="search" value="{{ $search }}">
+                <select name="class" class="ui-select" onchange="this.form.submit()" aria-label="Pilih kelas">
+                    @foreach($classes as $c)
+                        <option value="{{ $c->id_class }}" @selected((int) $activeClassId === (int) $c->id_class)>
+                            {{ $c->class_name }} ({{ $c->students_count }} murid)
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
     </div>
 
     @if($students->isEmpty())

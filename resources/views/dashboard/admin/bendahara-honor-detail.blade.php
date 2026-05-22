@@ -94,7 +94,7 @@
                                 <button
                                     type="button"
                                     class="ui-btn ui-btn--ghost ui-btn--sm"
-                                    @click="$dispatch('open-modal', 'isi-gaji-{{ $key }}')"
+                                    onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'isi-gaji-{{ $key }}' }))"
                                 >
                                     Edit
                                 </button>
@@ -203,7 +203,7 @@
             </div>
 
             <div style="display: flex; gap: var(--ui-space-sm); justify-content: flex-end;">
-                <button type="button" class="ui-btn ui-btn--secondary" @click="open = false">Batal</button>
+                <button type="button" class="ui-btn ui-btn--secondary" onclick="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'isi-gaji-{{ $key }}' }))">Batal</button>
                 <button type="submit" class="ui-btn ui-btn--primary">Simpan</button>
             </div>
         </form>

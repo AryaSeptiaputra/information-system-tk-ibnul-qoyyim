@@ -29,9 +29,25 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $default = ($user && ($user->role ?? null) === 'superadmin')
-            ? route('admin.dashboard', absolute: false)
-            : route('dashboard', absolute: false);
+        $role = $user?->role ?? null;
+
+        // Mapping dashboard per role. Fallback ke admin.dashboard kalau route
+        // role-specific belum terdaftar (defensive).
+        $roleDashboard = [
+            'superadmin' => 'admin.dashboard',
+            'administration' => 'admin.bendahara.dashboard',
+            'bendahara' => 'admin.bendahara.dashboard',
+            'headmaster' => 'admin.headmaster.dashboard',
+            'teacher' => 'admin.teacher.dashboard',
+        ];
+
+        if (isset($roleDashboard[$role]) && \Illuminate\Support\Facades\Route::has($roleDashboard[$role])) {
+            $default = route($roleDashboard[$role], absolute: false);
+        } elseif (isset($roleDashboard[$role])) {
+            $default = route('admin.dashboard', absolute: false);
+        } else {
+            $default = route('dashboard', absolute: false);
+        }
 
         return redirect()->intended($default);
     }

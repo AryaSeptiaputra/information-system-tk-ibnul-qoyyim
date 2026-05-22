@@ -52,7 +52,7 @@
                     type="button"
                     class="ui-btn ui-btn--secondary ui-btn--sm"
                     style="width: 100%;"
-                    @click="$dispatch('open-modal', '{{ $modalName }}')"
+                    onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: '{{ $modalName }}' }))"
                 >
                     + Input Dana
                 </button>
@@ -188,7 +188,7 @@
             </div>
 
             <div style="display: flex; gap: var(--ui-space-sm); justify-content: flex-end;">
-                <button type="button" class="ui-btn ui-btn--secondary" @click="open = false">Batal</button>
+                <button type="button" class="ui-btn ui-btn--secondary" onclick="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'input-dana-{{ $source->id }}' }))">Batal</button>
                 <button type="submit" class="ui-btn ui-btn--primary">Simpan</button>
             </div>
         </form>

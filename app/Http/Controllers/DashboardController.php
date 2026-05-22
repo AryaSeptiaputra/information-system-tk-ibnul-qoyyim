@@ -29,9 +29,21 @@ class DashboardController extends Controller
         $roleRaw = (string)($user?->role ?? '');
         $role = $roleRaw === 'super_admin' ? 'superadmin' : $roleRaw;
 
-        // Staff roles use the staff portal (/admin). Keep /dashboard as guest portal.
-        if (in_array($role, ['superadmin', 'administration', 'teacher', 'headmaster', 'bendahara'], true)) {
-            return redirect()->route('admin.dashboard');
+        // Staff roles → redirect ke dashboard sesuai role masing-masing.
+        // Fallback ke admin.dashboard (generic) kalau route role belum tersedia.
+        $roleDashboard = [
+            'administration' => 'admin.bendahara.dashboard',
+            'bendahara' => 'admin.bendahara.dashboard',
+            'headmaster' => 'admin.headmaster.dashboard',
+            'teacher' => 'admin.teacher.dashboard',
+            'superadmin' => 'admin.dashboard',
+        ];
+
+        if (isset($roleDashboard[$role])) {
+            $target = $roleDashboard[$role];
+            return \Illuminate\Support\Facades\Route::has($target)
+                ? redirect()->route($target)
+                : redirect()->route('admin.dashboard');
         }
         
         $data = [

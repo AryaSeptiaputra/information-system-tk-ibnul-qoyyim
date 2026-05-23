@@ -129,8 +129,14 @@
             wirePaymentFeeEditor(modal);
         }
 
-        function wirePaymentFeeEditor(modal) {
-            if (!modal || modal.dataset?.modalType !== 'payment') return;
+        // Expose ke window agar bisa dipanggil dari utility loadFormIntoModal (AJAX inject).
+        window.wirePaymentFeeEditor = wirePaymentFeeEditor;
+
+        function wirePaymentFeeEditor(container) {
+            // Permissive: terima container apapun yang punya [data-fee-editor].
+            // Skip cuma kalau benar-benar tidak ada container atau tidak ada editor di dalamnya.
+            if (!container) return;
+            if (!container.querySelector('[data-fee-editor]')) return;
 
             function toInt(value, fallback = 0) {
                 const n = parseInt((value ?? '').toString(), 10);
@@ -162,7 +168,7 @@
                 }
             }
 
-            modal.querySelectorAll('[data-fee-editor]').forEach(editor => {
+            container.querySelectorAll('[data-fee-editor]').forEach(editor => {
                 if (editor.dataset?.wired === '1') return;
                 editor.dataset.wired = '1';
 

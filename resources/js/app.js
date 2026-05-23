@@ -72,6 +72,19 @@ window.loadFormIntoModal = async function (url, containerId, modalName, opts = {
 
         // Attach AJAX submit handler (controller existing return JSON {success, message}).
         attachAjaxSubmitHandler(form, modalName, opts);
+
+        // Auto-wire fee editor (untuk form Master Payment dengan komponen biaya).
+        if (typeof window.wirePaymentFeeEditor === 'function') {
+            try { window.wirePaymentFeeEditor(form); } catch (e) { console.warn('wirePaymentFeeEditor failed:', e); }
+        }
+
+        // Bind tombol [data-modal-close] (pattern lama "Batal") ke close-modal dispatcher modern.
+        form.querySelectorAll('[data-modal-close]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('close-modal', { detail: modalName }));
+            });
+        });
     } catch (err) {
         container.innerHTML = `<div class="ui-form-error">
             <strong>Network error:</strong> ${escapeHtml(err.message)}
@@ -210,6 +223,57 @@ function escapeHtml(str) {
     div.textContent = str;
     return div.innerHTML;
 }
+
+/**
+ * Helpers approve/reject/activate Pendaftaran (dipakai dari modal detail registration).
+ * Karena modal-detail di-load via AJAX, script tag yang di-inject tidak ter-execute.
+ * Function ini didefinisikan global di app.js supaya selalu tersedia.
+ */
+async function sendRegistrationUpdate(id, status, extra) {
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const body = new FormData();
+    body.append('_token', csrf);
+    body.append('_method', 'PUT');
+    body.append('status', status);
+    if (extra) for (const k in extra) body.append(k, extra[k]);
+
+    try {
+        const res = await fetch(`/admin/registrations/${id}`, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body,
+            credentials: 'same-origin',
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data?.success) {
+            alert(data.message || 'Berhasil.');
+            window.location.reload();
+        } else {
+            alert(data?.message || `Gagal (HTTP ${res.status}).`);
+        }
+    } catch (err) {
+        alert('Network error: ' + err.message);
+    }
+}
+
+window.registrationApprove = function (id) {
+    if (!confirm('Approve pendaftaran ini? Tagihan uang pendaftaran akan otomatis dibuat.')) return;
+    sendRegistrationUpdate(id, 'approved_awaiting_payment');
+};
+
+window.registrationActivate = function (id) {
+    if (!confirm('Aktifkan pendaftaran ini? Pastikan tagihan uang pendaftaran sudah Paid.')) return;
+    sendRegistrationUpdate(id, 'active');
+};
+
+window.registrationReject = function (id) {
+    const reason = prompt('Alasan penolakan (wajib diisi):');
+    if (!reason || !reason.trim()) {
+        if (reason !== null) alert('Alasan wajib diisi.');
+        return;
+    }
+    sendRegistrationUpdate(id, 'rejected', { reject_reason: reason.trim() });
+};
 
 // Tab switcher for profil
 function switchTab(tabId) {

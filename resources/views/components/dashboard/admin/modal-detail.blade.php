@@ -259,6 +259,52 @@
                     </div>
                 </div>
 
+                {{-- Action panel: hanya untuk role administration/superadmin --}}
+                @if($canManageGeneral && in_array($registrationStatusValue, ['pending', 'approved_awaiting_payment', 'pending_due'], true))
+                    <div class="registration-detail-divider"></div>
+                    <div class="registration-detail-block" style="background: var(--surface-hover); padding: var(--ui-space-md); border-radius: var(--ui-radius-sm);">
+                        <h3 style="margin-top: 0;">Tindakan</h3>
+
+                        <div style="display: flex; gap: var(--ui-space-sm); flex-wrap: wrap;">
+                            @if($registrationStatusValue === 'pending')
+                                <button
+                                    type="button"
+                                    class="ui-btn ui-btn--primary"
+                                    onclick="registrationApprove({{ $registration->id_registration }})"
+                                >
+                                    ✓ Approve Pendaftaran
+                                </button>
+                            @endif
+
+                            @if(in_array($registrationStatusValue, ['approved_awaiting_payment', 'pending_due'], true))
+                                <button
+                                    type="button"
+                                    class="ui-btn ui-btn--primary"
+                                    onclick="registrationActivate({{ $registration->id_registration }})"
+                                >
+                                    ✓ Aktifkan Pendaftaran
+                                </button>
+                                <span class="ui-stat-card__hint" style="align-self: center;">
+                                    (hanya valid jika tagihan uang pendaftaran sudah Paid)
+                                </span>
+                            @endif
+
+                            <button
+                                type="button"
+                                class="ui-btn ui-btn--danger"
+                                onclick="registrationReject({{ $registration->id_registration }})"
+                            >
+                                ✕ Reject
+                            </button>
+                        </div>
+
+                        <p class="ui-stat-card__hint" style="margin-top: var(--ui-space-md);">
+                            <strong>Catatan:</strong> Approve akan otomatis membuat tagihan uang pendaftaran.
+                            Pendaftaran akan ter-aktivasi otomatis saat bukti pembayaran disetujui.
+                        </p>
+                    </div>
+                @endif
+
             @elseif($type === 'user')
                 <div class="registration-detail-grid">
                     <div class="registration-detail-block">

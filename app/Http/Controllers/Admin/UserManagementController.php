@@ -160,11 +160,11 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Export users to Excel
+     * Export users to CSV
      */
     public function export(Request $request)
     {
-        $query = User::query();
+        $query = User::query()->with(['teacherDetail:id_teacher,id_user,name', 'parentGuardian:id_parents,id_user,father_name,mother_name']);
 
         // Apply same filters as index
         if ($request->filled('search')) {
@@ -184,47 +184,72 @@ class UserManagementController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $columns = ['id', 'name', 'email', 'phone_num', 'role', 'created_at'];
-        if (Schema::hasColumn('users', 'status')) {
-            $columns[] = 'status';
-        }
+        $users = $query->get();
+        $hasStatus = Schema::hasColumn('users', 'status');
 
-        $users = $query->get($columns);
-
-        // Return as CSV (simple export without external library)
         $headers = [
             'Content-Type' => 'text/csv; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="users_' . now()->format('Y-m-d_H-i-s') . '.csv"',
         ];
 
-        $callback = function() use ($users) {
+        $roleLabels = [
+            'superadmin'     => 'Super Admin',
+            'headmaster'     => 'Kepala Sekolah',
+            'administration' => 'Administrasi',
+            'bendahara'      => 'Bendahara',
+            'teacher'        => 'Guru',
+            'guest'          => 'Orang Tua',
+        ];
+
+        $callback = function () use ($users, $hasStatus, $roleLabels) {
             $file = fopen('php://output', 'w');
-            
-            // Header row
-            $header = ['ID', 'Nama', 'Email', 'Phone', 'Role', 'Dibuat Tanggal'];
-            if (Schema::hasColumn('users', 'status')) {
+
+            $header = ['ID', 'Nama', 'Email', 'Telepon', 'Role', 'Dibuat Tanggal'];
+            if ($hasStatus) {
                 $header[] = 'Status';
             }
             fputcsv($file, $header);
-            
-            // Data rows
+
             foreach ($users as $user) {
+                // Display name: prefer teacher/parent detail name based on role.
+                $displayName = $user->name;
+                if ($user->role === 'teacher' && $user->teacherDetail?->name) {
+                    $displayName = $user->teacherDetail->name;
+                } elseif ($user->role === 'guest' && $user->parentGuardian) {
+                    $father = trim((string) ($user->parentGuardian->father_name ?? ''));
+                    $mother = trim((string) ($user->parentGuardian->mother_name ?? ''));
+                    if ($father !== '' && $mother !== '') {
+                        $displayName = $father . ' & ' . $mother;
+                    } elseif ($father !== '') {
+                        $displayName = $father;
+                    } elseif ($mother !== '') {
+                        $displayName = $mother;
+                    }
+                }
+
+                $roleLabel = $roleLabels[$user->role] ?? ucfirst((string) $user->role);
+
+                $statusLabel = '-';
+                if ($hasStatus) {
+                    $statusLabel = ($user->status ?? 'active') === 'active' ? 'Aktif' : 'Nonaktif';
+                }
+
                 $row = [
                     $user->id,
-                    $user->name,
+                    $displayName,
                     $user->email,
-                    $user->phone_num,
-                    $user->role,
-                    $user->created_at->format('Y-m-d H:i:s'),
+                    $user->phone_num ?? '-',
+                    $roleLabel,
+                    $user->created_at?->format('Y-m-d H:i:s') ?? '-',
                 ];
 
-                if (Schema::hasColumn('users', 'status')) {
-                    $row[] = $user->status ?? 'active';
+                if ($hasStatus) {
+                    $row[] = $statusLabel;
                 }
 
                 fputcsv($file, $row);
             }
-            
+
             fclose($file);
         };
 

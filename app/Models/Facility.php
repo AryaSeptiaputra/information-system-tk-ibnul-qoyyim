@@ -16,6 +16,7 @@ class Facility extends Model
         'description',
         'quantity',
         'condition',
+        'condition_note',
         'fund_source',
         'acquisition_year',
         'category',

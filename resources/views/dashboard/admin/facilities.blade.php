@@ -7,6 +7,8 @@
 
 <x-ui.page-header title="Sarana & Prasarana">
     <x-slot:action>
+        <a href="{{ route('admin.facilities.export', request()->query()) }}"
+           class="ui-btn ui-btn--ghost ui-btn--sm" title="Download CSV laporan sarpras">📥 Export</a>
         <button type="button" class="ui-btn ui-btn--primary" onclick="loadCreateFacility()">+ Tambah Barang</button>
     </x-slot:action>
 </x-ui.page-header>

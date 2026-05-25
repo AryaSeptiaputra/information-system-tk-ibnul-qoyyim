@@ -1592,6 +1592,21 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="form-condition-note" class="form-label">Catatan Kondisi (Opsional)</label>
+                        <textarea
+                            id="form-condition-note"
+                            name="condition_note"
+                            class="form-input"
+                            rows="3"
+                            placeholder="Contoh: Kaki kursi patah, perlu diganti baut; Layar retak di sudut kanan; dst."
+                        >{{ $facility?->condition_note ?? old('condition_note') }}</textarea>
+                        @error('condition_note')
+                            <span class="form-error">{{ $message }}</span>
+                        @enderror
+                        <span class="form-label-hint">Tuliskan detail kerusakan, kebutuhan perbaikan, atau catatan penting lainnya.</span>
+                    </div>
+
+                    <div class="form-group">
                         <label for="form-fund-source" class="form-label">Sumber Dana (Opsional)</label>
                         <input
                             type="text"

@@ -1297,6 +1297,9 @@
                         <div class="registration-detail-row"><span>Nama</span><strong>{{ $facility?->name ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Jumlah</span><strong>{{ (int)($facility?->quantity ?? 0) }}</strong></div>
                         <div class="registration-detail-row"><span>Kondisi</span><strong>{{ $facility?->condition ?? '-' }}</strong></div>
+                        @if($facility?->condition_note)
+                            <div class="registration-detail-row"><span>Catatan Kondisi</span><strong style="white-space:pre-wrap;">{{ $facility->condition_note }}</strong></div>
+                        @endif
                         <div class="registration-detail-row"><span>Sumber Dana</span><strong>{{ $facility?->fund_source ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Tahun Perolehan</span><strong>{{ $facility?->acquisition_year ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Kategori</span><strong>{{ $facility?->category ?? '-' }}</strong></div>

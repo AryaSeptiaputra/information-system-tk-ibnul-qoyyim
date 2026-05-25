@@ -35,8 +35,8 @@ Legenda:
 |---|------|--------|---------|
 | 1 | Halaman ERROR setelah pull terbaru | ✅ DONE | Bug visual di-fix di `facilities.blade.php` — `<th>Foto</th>` ditambahkan sebagai kolom pertama (commit `[pending]`). Tabel sekarang aligned (7 sel data vs 7 header). |
 | 2 | Gambar bisa ditampilkan di halaman daftar (thumbnail + buka detail) | ✅ DONE | Thumbnail 48×48 di baris tabel + klik untuk buka full-size. Modal detail preview 140×110. Header tabel sudah diperbaiki. |
-| 3 | Kolom "Keterangan" — input manual dana yang dibutuhkan untuk perbaikan/penggantian (jika kondisi Rusak Ringan / Rusak Berat) | ❌ TODO | Belum ada kolom `repair_cost_estimate` atau `repair_notes`. Perlu: <br>- Migration tambah kolom `repair_cost_estimate` (decimal) + `repair_notes` (text) di tabel `facilities`<br>- Update `$fillable` di `Facility.php`<br>- Tambah input di modal form (muncul kalau kondisi != "Baik")<br>- Tampilkan di modal detail dan ekspor CSV |
-| 4 | Export CSV untuk laporan sarpras ke yayasan | ⚠️ PARTIAL | Endpoint `admin.facilities.export` sudah ada di controller. **Tapi tombol Export TIDAK MUNCUL di halaman `facilities.blade.php`**. Perlu tambah `<x-slot:action>` di page-header untuk tombol export. CSV juga perlu kolom baru `repair_cost_estimate` + `repair_notes` saat item #3 selesai. |
+| 3 | Kolom "Keterangan" — input manual catatan kondisi + dana perbaikan/penggantian | ⚠️ PARTIAL | **Catatan kondisi sudah selesai** (commit `[pending]`): <br>- Migration `2026_05_25_000003_add_condition_note_to_facilities_table.php` — kolom `condition_note` (text, nullable) <br>- `Facility::$fillable` ditambah `condition_note` <br>- Textarea input di modal form (placeholder contoh, hint penjelasan) <br>- Tampil di modal detail (`white-space:pre-wrap`) hanya jika ada isi <br>- Kolom "Catatan Kondisi" ditambahkan di CSV export <br>- Validasi `string\|max:2000` di `store`/`update` <br><br>**Yang masih TODO**: kolom `repair_cost_estimate` (decimal) untuk estimasi dana perbaikan/penggantian. Bisa dibuat di migration terpisah jika diperlukan. |
+| 4 | Export CSV untuk laporan sarpras ke yayasan | ✅ DONE | Tombol "📥 Export" sudah ditambahkan di page-header `facilities.blade.php` (di sebelah "+ Tambah Barang"), meneruskan query filter aktif via `request()->query()`. CSV kolom baru `repair_cost_estimate`/`repair_notes` akan ditambahkan setelah item Sarpras #3 selesai. |
 
 ### 💰 Halaman Riwayat Dana
 
@@ -52,8 +52,8 @@ Legenda:
 
 | # | Item | Status | Catatan |
 |---|------|--------|---------|
-| 1a | Export CSV: kolom "Nama" — untuk role teacher, harusnya tampil nama guru langsung (bukan nama akun) | ❌ TODO | Saat ini CSV output `$user->name` (nama akun User). Untuk role teacher, perlu join ke `teacher_details.name`. Perlu cek juga untuk role guest (parent) ke `parents.full_name`. Lokasi: `UserManagementController::export()` baris 211–226. |
-| 1b | Export CSV: role belum lengkap — kepala sekolah & orang tua tidak ada, yang ada hanya "guest" | ❌ TODO | CSV output `$user->role` mentah (`headmaster`, `guest`, dll). Perlu map ke label Indonesia: `headmaster` → "Kepala Sekolah", `guest` → "Orang Tua", `administration` → "Administrasi/Bendahara", dst. Lokasi sama dgn 1a. |
+| 1a | Export CSV: kolom "Nama" — untuk role teacher, harusnya tampil nama guru langsung (bukan nama akun) | ✅ DONE | `UserManagementController::export()` di-update: eager-load `teacherDetail` + `parentGuardian`. Untuk role `teacher` ambil dari `teacher_details.name`, untuk role `guest` gabungkan `father_name & mother_name` (atau fallback salah satu). Default `user.name` jika relasi tidak ada. |
+| 1b | Export CSV: role belum lengkap — kepala sekolah & orang tua tidak ada, yang ada hanya "guest" | ✅ DONE | Map `$roleLabels` di-tambahkan: `superadmin` → "Super Admin", `headmaster` → "Kepala Sekolah", `administration` → "Administrasi", `bendahara` → "Bendahara", `teacher` → "Guru", `guest` → "Orang Tua". Status juga di-map ke "Aktif"/"Nonaktif". |
 | 1c | Export CSV: kolom yang ditampilkan harus sama dengan kolom di tabel halaman (nama, email, telepon, role, status) | ✅ DONE | CSV sudah ada ID, Nama, Email, Phone, Role, Dibuat, Status. Setelah fix 1a/1b, sudah selaras dengan tampilan. |
 | 2 | "Tambah Pengguna": password wajib diisi | ✅ DONE | `UserManagementController::store()` baris 80 sudah `'password' => 'required\|string\|min:8\|confirmed'`. Sudah wajib. |
 
@@ -72,19 +72,19 @@ Legenda:
 |-------|------|---------|------|
 | Registrasi (Guest) | 1 | 0 | 0 |
 | Honor Guru | 2 | 0 | 0 |
-| Sarpras | 2 | 0 | 2 |
+| Sarpras | 3 | 1 | 0 |
 | Riwayat Dana | 0 | 1 | 0 |
-| Manajemen Pengguna | 1 | 0 | 2 |
+| Manajemen Pengguna | 3 | 0 | 0 |
 | Data Murid | 0 | 0 | 2 |
-| **Total** | **6** | **1** | **6** |
+| **Total** | **9** | **2** | **2** |
 
 ## Prioritas (rekomendasi urutan kerja)
 
 1. ~~**🔴 KRITIS** — Fix bug header tabel Sarpras~~ → ✅ SELESAI
 2. ~~**🔴 KRITIS** — Upload Kartu Keluarga di registrasi~~ → ✅ SELESAI
-3. **🟠 PENTING** — Tombol Export CSV di halaman Sarpras (item Sarpras #4) — sudah ada endpoint, tinggal tambah tombol.
-4. **🟠 PENTING** — Map role label & nama guru di export Manajemen Pengguna (item User #1a, #1b) — perubahan kecil tapi sering dipakai.
-5. **🟡 SEDANG** — Kolom dana perbaikan di Sarpras (item Sarpras #3) — butuh migration baru.
+3. ~~**🟠 PENTING** — Tombol Export CSV di halaman Sarpras~~ → ✅ SELESAI
+4. ~~**🟠 PENTING** — Map role label & nama guru di export Manajemen Pengguna~~ → ✅ SELESAI
+5. ~~**🟡 SEDANG** — Catatan kondisi Sarpras~~ → ✅ SELESAI (kolom estimasi dana masih pending, item terpisah jika diperlukan)
 6. **🟡 SEDANG** — Kolom orangtua di export Data Murid (item Student #1).
 7. **🟡 SEDANG** — Input manual dana di Riwayat Dana (item Riwayat Dana #1) — utamanya quality-of-life, fungsi sudah ada di Dashboard Bendahara.
 8. **🟢 KLARIFIKASI** — Minus dana di Data Murid (item Student #2) — minta detail dulu dari user.

@@ -16,11 +16,14 @@ class Registration extends Model
     protected $primaryKey = 'id_registration';
     public $timestamps = true;
 
-    #[Fillable(['id_user', 'candidate_data', 'parents_data', 'group', 'status', 'payment_deadline', 'grace_period_until', 'paid_late', 'reject_reason'])]
+    #[Fillable(['id_user', 'candidate_data', 'parents_data', 'kk_file_path', 'photo_file_path', 'birth_certificate_file_path', 'group', 'status', 'payment_deadline', 'grace_period_until', 'paid_late', 'reject_reason'])]
     protected $fillable = [
         'id_user',
         'candidate_data',
         'parents_data',
+        'kk_file_path',
+        'photo_file_path',
+        'birth_certificate_file_path',
         'group',
         'status',
         'payment_deadline',

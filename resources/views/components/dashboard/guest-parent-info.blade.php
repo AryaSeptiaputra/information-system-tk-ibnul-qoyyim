@@ -317,4 +317,53 @@
             @endif
         </div>
     </div>
+
+    @php
+        $parentInfoDocs = [
+            ['label' => 'Kartu Keluarga', 'path' => $registration?->kk_file_path, 'alt' => 'Kartu Keluarga'],
+            ['label' => 'Pas Foto Anak', 'path' => $registration?->photo_file_path, 'alt' => 'Pas Foto Anak'],
+            ['label' => 'Akta Kelahiran', 'path' => $registration?->birth_certificate_file_path, 'alt' => 'Akta Kelahiran'],
+        ];
+        $parentInfoHasDoc = collect($parentInfoDocs)->contains(fn ($d) => !empty($d['path']));
+    @endphp
+
+    @if($parentInfoHasDoc)
+        <div class="parent-info-block" style="margin-top:16px;">
+            <div class="parent-info-block-title">Dokumen yang Diunggah</div>
+            <p style="color:#6b7280;font-size:13px;margin:4px 0 12px;">
+                Klik gambar atau tombol untuk membuka dokumen di jendela baru.
+            </p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;">
+                @foreach($parentInfoDocs as $doc)
+                    @php
+                        $docPath = $doc['path'];
+                        $docExt = $docPath ? strtolower(pathinfo($docPath, PATHINFO_EXTENSION)) : '';
+                        $docIsImg = in_array($docExt, ['jpg','jpeg','png','webp','gif']);
+                    @endphp
+                    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;background:#fff;">
+                        <div style="font-weight:700;margin-bottom:8px;font-size:13px;">{{ $doc['label'] }}</div>
+                        @if($docPath)
+                            @if($docIsImg)
+                                <a href="{{ asset($docPath) }}" target="_blank" rel="noopener" title="Buka di jendela baru">
+                                    <img src="{{ asset($docPath) }}" alt="{{ $doc['alt'] }}"
+                                         style="width:100%;max-height:150px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;display:block;">
+                                </a>
+                                <a href="{{ asset($docPath) }}" target="_blank" rel="noopener"
+                                   style="display:inline-block;margin-top:6px;font-size:12px;color:#2563eb;text-decoration:none;">
+                                    🔍 Buka di jendela baru
+                                </a>
+                            @else
+                                <a href="{{ asset($docPath) }}" target="_blank" rel="noopener"
+                                   style="display:inline-block;padding:10px 14px;background:#f3f4f6;border-radius:6px;color:#1f2937;text-decoration:none;font-weight:600;font-size:13px;">
+                                    📄 Lihat PDF
+                                </a>
+                            @endif
+                        @else
+                            <div style="color:#9ca3af;font-size:12px;">Belum diunggah</div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>

@@ -259,6 +259,45 @@
                     </div>
                 </div>
 
+                <div class="registration-detail-divider"></div>
+
+                <div class="registration-detail-block">
+                    <h3>Dokumen Pendukung</h3>
+
+                    @php
+                        $registrationDocs = [
+                            ['label' => 'Kartu Keluarga', 'path' => $registration?->kk_file_path, 'alt' => 'Kartu Keluarga'],
+                            ['label' => 'Pas Foto Anak', 'path' => $registration?->photo_file_path, 'alt' => 'Pas Foto Anak'],
+                            ['label' => 'Akta Kelahiran', 'path' => $registration?->birth_certificate_file_path, 'alt' => 'Akta Kelahiran'],
+                        ];
+                    @endphp
+
+                    @foreach($registrationDocs as $doc)
+                        @php
+                            $docPath = $doc['path'];
+                            $docExt = $docPath ? strtolower(pathinfo($docPath, PATHINFO_EXTENSION)) : '';
+                            $docIsImg = in_array($docExt, ['jpg','jpeg','png','webp','gif']);
+                        @endphp
+                        <div class="registration-detail-row">
+                            <span>{{ $doc['label'] }}</span>
+                            <strong>
+                                @if($docPath)
+                                    @if($docIsImg)
+                                        <a href="{{ asset($docPath) }}" target="_blank" rel="noopener" title="Buka gambar penuh">
+                                            <img src="{{ asset($docPath) }}" alt="{{ $doc['alt'] }}"
+                                                 style="max-width:180px;max-height:140px;object-fit:cover;border-radius:8px;border:1px solid var(--ui-border,#e5e7eb);display:block;">
+                                        </a>
+                                    @else
+                                        <a href="{{ asset($docPath) }}" target="_blank" rel="noopener">📄 Lihat PDF {{ $doc['label'] }}</a>
+                                    @endif
+                                @else
+                                    <span style="color:var(--color-muted,#9ca3af);">Belum diunggah</span>
+                                @endif
+                            </strong>
+                        </div>
+                    @endforeach
+                </div>
+
                 {{-- Action panel: hanya untuk role administration/superadmin --}}
                 @if($canManageGeneral && in_array($registrationStatusValue, ['pending', 'approved_awaiting_payment', 'pending_due'], true))
                     <div class="registration-detail-divider"></div>

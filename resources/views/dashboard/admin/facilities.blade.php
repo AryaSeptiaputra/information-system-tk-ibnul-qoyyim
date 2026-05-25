@@ -39,6 +39,7 @@
         <table class="ui-table">
             <thead>
                 <tr>
+                    <th style="width:56px;">Foto</th>
                     <th>Barang</th>
                     <th style="text-align: center;">Jumlah</th>
                     <th>Kondisi</th>

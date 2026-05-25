@@ -41,6 +41,47 @@
 
         <hr style="margin: 20px 0;" />
 
+        @php
+            $registrationDocs = [
+                ['label' => 'Kartu Keluarga', 'path' => $registration?->kk_file_path, 'alt' => 'Kartu Keluarga'],
+                ['label' => 'Pas Foto Anak', 'path' => $registration?->photo_file_path, 'alt' => 'Pas Foto Anak'],
+                ['label' => 'Akta Kelahiran', 'path' => $registration?->birth_certificate_file_path, 'alt' => 'Akta Kelahiran'],
+            ];
+        @endphp
+
+        <h3 style="margin-bottom: 12px;">Dokumen yang Diunggah</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+            @foreach($registrationDocs as $doc)
+                @php
+                    $docPath = $doc['path'];
+                    $docExt = $docPath ? strtolower(pathinfo($docPath, PATHINFO_EXTENSION)) : '';
+                    $docIsImg = in_array($docExt, ['jpg','jpeg','png','webp','gif']);
+                @endphp
+                <div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;background:#fff;">
+                    <div style="font-weight:700;margin-bottom:8px;font-size:14px;">{{ $doc['label'] }}</div>
+                    @if($docPath)
+                        @if($docIsImg)
+                            <a href="{{ asset($docPath) }}" target="_blank" rel="noopener" title="Buka di jendela baru">
+                                <img src="{{ asset($docPath) }}" alt="{{ $doc['alt'] }}"
+                                     style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;display:block;">
+                            </a>
+                            <a href="{{ asset($docPath) }}" target="_blank" rel="noopener"
+                               style="display:inline-block;margin-top:8px;font-size:13px;color:#2563eb;">
+                                🔍 Lihat ukuran penuh
+                            </a>
+                        @else
+                            <a href="{{ asset($docPath) }}" target="_blank" rel="noopener"
+                               style="display:inline-block;padding:10px 14px;background:#f3f4f6;border-radius:6px;color:#1f2937;text-decoration:none;font-weight:600;">
+                                📄 Lihat PDF
+                            </a>
+                        @endif
+                    @else
+                        <div style="color:#9ca3af;font-size:13px;">Belum diunggah</div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
         @if(($registration->reject_reason ?? null))
             <div style="margin-top: 16px; color: #b91c1c; font-weight: 600;">Alasan ditolak: {{ $registration->reject_reason }}</div>
         @endif

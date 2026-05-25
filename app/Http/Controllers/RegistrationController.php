@@ -107,6 +107,22 @@ class RegistrationController extends Controller
                 'parents_data.mother_name' => 'required|string|max:255',
                 'parents_data.mother_phone' => 'required|string|max:20',
             ]);
+        } elseif ($step == 3) {
+            $request->validate([
+                'kk_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+                'photo_file' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+                'birth_certificate_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            ], [
+                'kk_file.required' => 'Kartu Keluarga wajib diunggah.',
+                'kk_file.mimes' => 'Kartu Keluarga harus berupa file JPG, PNG, atau PDF.',
+                'kk_file.max' => 'Ukuran Kartu Keluarga maksimal 2MB.',
+                'photo_file.required' => 'Pas foto anak wajib diunggah.',
+                'photo_file.mimes' => 'Pas foto harus berupa file JPG atau PNG.',
+                'photo_file.max' => 'Ukuran pas foto maksimal 2MB.',
+                'birth_certificate_file.required' => 'Akta kelahiran wajib diunggah.',
+                'birth_certificate_file.mimes' => 'Akta kelahiran harus berupa file JPG, PNG, atau PDF.',
+                'birth_certificate_file.max' => 'Ukuran akta kelahiran maksimal 2MB.',
+            ]);
         }
     }
 
@@ -197,11 +213,32 @@ class RegistrationController extends Controller
                     ->with('error', 'Pendaftaran untuk anak ini sudah ada. Silakan cek status sebelumnya.');
             }
 
-            DB::transaction(function () use ($candidateData, $parentsData, $group) {
+            $kkFilePath = null;
+            if ($request->hasFile('kk_file')) {
+                $stored = $request->file('kk_file')->store('registrations-kk', 'public');
+                $kkFilePath = 'storage/' . $stored;
+            }
+
+            $photoFilePath = null;
+            if ($request->hasFile('photo_file')) {
+                $stored = $request->file('photo_file')->store('registrations-photos', 'public');
+                $photoFilePath = 'storage/' . $stored;
+            }
+
+            $birthCertFilePath = null;
+            if ($request->hasFile('birth_certificate_file')) {
+                $stored = $request->file('birth_certificate_file')->store('registrations-birth-cert', 'public');
+                $birthCertFilePath = 'storage/' . $stored;
+            }
+
+            DB::transaction(function () use ($candidateData, $parentsData, $group, $kkFilePath, $photoFilePath, $birthCertFilePath) {
                 $registration = Registration::create([
                     'id_user' => auth()->id(),
                     'candidate_data' => $candidateData,
                     'parents_data' => $parentsData,
+                    'kk_file_path' => $kkFilePath,
+                    'photo_file_path' => $photoFilePath,
+                    'birth_certificate_file_path' => $birthCertFilePath,
                     'group' => $group,
                     'status' => 'pending',
                 ]);

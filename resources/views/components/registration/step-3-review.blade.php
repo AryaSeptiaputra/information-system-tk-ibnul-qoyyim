@@ -78,6 +78,74 @@
         </div>
     </div>
 
+    <div class="review-section">
+        <h3 class="review-subtitle">Upload Dokumen Pendukung</h3>
+
+        <div class="form-group">
+            <label for="kk_file" class="form-label">
+                Scan / Foto Kartu Keluarga <span class="required">*</span>
+            </label>
+            <input
+                type="file"
+                id="kk_file"
+                name="kk_file"
+                class="form-input {{ $errors->has('kk_file') ? 'input-error' : '' }}"
+                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                required
+            >
+            @if($errors->has('kk_file'))
+                <span class="form-error">{{ $errors->first('kk_file') }}</span>
+            @endif
+            <small style="display:block;margin-top:6px;color:var(--gray);font-size:12px;">
+                Format: JPG / PNG / PDF — maks 2MB.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="photo_file" class="form-label">
+                Pas Foto Anak <span class="required">*</span>
+            </label>
+            <input
+                type="file"
+                id="photo_file"
+                name="photo_file"
+                class="form-input {{ $errors->has('photo_file') ? 'input-error' : '' }}"
+                accept="image/jpeg,image/jpg,image/png"
+                required
+            >
+            @if($errors->has('photo_file'))
+                <span class="form-error">{{ $errors->first('photo_file') }}</span>
+            @endif
+            <small style="display:block;margin-top:6px;color:var(--gray);font-size:12px;">
+                Format: JPG / PNG — maks 2MB. Pas foto formal anak (latar belakang polos disarankan).
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="birth_certificate_file" class="form-label">
+                Scan / Foto Akta Kelahiran <span class="required">*</span>
+            </label>
+            <input
+                type="file"
+                id="birth_certificate_file"
+                name="birth_certificate_file"
+                class="form-input {{ $errors->has('birth_certificate_file') ? 'input-error' : '' }}"
+                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                required
+            >
+            @if($errors->has('birth_certificate_file'))
+                <span class="form-error">{{ $errors->first('birth_certificate_file') }}</span>
+            @endif
+            <small style="display:block;margin-top:6px;color:var(--gray);font-size:12px;">
+                Format: JPG / PNG / PDF — maks 2MB.
+            </small>
+        </div>
+
+        <small style="display:block;margin-top:4px;color:var(--gray);font-size:12px;">
+            Semua dokumen di atas diperlukan untuk verifikasi identitas oleh pihak sekolah.
+        </small>
+    </div>
+
     <div class="review-confirmation">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
@@ -85,7 +153,7 @@
         </svg>
         <div>
             <p><strong>Mohon periksa kembali data Anda</strong></p>
-            <p>Pastikan semua data sudah benar sebelum mengirimkan formulir pendaftaran.</p>
+            <p>Pastikan semua data sudah benar dan Kartu Keluarga sudah diunggah sebelum mengirimkan formulir.</p>
         </div>
     </div>
 

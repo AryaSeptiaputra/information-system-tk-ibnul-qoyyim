@@ -19,7 +19,7 @@
                 'totalSteps' => 3
             ])
 
-            <form action="{{ route('registration.store') }}" method="POST" id="registrationForm">
+            <form action="{{ route('registration.store') }}" method="POST" id="registrationForm" enctype="multipart/form-data">
                 @csrf
 
                 @if(($currentStep ?? 1) == 1 || session()->has('new_registration'))

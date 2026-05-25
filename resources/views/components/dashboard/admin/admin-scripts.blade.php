@@ -312,6 +312,12 @@
             const recapAllowance = form.querySelector('[data-honor-recap-allowance]');
             const recapAmount = form.querySelector('[data-honor-recap-amount]');
             const recapNote = form.querySelector('[data-honor-recap-note]');
+            const recapLateCount = form.querySelector('[data-honor-recap-late-count]');
+            const recapLatePenalty = form.querySelector('[data-honor-recap-late-penalty]');
+            const recapPermissionPenalty = form.querySelector('[data-honor-recap-permission-penalty]');
+
+            let currentLatePenalty = 0;
+            let currentPermissionPenalty = 0;
 
             function getTeacherId() {
                 return (teacherSelect?.value || teacherHidden?.value || '').toString();
@@ -364,9 +370,15 @@
                 const rate = toFloat(rateInput?.value);
                 const allowance = toFloat(allowanceInput?.value);
                 const manual = toFloat(manualAdjustmentInput?.value);
-                const estimated = (hadir * rate) + allowance + manual;
+                const lateCount = data ? toInt(data.late_count) : 0;
+                const latePen = data && data.late_penalty !== undefined ? toFloat(data.late_penalty) : currentLatePenalty;
+                const permPen = data && data.permission_penalty !== undefined ? toFloat(data.permission_penalty) : currentPermissionPenalty;
+                const estimated = (hadir * rate) + allowance - latePen - permPen + manual;
                 if (recapRate) recapRate.textContent = formatRupiah(rate);
                 if (recapAllowance) recapAllowance.textContent = formatRupiah(allowance);
+                if (recapLateCount) recapLateCount.textContent = lateCount;
+                if (recapLatePenalty) recapLatePenalty.textContent = latePen > 0 ? `- ${formatRupiah(latePen)}` : '- Rp 0';
+                if (recapPermissionPenalty) recapPermissionPenalty.textContent = permPen > 0 ? `- ${formatRupiah(permPen)}` : '- Rp 0';
                 if (recapAmount) recapAmount.textContent = formatRupiah(estimated);
 
                 if (recapNote) {
@@ -386,11 +398,11 @@
                 const rate = toFloat(rateInput.value);
                 const allowance = toFloat(allowanceInput?.value);
                 const manual = toFloat(manualAdjustmentInput?.value);
-                const total = (hadir * rate) + allowance + manual;
+                const total = (hadir * rate) + allowance - currentLatePenalty - currentPermissionPenalty + manual;
 
                 amountInput.value = (Math.round(total * 100) / 100).toFixed(2);
                 if (totalPreview) {
-                    totalPreview.textContent = `Preview total honor: ${hadir} × ${rate} + ${allowance} + ${manual} = ${formatRupiah(total)}`;
+                    totalPreview.textContent = `Preview total honor: ${hadir} × ${rate} + ${allowance} - ${currentLatePenalty} - ${currentPermissionPenalty} + ${manual} = ${formatRupiah(total)}`;
                 }
 
                 // Keep recap card's estimated total in sync with current inputs
@@ -414,6 +426,8 @@
                 const alpa = toInt(data.alpa);
                 const rate = toFloat(data.rate);
                 const allowanceTotal = toFloat(data.allowance_total);
+                currentLatePenalty = toFloat(data.late_penalty);
+                currentPermissionPenalty = toFloat(data.permission_penalty);
 
                 if (attendancePreview) {
                     attendancePreview.textContent = `Rekap absensi: Hadir ${hadir}, Izin ${izin}, Sakit ${sakit}, Alpa ${alpa}`;
@@ -422,7 +436,13 @@
                 if (rateInput) rateInput.value = rate.toFixed(2);
                 if (allowanceInput) allowanceInput.value = allowanceTotal.toFixed(2);
 
-                updateRecapCard({ hadir, izin, sakit, alpa, total: toInt(data.total) });
+                updateRecapCard({
+                    hadir, izin, sakit, alpa,
+                    total: toInt(data.total),
+                    late_count: toInt(data.late_count),
+                    late_penalty: currentLatePenalty,
+                    permission_penalty: currentPermissionPenalty,
+                });
             }
 
             function applyAttendanceToInputs(data) {
@@ -439,6 +459,8 @@
                 const periodEnd = periodEndInput?.value;
 
                 if (!teacherId || !periodStart || !periodEnd) {
+                    currentLatePenalty = 0;
+                    currentPermissionPenalty = 0;
                     if (attendancePreview) attendancePreview.textContent = 'Rekap absensi: -';
                     updateRecapCard(null, { message: 'Pilih guru + periode untuk melihat rekap.' });
                     computeTotal();

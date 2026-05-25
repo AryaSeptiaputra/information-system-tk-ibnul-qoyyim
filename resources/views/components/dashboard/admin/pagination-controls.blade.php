@@ -52,6 +52,9 @@
             @if($id_payment ?? null)
                 <input type="hidden" name="id_payment" value="{{ $id_payment }}">
             @endif
+            @if(($id_teacher ?? null) && $id_teacher !== 'all')
+                <input type="hidden" name="id_teacher" value="{{ $id_teacher }}">
+            @endif
             
             <label for="admin-per-page">Tampilkan:</label>
             <select name="per_page" id="admin-per-page" class="admin-per-page-select">

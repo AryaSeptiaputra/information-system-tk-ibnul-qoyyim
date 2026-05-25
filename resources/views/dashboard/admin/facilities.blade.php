@@ -58,6 +58,18 @@
                         };
                     @endphp
                     <tr>
+                        <td style="width:56px;">
+                            @if($f->image_path)
+                                <a href="{{ asset($f->image_path) }}" target="_blank" rel="noopener" title="Lihat gambar {{ $f->name }}">
+                                    <img src="{{ asset($f->image_path) }}" alt="{{ $f->name }}"
+                                         style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--ui-border,#e5e7eb);display:block;">
+                                </a>
+                            @else
+                                <div style="width:48px;height:48px;border-radius:6px;border:1px dashed var(--ui-border,#e5e7eb);display:flex;align-items:center;justify-content:center;color:var(--color-muted,#9ca3af);font-size:18px;">
+                                    🖼
+                                </div>
+                            @endif
+                        </td>
                         <td>
                             <strong>{{ $f->name }}</strong>
                             @if(!$f->is_active)

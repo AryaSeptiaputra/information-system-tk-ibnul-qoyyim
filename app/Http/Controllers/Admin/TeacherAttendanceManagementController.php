@@ -23,6 +23,10 @@ class TeacherAttendanceManagementController extends Controller
             });
         }
 
+        if ($request->filled('id_teacher') && $request->input('id_teacher') !== 'all') {
+            $query->where('id_teacher', $request->input('id_teacher'));
+        }
+
         if ($request->filled('status') && $request->input('status') !== 'all') {
             $query->where('status', $request->input('status'));
         }
@@ -40,13 +44,17 @@ class TeacherAttendanceManagementController extends Controller
         $perPage = $request->input('per_page', 10);
         $attendances = $query->paginate($perPage)->appends($request->query());
 
+        $teachers = TeacherDetail::query()->orderBy('name', 'asc')->get(['id_teacher', 'name']);
+
         return view('dashboard.admin.teacher-attendance', [
             'attendances' => $attendances,
-            'search' => $request->input('search', ''),
-            'status' => $request->input('status', 'all'),
-            'date_from' => $request->input('date_from', ''),
-            'date_to' => $request->input('date_to', ''),
-            'per_page' => $perPage,
+            'teachers'    => $teachers,
+            'search'      => $request->input('search', ''),
+            'id_teacher'  => $request->input('id_teacher', 'all'),
+            'status'      => $request->input('status', 'all'),
+            'date_from'   => $request->input('date_from', ''),
+            'date_to'     => $request->input('date_to', ''),
+            'per_page'    => $perPage,
         ]);
     }
 
@@ -268,6 +276,10 @@ class TeacherAttendanceManagementController extends Controller
             $query->whereHas('teacher', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");
             });
+        }
+
+        if ($request->filled('id_teacher') && $request->input('id_teacher') !== 'all') {
+            $query->where('id_teacher', $request->input('id_teacher'));
         }
 
         if ($request->filled('status') && $request->input('status') !== 'all') {

@@ -21,6 +21,7 @@
                 'items' => [
                     ['icon' => '🧒', 'label' => 'Data Murid', 'route' => route('admin.students.index'), 'key' => 'admin.students.index'],
                     ['icon' => '👨‍🏫', 'label' => 'Data Guru', 'route' => route('admin.teachers.index'), 'key' => 'admin.teachers.index'],
+                    ['icon' => '🏫', 'label' => 'Data Kelas', 'route' => route('admin.classes.index'), 'key' => 'admin.classes.index'],
                     ['icon' => '🏗️', 'label' => 'Sarpras', 'route' => route('admin.facilities.index'), 'key' => 'admin.facilities.index'],
                     ['icon' => '🗓️', 'label' => 'Hari Libur', 'route' => Route::has('admin.holidays.index') ? route('admin.holidays.index') : '#', 'key' => 'admin.holidays.index'],
                 ],
@@ -92,6 +93,7 @@
                 'items' => [
                     ['icon' => '💼', 'label' => 'Posisi & Tunjangan', 'route' => route('admin.positions.index'), 'key' => 'admin.positions.index'],
                     ['icon' => '📌', 'label' => 'Tarif Kehadiran', 'route' => route('admin.teacher-attendance-rates.index'), 'key' => 'admin.teacher-attendance-rates.index'],
+                    ['icon' => '🏫', 'label' => 'Data Kelas', 'route' => route('admin.classes.index'), 'key' => 'admin.classes.index'],
                     ['icon' => '🏗️', 'label' => 'Sarpras', 'route' => route('admin.facilities.index'), 'key' => 'admin.facilities.index'],
                     ['icon' => '👨‍👩‍👧', 'label' => 'Data Orangtua-Murid', 'route' => route('admin.parents.index'), 'key' => 'admin.parents.index'],
                 ],

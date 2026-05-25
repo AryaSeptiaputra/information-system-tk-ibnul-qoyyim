@@ -1106,8 +1106,11 @@
                         <div class="registration-detail-row"><span>Sakit</span><strong data-honor-recap-sakit>0</strong></div>
                         <div class="registration-detail-row"><span>Alpa</span><strong data-honor-recap-alpa>0</strong></div>
                         <div class="registration-detail-row"><span>Total Pertemuan</span><strong data-honor-recap-total>0</strong></div>
+                        <div class="registration-detail-row"><span>Jumlah Telat</span><strong data-honor-recap-late-count>0</strong></div>
                         <div class="registration-detail-row"><span>Rate per Hadir</span><strong data-honor-recap-rate>Rp 0</strong></div>
                         <div class="registration-detail-row"><span>Total Tunjangan</span><strong data-honor-recap-allowance>Rp 0</strong></div>
+                        <div class="registration-detail-row"><span>Potongan Telat</span><strong data-honor-recap-late-penalty style="color:var(--red,#e74c3c)">- Rp 0</strong></div>
+                        <div class="registration-detail-row"><span>Potongan Izin Berlebih</span><strong data-honor-recap-permission-penalty style="color:var(--red,#e74c3c)">- Rp 0</strong></div>
                         <div class="registration-detail-row"><span>Preview Total Honor</span><strong data-honor-recap-amount>Rp 0</strong></div>
                         <span class="form-label-hint" data-honor-recap-note>Pilih guru + periode untuk melihat rekap.</span>
                     </div>
@@ -1638,6 +1641,15 @@
 
                     <div class="form-group">
                         <label for="form-image" class="form-label">Gambar (Opsional)</label>
+                        @if($facility?->image_path)
+                            <div style="margin-bottom:8px;">
+                                <a href="{{ asset($facility->image_path) }}" target="_blank" rel="noopener">
+                                    <img src="{{ asset($facility->image_path) }}" alt="Gambar saat ini"
+                                         style="max-width:180px;max-height:130px;object-fit:cover;border-radius:8px;border:1px solid var(--ui-border,#e5e7eb);display:block;">
+                                </a>
+                                <span class="form-label-hint">Gambar saat ini — upload baru untuk mengganti.</span>
+                            </div>
+                        @endif
                         <input
                             type="file"
                             id="form-image"

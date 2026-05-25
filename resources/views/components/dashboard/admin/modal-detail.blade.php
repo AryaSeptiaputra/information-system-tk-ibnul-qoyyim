@@ -524,7 +524,15 @@
                             <span>Bukti Bayar</span>
                             <strong>
                                 @if($latestHeaderProofPath)
-                                    <a href="{{ asset($latestHeaderProofPath) }}" target="_blank" rel="noopener">Lihat</a>
+                                    @php $hpExt = strtolower(pathinfo($latestHeaderProofPath, PATHINFO_EXTENSION)); @endphp
+                                    @if(in_array($hpExt, ['jpg','jpeg','png','webp','gif']))
+                                        <a href="{{ asset($latestHeaderProofPath) }}" target="_blank" rel="noopener" title="Buka gambar penuh">
+                                            <img src="{{ asset($latestHeaderProofPath) }}" alt="Bukti pembayaran"
+                                                 style="max-width:140px;max-height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--ui-border,#e5e7eb);display:block;">
+                                        </a>
+                                    @else
+                                        <a href="{{ asset($latestHeaderProofPath) }}" target="_blank" rel="noopener">📄 Lihat PDF</a>
+                                    @endif
                                 @else
                                     -
                                 @endif
@@ -565,6 +573,8 @@
                                     $pUploadedAt = $p?->created_at?->format('Y-m-d H:i') ?? '-';
                                     $pUploader = $p?->uploadedBy?->name ?? '-';
                                     $pUploaderLabel = $pUploader !== '-' ? ('oleh ' . $pUploader) : null;
+                                    $pExt = strtolower(pathinfo($p?->file_path ?? '', PATHINFO_EXTENSION));
+                                    $pIsImg = in_array($pExt, ['jpg','jpeg','png','webp','gif']);
                                 @endphp
 
                                 <div class="registration-detail-row">
@@ -576,7 +586,14 @@
                                     </span>
                                     <strong class="admin-proof-actions">
                                         @if($p?->file_path)
-                                            <a href="{{ asset($p->file_path) }}" target="_blank" rel="noopener">Lihat</a>
+                                            @if($pIsImg)
+                                                <a href="{{ asset($p->file_path) }}" target="_blank" rel="noopener" title="Buka gambar penuh">
+                                                    <img src="{{ asset($p->file_path) }}" alt="Bukti"
+                                                         style="max-width:100px;max-height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--ui-border,#e5e7eb);display:block;margin-bottom:4px;">
+                                                </a>
+                                            @else
+                                                <a href="{{ asset($p->file_path) }}" target="_blank" rel="noopener">📄 PDF</a>
+                                            @endif
                                         @else
                                             <span>-</span>
                                         @endif
@@ -710,7 +727,15 @@
                                     <span>Bukti Bayar</span>
                                     <strong>
                                         @if($latestInsProofPath)
-                                            <a href="{{ asset($latestInsProofPath) }}" target="_blank" rel="noopener">Lihat</a>
+                                            @php $lipExt = strtolower(pathinfo($latestInsProofPath, PATHINFO_EXTENSION)); @endphp
+                                            @if(in_array($lipExt, ['jpg','jpeg','png','webp','gif']))
+                                                <a href="{{ asset($latestInsProofPath) }}" target="_blank" rel="noopener" title="Buka gambar penuh">
+                                                    <img src="{{ asset($latestInsProofPath) }}" alt="Bukti pembayaran"
+                                                         style="max-width:140px;max-height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--ui-border,#e5e7eb);display:block;">
+                                                </a>
+                                            @else
+                                                <a href="{{ asset($latestInsProofPath) }}" target="_blank" rel="noopener">📄 Lihat PDF</a>
+                                            @endif
                                         @else
                                             -
                                         @endif
@@ -751,6 +776,8 @@
                                             $pUploadedAt = $p?->created_at?->format('Y-m-d H:i') ?? '-';
                                             $pUploader = $p?->uploadedBy?->name ?? '-';
                                             $pUploaderLabel = $pUploader !== '-' ? ('oleh ' . $pUploader) : null;
+                                            $pExt = strtolower(pathinfo($p?->file_path ?? '', PATHINFO_EXTENSION));
+                                            $pIsImg = in_array($pExt, ['jpg','jpeg','png','webp','gif']);
                                         @endphp
 
                                         <div class="registration-detail-row">
@@ -762,7 +789,14 @@
                                             </span>
                                             <strong class="admin-proof-actions">
                                                 @if($p?->file_path)
-                                                    <a href="{{ asset($p->file_path) }}" target="_blank" rel="noopener">Lihat</a>
+                                                    @if($pIsImg)
+                                                        <a href="{{ asset($p->file_path) }}" target="_blank" rel="noopener" title="Buka gambar penuh">
+                                                            <img src="{{ asset($p->file_path) }}" alt="Bukti"
+                                                                 style="max-width:100px;max-height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--ui-border,#e5e7eb);display:block;margin-bottom:4px;">
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ asset($p->file_path) }}" target="_blank" rel="noopener">📄 PDF</a>
+                                                    @endif
                                                 @else
                                                     <span>-</span>
                                                 @endif
@@ -1227,7 +1261,17 @@
                         <div class="registration-detail-row"><span>Sumber Dana</span><strong>{{ $facility?->fund_source ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Tahun Perolehan</span><strong>{{ $facility?->acquisition_year ?? '-' }}</strong></div>
                         <div class="registration-detail-row"><span>Kategori</span><strong>{{ $facility?->category ?? '-' }}</strong></div>
-                        <div class="registration-detail-row"><span>Loc Path Gambar</span><strong>{{ $facility?->image_path ?? '-' }}</strong></div>
+                        @if($facility?->image_path)
+                            <div class="registration-detail-row">
+                                <span>Foto</span>
+                                <strong>
+                                    <a href="{{ asset($facility->image_path) }}" target="_blank" rel="noopener" title="Buka gambar penuh">
+                                        <img src="{{ asset($facility->image_path) }}" alt="{{ $facility->name }}"
+                                             style="max-width:140px;max-height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--ui-border,#e5e7eb);display:block;">
+                                    </a>
+                                </strong>
+                            </div>
+                        @endif
                         <div class="registration-detail-row"><span>Status</span><strong>{{ $statusLabel }}</strong></div>
                         <div class="registration-detail-row"><span>Dibuat</span><strong>{{ $facility?->created_at?->format('Y-m-d H:i') ?? '-' }}</strong></div>
                         @if($facility?->description)

@@ -79,9 +79,11 @@
         /* MAIN CONTENT */
         .dashboard-main {
             flex: 1;
+            min-width: 0;
             margin-left: 260px;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
             transition: margin-left 0.2s ease;
         }
 
@@ -176,8 +178,9 @@
 
         .dashboard-content {
             flex: 1;
+            min-width: 0;
             padding: 32px;
-            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -279,22 +282,6 @@
             background: var(--green);
         }
 
-        .dashboard-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .dashboard-content::-webkit-scrollbar-track {
-            background: var(--light);
-        }
-
-        .dashboard-content::-webkit-scrollbar-thumb {
-            background: var(--green-light);
-            border-radius: 4px;
-        }
-
-        .dashboard-content::-webkit-scrollbar-thumb:hover {
-            background: var(--green);
-        }
     </style>
 </head>
 <body class="dashboard">

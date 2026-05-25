@@ -8,24 +8,16 @@ use Illuminate\Support\Facades\Hash;
 
 class SuperAdminUserSeeder extends Seeder
 {
-    /**
-     * Seed a default superadmin user (idempotent).
-     */
     public function run(): void
     {
-        $email = env('SUPERADMIN_EMAIL', 'superadmin@gmail.com');
-        $password = env('SUPERADMIN_PASSWORD', 'password');
-        $name = env('SUPERADMIN_NAME', 'Super Admin');
-        $phone = env('SUPERADMIN_PHONE', '+628123456789');
-
         User::updateOrCreate(
-            ['email' => $email],
+            ['email' => env('SUPERADMIN_EMAIL', 'superadmin@gmail.com')],
             [
-                'name' => $name,
-                'phone_num' => $phone,
-                // Must match the enum defined in the migration
-                'role' => 'superadmin',
-                'password' => Hash::make($password),
+                'name'              => env('SUPERADMIN_NAME', 'Super Admin'),
+                'phone_num'         => env('SUPERADMIN_PHONE', '+628123456789'),
+                'role'              => 'superadmin',
+                'status'            => 'active',
+                'password'          => Hash::make(env('SUPERADMIN_PASSWORD', 'password')),
                 'email_verified_at' => now(),
             ]
         );

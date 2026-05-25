@@ -38,6 +38,24 @@ class DemoUserSeeder extends Seeder
                 'phone_num' => '+62812345682',
                 'role' => 'guest',
             ],
+            [
+                'name' => 'Bendahara Staff',
+                'email' => 'bendahara@example.com',
+                'phone_num' => '+62812345683',
+                'role' => 'bendahara',
+            ],
+            [
+                'name' => 'Teacher Second',
+                'email' => 'teacher2@example.com',
+                'phone_num' => '+62812345684',
+                'role' => 'teacher',
+            ],
+            [
+                'name' => 'Teacher Third',
+                'email' => 'teacher3@example.com',
+                'phone_num' => '+62812345685',
+                'role' => 'teacher',
+            ],
         ];
 
         foreach ($users as $userData) {

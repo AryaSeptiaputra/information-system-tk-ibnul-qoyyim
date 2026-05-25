@@ -207,8 +207,36 @@ class RegistrationManagementController extends Controller
         // - pending-like → rejected
         if (in_array($currentStatus, $pendingLikeStatuses, true)) {
             if ($nextStatus === 'approved_awaiting_payment') {
-                $autoBillingResult = DB::transaction(function () use ($registration, $paymentService) {
-                    // Approve (scenario B): mark as awaiting payment + set deadline.
+                // Pre-check: payment master harus sudah aktif sebelum approval.
+                // Tanpa ini, student akan stuck di pending_payment tanpa tagihan yang bisa dibayar.
+                $masterCheck = Payment::query()
+                    ->where('jenis_payment', 'uang_pendaftaran')
+                    ->orderByDesc('id_payment')
+                    ->first();
+
+                if (!$masterCheck) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Master payment "Uang Pendaftaran" belum dibuat. Silakan buat terlebih dahulu di halaman Master Pembayaran.',
+                    ], 422);
+                }
+
+                if (!$masterCheck->is_active) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Master payment "Uang Pendaftaran" belum diaktifkan. Aktifkan dan isi nominal di halaman Master Pembayaran sebelum menyetujui pendaftaran.',
+                    ], 422);
+                }
+
+                if (($masterCheck->period_mode ?? 'one_time') !== 'one_time') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Master payment "Uang Pendaftaran" memiliki period_mode bukan one_time. Periksa konfigurasi di halaman Master Pembayaran.',
+                    ], 422);
+                }
+
+                $autoBillingResult = DB::transaction(function () use ($registration, $paymentService, $masterCheck) {
+                    // Approve: mark as awaiting payment + set deadline.
                     $deadline = now()->addDays(7)->toDateString();
                     $grace = now()->addDays(10)->toDateString();
 
@@ -246,34 +274,16 @@ class RegistrationManagementController extends Controller
                             $student->id_registration = $registration->id_registration;
                         }
                         $student->group = $student->group ?: ($registration->group ?? null);
-                        if (in_array(($student->status ?? null), ['aktif', 'rejected'], true)) {
-                            // keep status if already active/rejected
-                        } else {
+                        if (!in_array(($student->status ?? null), ['aktif', 'rejected'], true)) {
                             $student->status = 'pending_payment';
                         }
                         $student->save();
                     }
 
-                    // Semi-automatic billing: create ONLY the registration fee bill.
-                    // Convention: master payment is identified by jenis_payment === 'uang_pendaftaran'.
-                    $master = Payment::query()
-                        ->where('jenis_payment', 'uang_pendaftaran')
-                        ->where('is_active', true)
-                        ->orderByDesc('id_payment')
-                        ->first();
-
-                    if (!$master) {
-                        return 'skipped_missing_master';
-                    }
-
-                    // Safety guard: uang_pendaftaran should be one-time.
-                    if (($master->period_mode ?? 'one_time') !== 'one_time') {
-                        return 'skipped_wrong_mode';
-                    }
-
+                    // Billing: payment master sudah divalidasi aktif di pre-check, jadi langsung buat tagihan.
                     $exists = StudentPayment::query()
                         ->where('id_student', (int)$student->id_student)
-                        ->where('id_payment', (int)$master->id_payment)
+                        ->where('id_payment', (int)$masterCheck->id_payment)
                         ->where('payment_period', 'ONCE')
                         ->exists();
 
@@ -282,7 +292,7 @@ class RegistrationManagementController extends Controller
                     }
 
                     $paymentService->createStudentPayment([
-                        'payment' => $master,
+                        'payment' => $masterCheck,
                         'id_student' => (int)$student->id_student,
                         'payment_period' => 'ONCE',
                         'discount_amount' => 0,
@@ -293,9 +303,7 @@ class RegistrationManagementController extends Controller
 
                 $extra = match ($autoBillingResult) {
                     'created' => ' Tagihan uang pendaftaran otomatis dibuat.',
-                    'skipped_exists' => ' Tagihan uang pendaftaran sudah ada.',
-                    'skipped_wrong_mode' => ' Master payment uang pendaftaran bukan one_time; tagihan tidak dibuat.',
-                    'skipped_missing_master' => ' Master payment uang pendaftaran belum ada; tagihan tidak dibuat.',
+                    'skipped_exists' => ' Tagihan uang pendaftaran sudah ada sebelumnya.',
                     default => '',
                 };
 
@@ -317,14 +325,20 @@ class RegistrationManagementController extends Controller
 
                 $master = Payment::query()
                     ->where('jenis_payment', 'uang_pendaftaran')
-                    ->where('is_active', true)
                     ->orderByDesc('id_payment')
                     ->first();
 
                 if (!$master) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Master payment uang pendaftaran belum ada. Tidak bisa mengaktifkan pendaftaran.',
+                        'message' => 'Master payment "Uang Pendaftaran" belum dibuat. Tidak bisa mengaktifkan pendaftaran.',
+                    ], 422);
+                }
+
+                if (!$master->is_active) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Master payment "Uang Pendaftaran" tidak aktif. Aktifkan terlebih dahulu di halaman Master Pembayaran.',
                     ], 422);
                 }
 
@@ -338,7 +352,7 @@ class RegistrationManagementController extends Controller
                 if (!$paid) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Belum ada tagihan uang pendaftaran yang Paid. Aktivasi dilakukan otomatis setelah bukti pembayaran disetujui.',
+                        'message' => 'Tagihan uang pendaftaran belum berstatus Paid. Aktivasi dilakukan otomatis setelah bukti pembayaran disetujui.',
                     ], 422);
                 }
 

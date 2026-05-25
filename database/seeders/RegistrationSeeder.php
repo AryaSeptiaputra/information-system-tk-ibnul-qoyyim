@@ -57,6 +57,7 @@ class RegistrationSeeder extends Seeder
                 ],
                 'group' => 'B',
                 'status' => 'approved_awaiting_payment',
+                'payment_deadline' => now()->addDays(14)->toDateString(),
             ],
             [
                 'email' => 'registrant3@example.com',
@@ -80,6 +81,29 @@ class RegistrationSeeder extends Seeder
                 ],
                 'group' => 'A',
                 'status' => 'rejected',
+            ],
+            [
+                'email' => 'registrant4@example.com',
+                'name' => 'Orang Tua 4',
+                'phone_num' => '+628444444444',
+                'candidate_data' => [
+                    'name' => 'Anak 4',
+                    'birth_place' => 'Cimahi',
+                    'birth_date' => '2020-07-17',
+                    'gender' => 'pria',
+                ],
+                'parents_data' => [
+                    'father_name' => 'Ayah 4',
+                    'mother_name' => 'Ibu 4',
+                    'father_phone_num' => '+628444444445',
+                    'mother_phone_num' => '+628444444446',
+                    'father_occupation' => 'PNS',
+                    'mother_occupation' => 'Bidan',
+                    'father_address' => 'Cimahi',
+                    'mother_address' => 'Cimahi',
+                ],
+                'group' => 'B',
+                'status' => 'active',
             ],
         ];
 
@@ -106,7 +130,7 @@ class RegistrationSeeder extends Seeder
                 'parents_data' => $data['parents_data'],
                 'group' => $data['group'],
                 'status' => $data['status'],
-                'payment_deadline' => null,
+                'payment_deadline' => $data['payment_deadline'] ?? null,
                 'grace_period_until' => null,
                 'paid_late' => false,
                 'reject_reason' => $data['status'] === 'rejected' ? 'Dokumen tidak lengkap' : null,

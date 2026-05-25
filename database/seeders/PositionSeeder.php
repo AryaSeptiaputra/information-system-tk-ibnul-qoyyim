@@ -14,27 +14,18 @@ class PositionSeeder extends Seeder
     public function run(): void
     {
         $positions = [
-            [
-                'name' => 'Bendahara',
-                'description' => 'Mengelola dana sekolah dan pembayaran honor.',
-            ],
-            [
-                'name' => 'Kepala Sekolah',
-                'description' => 'Penanggung jawab utama operasional sekolah.',
-            ],
-            [
-                'name' => 'Wali Kelas',
-                'description' => 'Bertanggung jawab atas pembinaan kelas tertentu.',
-            ],
+            ['name' => 'Kepala Sekolah',   'description' => 'Penanggung jawab utama operasional sekolah.'],
+            ['name' => 'Bendahara',        'description' => 'Mengelola dana sekolah dan pembayaran honor.'],
+            ['name' => 'Wali Kelas A',     'description' => 'Bertanggung jawab atas pembinaan Kelas A.'],
+            ['name' => 'Wali Kelas B',     'description' => 'Bertanggung jawab atas pembinaan Kelas B.'],
+            ['name' => 'Wali Kelas C',     'description' => 'Bertanggung jawab atas pembinaan Kelas C.'],
+            ['name' => 'Guru Pendamping',  'description' => 'Mendampingi proses belajar mengajar di kelas.'],
         ];
 
         foreach ($positions as $entry) {
             Position::query()->firstOrCreate(
                 ['name' => $entry['name']],
-                [
-                    'description' => $entry['description'],
-                    'is_active' => true,
-                ]
+                ['description' => $entry['description'], 'is_active' => true]
             );
         }
     }

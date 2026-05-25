@@ -14,10 +14,9 @@ class AllowanceTypeSeeder extends Seeder
     public function run(): void
     {
         $types = [
-            [
-                'name' => 'Tunjangan Jabatan',
-                'description' => 'Tunjangan tetap berdasarkan posisi/jabatan yang dipegang guru.',
-            ],
+            ['name' => 'Tunjangan Jabatan',   'description' => 'Tunjangan tetap berdasarkan posisi/jabatan yang dipegang guru.'],
+            ['name' => 'Tunjangan Kehadiran', 'description' => 'Tunjangan tambahan berdasarkan persentase kehadiran bulanan.'],
+            ['name' => 'Tunjangan Transport', 'description' => 'Tunjangan biaya transportasi harian.'],
         ];
 
         foreach ($types as $entry) {

@@ -14,6 +14,7 @@ class CoreRequiredSeeder extends Seeder
         $this->call([
             SuperAdminUserSeeder::class,
             PaymentMasterSeeder::class,
+            PaymentMethodSeeder::class,
             HolidaySeeder::class,
             PositionSeeder::class,
             AllowanceTypeSeeder::class,

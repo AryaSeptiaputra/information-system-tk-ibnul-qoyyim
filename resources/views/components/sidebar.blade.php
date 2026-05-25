@@ -83,6 +83,7 @@
                 'items' => [
                     ['icon' => '📝', 'label' => 'Pendaftaran', 'route' => route('admin.registrations.index'), 'key' => 'admin.registrations.index'],
                     ['icon' => '💳', 'label' => 'Tagihan Murid', 'route' => route('admin.student-payments.index'), 'key' => 'admin.student-payments.index'],
+                    ['icon' => '🗓️', 'label' => 'Absensi Guru', 'route' => route('admin.teacher-attendance.index'), 'key' => 'admin.teacher-attendance.index'],
                     ['icon' => '💸', 'label' => 'Honor Guru', 'route' => Route::has('admin.bendahara.honors.index') ? route('admin.bendahara.honors.index') : '#', 'key' => 'admin.bendahara.honors.index'],
                 ],
             ],
